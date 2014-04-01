@@ -366,13 +366,15 @@ namespace WpfApplication3
         
         private void defineExhibitionPlane()
         {
+            this.calibrationSampleBreak = 0;
             List<Point3D> corners1 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 0)); // Calibration-points
-            List<Point3D> corners2 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 0)); // Validation-points
+            //List<Point3D> corners2 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 0)); // Validation-points
 
-            if (this.calibrator.validatePlane(corners1, corners2))
-            { 
+            //if (this.calibrator.validatePlane(corners1, corners2))
+            //{ 
                 // DO STUFF
-            }
+            //}
+            this.debug4 = corners1.Count.ToString();
         }
 
         private List<GeometryHandler.Vector> sampleVectors(int points, int positions, int samples, int returnMode) // Amounts of points to define, positions to point from, samples per position and return mode: 0 = only pointing-samples, 1 = only aiming-samples, 2 = both samples
@@ -401,7 +403,7 @@ namespace WpfApplication3
                         allVectors = takeSample(position); // Take poining- and aiming sample simultaniously
                         pointingVectors.Add(allVectors[0]); // Add pointing-vector to pointing-vectors
                         aimingVectors.Add(allVectors[1]); // Add aiming-vector to aiming-vectors
-                        Thread.Sleep(1000 / samples);
+                        Thread.Sleep(1000 / samples); // Sampling at [samples] per second
                     }
                 }
             }
