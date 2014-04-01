@@ -637,24 +637,30 @@ namespace WpfApplication3
 
         private GeometryHandler.Vector takePointingSample(int p, double r1, double r2)
         {
+            GeometryHandler.Vector v = new GeometryHandler.Vector();
+
             if (this.mode) // System is life
-                return new GeometryHandler.Vector(jointsToTrack[0], jointsToTrack[1]); // (RIGHT_ELBOW, RIGHT_HAND)
-            else // Debug-mode
             {
-                GeometryHandler.Vector v;
+                while (!this.geometryHandler.vectorOK(v))
+                {
+                    v.reset(jointsToTrack[0], jointsToTrack[1]); // (RIGHT_ELBOW, RIGHT_HAND)
+                }
+                return v;
+            }
+            else // System is in debug-mode
+            {
                 switch (p)
                 {
                     case 0:
-                        v = new GeometryHandler.Vector(new Point3D(802 + r1, -92 + r1, 1821 + r1), new Point3D(619 + r2, -189 + r2, 1624 + r2));
+                        v.reset(new Point3D(802 + r1, -92 + r1, 1821 + r1), new Point3D(619 + r2, -189 + r2, 1624 + r2));
                         break;
                     case 1:
-                        v = new GeometryHandler.Vector(new Point3D(99 + r1, -87 + r1, 1864 + r1), new Point3D(-41 + r2, -221 + r2, 1615 + r2));
+                        v.reset(new Point3D(99 + r1, -87 + r1, 1864 + r1), new Point3D(-41 + r2, -221 + r2, 1615 + r2));
                         break;
                     case 2:
-                        v = new GeometryHandler.Vector(new Point3D(-502 + r1, -93 + r1, 1904 + r1), new Point3D(-453 + r2, -211 + r2, 1649 + r2));
+                        v.reset(new Point3D(-502 + r1, -93 + r1, 1904 + r1), new Point3D(-453 + r2, -211 + r2, 1649 + r2));
                         break;
                     default:
-                        v = new GeometryHandler.Vector();
                         break;
                 }
                 return v;
@@ -663,24 +669,30 @@ namespace WpfApplication3
 
         private GeometryHandler.Vector takeLookingSample(int s, double r1, double r2)
         {
+            GeometryHandler.Vector v = new GeometryHandler.Vector();
+
             if (this.mode) // System is life
-                return new GeometryHandler.Vector(jointsToTrack[4], jointsToTrack[1]); // (RIGHT_ELBOW, RIGHT_HAND)
-            else // Debug-mode
             {
-                GeometryHandler.Vector v;
+                while (!this.geometryHandler.vectorOK(v))
+                {
+                    v.reset(jointsToTrack[4], jointsToTrack[1]); // (HEAD, RIGHT_HAND)
+                }
+                return v;
+            }
+            else // System is in debug-mode
+            {
                 switch (s)
                 {
                     case 0:
-                        v = new GeometryHandler.Vector(new Point3D(794 + r1, 294 + r1, 2063 + r1), new Point3D(619 + r2, -189 + r2, 1624 + r2));
+                        v.reset(new Point3D(794 + r1, 294 + r1, 2063 + r1), new Point3D(619 + r2, -189 + r2, 1624 + r2));
                         break;
                     case 1:
-                        v = new GeometryHandler.Vector(new Point3D(-11 + r1, 308 + r1, 2108 + r1), new Point3D(-41 + r2, -221 + r2, 1615 + r2));
+                        v.reset(new Point3D(-11 + r1, 308 + r1, 2108 + r1), new Point3D(-41 + r2, -221 + r2, 1615 + r2));
                         break;
                     case 2:
-                        v = new GeometryHandler.Vector(new Point3D(-709 + r1, 290 + r1, 2067 + r1), new Point3D(-453 + r2, -211 + r2, 1649 + r2));
+                        v.reset(new Point3D(-709 + r1, 290 + r1, 2067 + r1), new Point3D(-453 + r2, -211 + r2, 1649 + r2));
                         break;
                     default:
-                        v = new GeometryHandler.Vector();
                         break;
                 }
                 return v;

@@ -32,6 +32,13 @@ namespace WpfApplication3.lib
                 this.Direction = dir;
             }
 
+            public void reset(Point3D start, Point3D end)
+            {
+                this.Start = start;
+                this.End = end;
+                this.Direction = end - start;
+            }
+
             public static bool operator==(Vector lhs, Vector rhs)
             {
                 if (lhs.Start == rhs.Start && lhs.End == rhs.End)
@@ -98,6 +105,14 @@ namespace WpfApplication3.lib
         /// <summary>
         /// ROUTINES
         /// </summary>
+
+        public bool vectorOK(Vector v)
+        {
+            if (v.Direction.X == 0 & v.Direction.Z == 0)
+                return false;
+            else
+                return true;
+        }
 
         public List<Point3D> vectorsIntersectTest(Vector vectorA, Vector vectorB)
         {
