@@ -1,0 +1,193 @@
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00058.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00058.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00060.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00060.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00059.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00059.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00062.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00062.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00061.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00061.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00063.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00063.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00065.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00065.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00064.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00064.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00066.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00066.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00068.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00068.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00067.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00067.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00069.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00069.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00070.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00070.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00071.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00071.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00073.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00073.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00075.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00075.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00072.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00072.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00076.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00076.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00074.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00074.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00079.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00079.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00077.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00077.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00078.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00078.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00080.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00080.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00081.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00081.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00083.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00083.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00082.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00082.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00084.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00084.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00086.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00086.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00087.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00087.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00085.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00085.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00088.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00088.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00090.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00090.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00089.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00089.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00091.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00091.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00093.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00093.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00095.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00095.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00096.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00096.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00098.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00098.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00097.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00097.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00099.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00099.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00100.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00100.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00101.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00101.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/a00102.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/a00102.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/dir_275089585c7fc1b5fd5d7d42c69cb1da_dep.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/dir_275089585c7fc1b5fd5d7d42c69cb1da_dep.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/./graph_legend.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/./graph_legend.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/dir_74d37b3860d4eb01ad0df65a796b55f8_dep.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/dir_74d37b3860d4eb01ad0df65a796b55f8_dep.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/dir_b0442ecf99254f264b6fb355252a39b8_dep.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/dir_b0442ecf99254f264b6fb355252a39b8_dep.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/dir_560d3a4b46ce42d4311a61f21edc504d_dep.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/dir_560d3a4b46ce42d4311a61f21edc504d_dep.png"'
+error: Problems running dot: exit code=-1, command='dot', arguments='"D:/MSC/FUBI_0.9.0/doc/Fubi/dir_d0f3a56ceed82ac1ce5ade4b8043e6fe_dep.dot" -Tpng -o "D:/MSC/FUBI_0.9.0/doc/Fubi/dir_d0f3a56ceed82ac1ce5ade4b8043e6fe_dep.png"'
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00058.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00059.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00060.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00061.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00062.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00063.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00064.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00065.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00066.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00067.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00068.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00069.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00070.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00071.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00072.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00073.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00074.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00075.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00076.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00077.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00078.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00079.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00080.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00081.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00082.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00083.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00084.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00085.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00086.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00087.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00088.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00089.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00090.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00091.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00093.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00095.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00096.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00097.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00098.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00099.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00100.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00101.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/a00102.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/dir_275089585c7fc1b5fd5d7d42c69cb1da_dep.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/dir_74d37b3860d4eb01ad0df65a796b55f8_dep.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/dir_b0442ecf99254f264b6fb355252a39b8_dep.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/dir_560d3a4b46ce42d4311a61f21edc504d_dep.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.
+error: problems opening map file D:/MSC/FUBI_0.9.0/doc/Fubi/dir_d0f3a56ceed82ac1ce5ade4b8043e6fe_dep.map for inclusion in the docs!
+If you installed Graphviz/dot after a previous failing run, 
+try deleting the output directory and rerun doxygen.

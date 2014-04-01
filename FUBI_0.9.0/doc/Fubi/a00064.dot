@@ -1,0 +1,17 @@
+digraph "FubiHand"
+{
+  edge [fontname="FreeSans",fontsize="10",labelfontname="FreeSans",labelfontsize="10"];
+  node [fontname="FreeSans",fontsize="10",shape=record];
+  Node1 [label="{FubiHand\n|+ m_id\l+ m_isTracked\l- m_combinationRecognizers\l|+ FubiHand()\l+ ~FubiHand()\l+ enableCombinationRecognition()\l+ clearCombinationRecognizers()\l+ update()\l+ updateFingerTrackingData()\l+ reset()\l+ getRecognitionProgress()\l+ getCurrentRecognitionState()\l- calculateFilteredTransformations()\l- updateCombinationRecognizers()\l}",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node2 -> Node1 [color="grey25",fontsize="10",style="solid",label=" -m_lastFilteredVelocity" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node2 [label="{Fubi::Vec3f\n|+ x\l+ y\l+ z\l|+ Vec3f()\l+ Vec3f()\l+ Vec3f()\l+ Vec3f()\l+ operator[]()\l+ operator==()\l+ operator!=()\l+ operator-()\l+ operator+()\l+ operator+=()\land 17 more...\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$a00036.html",tooltip="Vector class with three components. "];
+  Node3 -> Node1 [color="grey25",fontsize="10",style="solid",label=" +m_filteredFingerTracking\lData\n+m_lastFilteredFingerTracking\lData\n+m_lastFingerTrackingData\n+m_currentFingerTrackingData" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node3 [label="{FubiHand::FingerTrackingData\n|+ fingerCount\l+ timeStamp\l|+ FingerTrackingData()\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$a00009.html",tooltip="Tracking data with global and local positions/orientations, the current finger count and a timestamp..."];
+  Node4 -> Node3 [color="grey25",fontsize="10",style="solid",label=" +jointPositions\n+localJointPositions" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node4 [label="{Fubi::SkeletonJointPosition\n|+ m_confidence\l|+ SkeletonJointPosition()\l+ SkeletonJointPosition()\l+ SkeletonJointPosition()\l+ SkeletonJointPosition()\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$a00032.html",tooltip="SkeletonJointPosition contains the position (Vec3f) and tracking confidence for a skeleton joint..."];
+  Node2 -> Node4 [color="grey25",fontsize="10",style="solid",label=" +m_position" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node5 -> Node3 [color="grey25",fontsize="10",style="solid",label=" +localJointOrientations\n+jointOrientations" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node5 [label="{Fubi::SkeletonJointOrientation\n|+ m_confidence\l|+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$a00031.html",tooltip="SkeletonJointOrientation contains the orientation (Matrix3f) and tracking confidence for a skeleton j..."];
+  Node6 -> Node5 [color="grey25",fontsize="10",style="solid",label=" +m_orientation" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node6 [label="{Fubi::Matrix3f\n|+ c\l+ x\l+ @1\l|+ Matrix3f()\l+ Matrix3f()\l+ Matrix3f()\l+ Matrix3f()\l+ operator+()\l+ operator+=()\l+ operator*()\l+ operator*()\l+ operator*()\l+ rotate()\land 6 more...\l+ RotMat()\l+ RotMat()\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$a00017.html",tooltip="Matrix class with 3x3 layout (rotation matrices) "];
+}

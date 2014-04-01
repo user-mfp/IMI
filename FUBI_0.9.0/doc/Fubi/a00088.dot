@@ -1,0 +1,6 @@
+digraph "Fubi::Vec3f"
+{
+  edge [fontname="FreeSans",fontsize="10",labelfontname="FreeSans",labelfontsize="10"];
+  node [fontname="FreeSans",fontsize="10",shape=record];
+  Node1 [label="{Fubi::Vec3f\n|+ x\l+ y\l+ z\l|+ Vec3f()\l+ Vec3f()\l+ Vec3f()\l+ Vec3f()\l+ operator[]()\l+ operator==()\l+ operator!=()\l+ operator-()\l+ operator+()\l+ operator+=()\land 17 more...\l}",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+}

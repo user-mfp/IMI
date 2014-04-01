@@ -1,0 +1,14 @@
+digraph "FUBI_0.9.0" {
+  compound=true
+  node [ fontsize="10", fontname="FreeSans"];
+  edge [ labelfontsize="10", labelfontname="FreeSans"];
+  subgraph clusterdir_d0f3a56ceed82ac1ce5ade4b8043e6fe {
+    graph [ bgcolor="#ddddee", pencolor="black", label="MSC" fontname="FreeSans", fontsize="10", URL="dir_d0f3a56ceed82ac1ce5ade4b8043e6fe.html"]
+  subgraph clusterdir_b0442ecf99254f264b6fb355252a39b8 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_b0442ecf99254f264b6fb355252a39b8.html"];
+    dir_b0442ecf99254f264b6fb355252a39b8 [shape=plaintext label="FUBI_0.9.0"];
+    dir_74d37b3860d4eb01ad0df65a796b55f8 [shape=box label="Fubi" color="black" fillcolor="white" style="filled" URL="dir_74d37b3860d4eb01ad0df65a796b55f8.html"];
+    dir_560d3a4b46ce42d4311a61f21edc504d [shape=box label="Fubi_CS_Wrapper" color="black" fillcolor="white" style="filled" URL="dir_560d3a4b46ce42d4311a61f21edc504d.html"];
+  }
+  }
+}

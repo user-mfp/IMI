@@ -1,0 +1,9 @@
+digraph "Fubi" {
+  compound=true
+  node [ fontsize="10", fontname="FreeSans"];
+  edge [ labelfontsize="10", labelfontname="FreeSans"];
+  subgraph clusterdir_b0442ecf99254f264b6fb355252a39b8 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="FUBI_0.9.0" fontname="FreeSans", fontsize="10", URL="dir_b0442ecf99254f264b6fb355252a39b8.html"]
+  dir_74d37b3860d4eb01ad0df65a796b55f8 [shape=box, label="Fubi", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_74d37b3860d4eb01ad0df65a796b55f8.html"];
+  }
+}

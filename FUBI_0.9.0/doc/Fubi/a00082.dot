@@ -1,0 +1,6 @@
+digraph "Fubi::RecognitionCorrectionHint"
+{
+  edge [fontname="FreeSans",fontsize="10",labelfontname="FreeSans",labelfontsize="10"];
+  node [fontname="FreeSans",fontsize="10",shape=record];
+  Node1 [label="{Fubi::RecognitionCorrectionHint\n|+ m_joint\l+ m_dirX\l+ m_dirY\l+ m_dirZ\l+ m_isAngle\l+ m_changeType\l+ m_changeDirection\l+ m_failedState\l|+ RecognitionCorrectionHint()\l}",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+}

@@ -1,0 +1,14 @@
+digraph "FubiUser::TrackingData"
+{
+  edge [fontname="FreeSans",fontsize="10",labelfontname="FreeSans",labelfontsize="10"];
+  node [fontname="FreeSans",fontsize="10",shape=record];
+  Node1 [label="{FubiUser::TrackingData\n|+ timeStamp\l|+ TrackingData()\l}",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node2 -> Node1 [color="grey25",fontsize="10",style="solid",label=" +jointPositions\n+localJointPositions" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node2 [label="{Fubi::SkeletonJointPosition\n|+ m_confidence\l|+ SkeletonJointPosition()\l+ SkeletonJointPosition()\l+ SkeletonJointPosition()\l+ SkeletonJointPosition()\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$a00032.html",tooltip="SkeletonJointPosition contains the position (Vec3f) and tracking confidence for a skeleton joint..."];
+  Node3 -> Node2 [color="grey25",fontsize="10",style="solid",label=" +m_position" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node3 [label="{Fubi::Vec3f\n|+ x\l+ y\l+ z\l|+ Vec3f()\l+ Vec3f()\l+ Vec3f()\l+ Vec3f()\l+ operator[]()\l+ operator==()\l+ operator!=()\l+ operator-()\l+ operator+()\l+ operator+=()\land 17 more...\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$a00036.html",tooltip="Vector class with three components. "];
+  Node4 -> Node1 [color="grey25",fontsize="10",style="solid",label=" +localJointOrientations\n+jointOrientations" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node4 [label="{Fubi::SkeletonJointOrientation\n|+ m_confidence\l|+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$a00031.html",tooltip="SkeletonJointOrientation contains the orientation (Matrix3f) and tracking confidence for a skeleton j..."];
+  Node5 -> Node4 [color="grey25",fontsize="10",style="solid",label=" +m_orientation" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node5 [label="{Fubi::Matrix3f\n|+ c\l+ x\l+ @1\l|+ Matrix3f()\l+ Matrix3f()\l+ Matrix3f()\l+ Matrix3f()\l+ operator+()\l+ operator+=()\l+ operator*()\l+ operator*()\l+ operator*()\l+ rotate()\land 6 more...\l+ RotMat()\l+ RotMat()\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$a00017.html",tooltip="Matrix class with 3x3 layout (rotation matrices) "];
+}

@@ -1,0 +1,8 @@
+digraph "Fubi::SkeletonJointOrientation"
+{
+  edge [fontname="FreeSans",fontsize="10",labelfontname="FreeSans",labelfontsize="10"];
+  node [fontname="FreeSans",fontsize="10",shape=record];
+  Node1 [label="{Fubi::SkeletonJointOrientation\n|+ m_confidence\l|+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l+ SkeletonJointOrientation()\l}",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node2 -> Node1 [color="grey25",fontsize="10",style="solid",label=" +m_orientation" ,arrowhead="odiamond",fontname="FreeSans"];
+  Node2 [label="{Fubi::Matrix3f\n|+ c\l+ x\l+ @1\l|+ Matrix3f()\l+ Matrix3f()\l+ Matrix3f()\l+ Matrix3f()\l+ operator+()\l+ operator+=()\l+ operator*()\l+ operator*()\l+ operator*()\l+ rotate()\land 6 more...\l+ RotMat()\l+ RotMat()\l}",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$a00017.html",tooltip="Matrix class with 3x3 layout (rotation matrices) "];
+}

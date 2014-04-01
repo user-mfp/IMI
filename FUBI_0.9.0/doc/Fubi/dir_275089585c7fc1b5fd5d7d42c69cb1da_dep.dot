@@ -1,0 +1,10 @@
+digraph "D:" {
+  compound=true
+  node [ fontsize="10", fontname="FreeSans"];
+  edge [ labelfontsize="10", labelfontname="FreeSans"];
+  subgraph clusterdir_275089585c7fc1b5fd5d7d42c69cb1da {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_275089585c7fc1b5fd5d7d42c69cb1da.html"];
+    dir_275089585c7fc1b5fd5d7d42c69cb1da [shape=plaintext label="D:"];
+    dir_d0f3a56ceed82ac1ce5ade4b8043e6fe [shape=box label="MSC" color="red" fillcolor="white" style="filled" URL="dir_d0f3a56ceed82ac1ce5ade4b8043e6fe.html"];
+  }
+}
