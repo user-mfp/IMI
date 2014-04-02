@@ -362,12 +362,12 @@ namespace WpfApplication3
             this.calibrating = false;        
         }
 
-        Calibrator calibrator = new Calibrator(); // Initiate calibrator
+        Calibrator calibrator = new Calibrator(10); // Initiate calibrator
         
         private void defineExhibitionPlane()
         {
             this.calibrationSampleBreak = 0;
-            List<Point3D> corners1 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 0)); // Calibration-points
+            List<Point3D> corners1 = this.calibrator.definePlane(sampleVectors(1, 3, 10, 0)); // Calibration-points
             //List<Point3D> corners2 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 0)); // Validation-points
 
             //if (this.calibrator.validatePlane(corners1, corners2))
@@ -377,7 +377,7 @@ namespace WpfApplication3
             this.debug4 = corners1.Count.ToString();
         }
 
-        private List<GeometryHandler.Vector> sampleVectors(int points, int positions, int samples, int returnMode) // Amounts of points to define, positions to point from, samples per position and return mode: 0 = only pointing-samples, 1 = only aiming-samples, 2 = both samples
+        private List<GeometryHandler.Vector> sampleVectors(int points, int positions, int samples, int returnMode) // Amounts of points to define, positions to point from (at least 2!), samples per position and return mode: 0 = only pointing-samples, 1 = only aiming-samples, 2 = both samples
         {
             List<GeometryHandler.Vector> allVectors = new List<GeometryHandler.Vector>();
             List<GeometryHandler.Vector> pointingVectors = new List<GeometryHandler.Vector>();

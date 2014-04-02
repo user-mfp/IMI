@@ -122,7 +122,7 @@ namespace WpfApplication3.lib
             List<Point3D> testPoints = new List<Point3D>();
 
             testPoints.Add(xy);
-            testPoints.Add(yz);
+            //testPoints.Add(yz);
             testPoints.Add(xz);
 
             return testPoints;
@@ -168,6 +168,33 @@ namespace WpfApplication3.lib
 
             Point3D xz = new Point3D(i.X / i.Y, 0, i.Z / i.Y);
             return xz;
+        }
+
+        public List<Point3D> vectorsLotfuesse(Vector vectorA, Vector vectorB)
+        {
+            List<Point3D> feet = new List<Point3D>();
+            //Plane helpA = new Plane(vectorA.Start, vectorA.Direction, normalA);
+            Vector3D crossAB = Vector3D.CrossProduct(vectorA.Direction, vectorB.Direction);
+            Vector3D startA = new Vector3D(vectorA.Start.X, vectorA.Start.Y, vectorA.Start.Z);
+            Vector3D startB = new Vector3D(vectorB.Start.X, vectorB.Start.Y, vectorB.Start.Z);
+            Vector3D normalA = Vector3D.CrossProduct(vectorA.Direction, crossAB);
+            Vector3D normalB = Vector3D.CrossProduct(vectorB.Direction, crossAB);
+            
+            double factorA1 = Vector3D.DotProduct(startB, normalB);
+            double factorA2 = Vector3D.DotProduct(startA, normalB);
+            double factorA3 = Vector3D.DotProduct(vectorA.Direction, normalB);
+            double factorA = (factorA1 - factorA2) / factorA3;
+            Vector3D footA = (factorA * vectorA.Direction) + startA;
+            feet.Add(new Point3D(footA.X, footA.Y, footA.Z));
+
+            double factorB1 = Vector3D.DotProduct(startA, normalA);
+            double factorB2 = Vector3D.DotProduct(startB, normalA);
+            double factorB3 = Vector3D.DotProduct(vectorB.Direction, normalA);
+            double factorB = (factorB1 - factorB2) / factorB3;
+            Vector3D footB = (factorB * vectorB.Direction) + startB;
+            feet.Add(new Point3D(footB.X, footB.Y, footB.Z));
+
+            return feet;
         }
 
         // Returns the two closest points or intersection of two vectors

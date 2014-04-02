@@ -11,23 +11,67 @@ namespace WpfApplication3.lib
         #region DECLARATIONS
         private DataLogger dataLogger;
         private GeometryHandler geometryHandler;
+
+        int samples; // Number of samples taken per position pointed from 
+        #endregion
+
+        #region CONSTRUCTOR
+        public Calibrator(int samples)
+        {
+            this.dataLogger = new DataLogger(); // TODO: Initialize properly!
+            this.geometryHandler = new GeometryHandler();
+            this.samples = samples; 
+        }
         #endregion
 
         #region DEFINITIONS
         public List<Point3D> definePlane(List<GeometryHandler.Vector> samples)
         {
-            List<Point3D> points = new List<Point3D>();
+            int pointings = samples.Count / this.samples; // Pointing from a positions to b corners gives a*b pointings => up to a*b intersections
+            List<GeometryHandler.Vector> tmpVec = new List<GeometryHandler.Vector>();
+            List<GeometryHandler.Vector> vectors = new List<GeometryHandler.Vector>();
+            List<Point3D> footPoints = new List<Point3D>();
+            List<Point3D> projPoints = new List<Point3D>();
 
-            // DO STUFF
+            for (int pointing = 0; pointing != pointings; ++pointing)
+            {
+                for (int sample = pointing * this.samples; sample != (pointing + 1) * this.samples; ++sample)
+                {
+                    tmpVec.Add(samples[sample]);
+                }
+                vectors.Add(this.geometryHandler.getAvgVector(tmpVec));
+            }
 
-            return points;
+            for (int vectorA = 0; vectorA != (vectors.Count - 1); ++vectorA) // For each vector, except the last
+            {
+                for (int vectorB = (vectorA + 1); vectorB != vectors.Count; ++vectorB) // Every following vector
+                {
+                    if (vectors[vectorA] != vectors[vectorB]) //(vectorA.Start != vectorB.Start && vectorA.End != vectorB.End)
+                    {
+                        // TODO: Stuff
+                        foreach (Point3D intersection in this.geometryHandler.vectorsLotfuesse(vectors[vectorA], vectors[vectorB]))
+                        {
+                            footPoints.Add(intersection);
+                        }
+                        // TODO: Stuff
+                        //foreach (Point3D intersection in this.geometryHandler.vectorsIntersectTest(vectors[vectorA], vectors[vectorB]))
+                        //{
+                        //    projPoints.Add(intersection);
+                        //}
+                    }
+                }
+            }
+
+            Point3D footAve = this.geometryHandler.getCenter(footPoints);
+            //Point3D projAve = this.geometryHandler.getCenter(projPoints);
+            return footPoints;
         }
 
         private Point3D definePointInSpace(List<GeometryHandler.Vector> vectors)
         {
             Point3D point = new Point3D();
 
-            // DO STUFF
+            // TODO: Stuff
 
             return point;
         }
