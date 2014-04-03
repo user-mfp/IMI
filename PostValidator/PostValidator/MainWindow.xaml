@@ -1,0 +1,29 @@
+﻿<Window x:Class="PostValidator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="369" Width="523">
+    <Grid>
+        <Button Content="Evaluate" Height="23" HorizontalAlignment="Left" Margin="10,70,0,0" Name="button1" VerticalAlignment="Top" Width="120" Click="button1_Click"/>
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="10,12,0,0" Name="comboBox1" VerticalAlignment="Top" Width="120">
+            <ComboBoxItem>Pointing</ComboBoxItem>
+            <ComboBoxItem>Looking</ComboBoxItem>
+            <ComboBoxItem>Mismatch</ComboBoxItem>
+        </ComboBox>
+        <Label Content="" HorizontalAlignment="Left" Margin="12,99,0,47" Name="label1" Width="118" />
+        <Canvas Height="300" HorizontalAlignment="Left" Margin="136,12,0,0" Name="canvas1" VerticalAlignment="Top" Width="300"></Canvas>
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="10,41,0,0" Name="comboBox2" VerticalAlignment="Top" Width="120" SelectedIndex="0" SelectionChanged="comboBox2_SelectionChanged">
+            <ComboBoxItem>Treshold: 100mm</ComboBoxItem>
+            <ComboBoxItem>Treshold: 110mm</ComboBoxItem>
+            <ComboBoxItem>Treshold: 120mm</ComboBoxItem>
+            <ComboBoxItem>Treshold: 130mm</ComboBoxItem>
+            <ComboBoxItem>Treshold: 140mm</ComboBoxItem>
+            <ComboBoxItem>Treshold: 150mm</ComboBoxItem>
+            <ComboBoxItem>Treshold: 160mm</ComboBoxItem>
+            <ComboBoxItem>Treshold: 170mm</ComboBoxItem>
+            <ComboBoxItem>Treshold: 180mm</ComboBoxItem>
+            <ComboBoxItem>Treshold: 190mm</ComboBoxItem>
+            <ComboBoxItem>Treshold: 200mm</ComboBoxItem>
+        </ComboBox>
+        <Button Content="EvAll" Height="23" Name="button2" Margin="12,289,371,18" Click="button2_Click"/>
+    </Grid>
+</Window>
