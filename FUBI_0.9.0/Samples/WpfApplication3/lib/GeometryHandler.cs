@@ -100,25 +100,13 @@ namespace WpfApplication3.lib
 
         private Statistics statistics = new Statistics();
         #endregion
-        
-        #region ROUTINES
-        /// <summary>
-        /// ROUTINES
-        /// </summary>
 
-        public bool vectorOK(Vector v)
+        #region INTERSECTIONS
+        public List<Point3D> vectorsIntersectProj(Vector vectorA, Vector vectorB)
         {
-            if (v.Direction.X == 0 & v.Direction.Z == 0)
-                return false;
-            else
-                return true;
-        }
-
-        public List<Point3D> vectorsIntersectTest(Vector vectorA, Vector vectorB)
-        {
-            Point3D xy = vectorsIntersectOnXY(vectorA, vectorB); // xy.Z = 0
-            Point3D yz = vectorsIntersectOnYZ(vectorA, vectorB); // yz.X = 0
-            Point3D xz = vectorsIntersectOnXZ(vectorA, vectorB); // xz.Y = 0
+            Point3D xy = vectorsIntersectProjXY(vectorA, vectorB); // xy.Z = 0
+            Point3D yz = vectorsIntersectProjYZ(vectorA, vectorB); // yz.X = 0
+            Point3D xz = vectorsIntersectProjXZ(vectorA, vectorB); // xz.Y = 0
             List<Point3D> testPoints = new List<Point3D>();
 
             testPoints.Add(xy);
@@ -126,9 +114,9 @@ namespace WpfApplication3.lib
             testPoints.Add(xz);
 
             return testPoints;
-        } 
+        }
 
-        public Point3D vectorsIntersectOnXY(Vector vectorA, Vector vectorB)
+        public Point3D vectorsIntersectProjXY(Vector vectorA, Vector vectorB)
         {
             Vector3D a1 = new Vector3D(vectorA.Start.X, vectorA.Start.Y, 1);
             Vector3D a2 = new Vector3D(vectorA.End.X, vectorA.End.Y, 1);
@@ -142,7 +130,7 @@ namespace WpfApplication3.lib
             return xy;
         }
 
-        public Point3D vectorsIntersectOnYZ(Vector vectorA, Vector vectorB)
+        public Point3D vectorsIntersectProjYZ(Vector vectorA, Vector vectorB)
         {
             Vector3D a1 = new Vector3D(1, vectorA.Start.Y, vectorA.Start.Z);
             Vector3D a2 = new Vector3D(1, vectorA.End.Y, vectorA.End.Z);
@@ -156,7 +144,7 @@ namespace WpfApplication3.lib
             return yz;
         }
 
-        public Point3D vectorsIntersectOnXZ(Vector vectorA, Vector vectorB)
+        public Point3D vectorsIntersectProjXZ(Vector vectorA, Vector vectorB)
         {
             Vector3D a1 = new Vector3D(vectorA.Start.X, 1, vectorA.Start.Z);
             Vector3D a2 = new Vector3D(vectorA.End.X, 1, vectorA.End.Z);
@@ -170,16 +158,15 @@ namespace WpfApplication3.lib
             return xz;
         }
 
-        public List<Point3D> vectorsLotfuesse(Vector vectorA, Vector vectorB)
+        public List<Point3D> vectorsIntersectFoot(Vector vectorA, Vector vectorB)
         {
             List<Point3D> feet = new List<Point3D>();
-            //Plane helpA = new Plane(vectorA.Start, vectorA.Direction, normalA);
             Vector3D crossAB = Vector3D.CrossProduct(vectorA.Direction, vectorB.Direction);
             Vector3D startA = new Vector3D(vectorA.Start.X, vectorA.Start.Y, vectorA.Start.Z);
             Vector3D startB = new Vector3D(vectorB.Start.X, vectorB.Start.Y, vectorB.Start.Z);
             Vector3D normalA = Vector3D.CrossProduct(vectorA.Direction, crossAB);
             Vector3D normalB = Vector3D.CrossProduct(vectorB.Direction, crossAB);
-            
+
             double factorA1 = Vector3D.DotProduct(startB, normalB);
             double factorA2 = Vector3D.DotProduct(startA, normalB);
             double factorA3 = Vector3D.DotProduct(vectorA.Direction, normalB);
@@ -197,6 +184,25 @@ namespace WpfApplication3.lib
             return feet;
         }
 
+        // Returns the intersection of given vector and given plane
+        public Point3D intersectVectorPlane(Point3D point, Vector3D vector, List<Point3D> corners)
+        {
+            Point3D intersection = new Point3D();
+
+            // DO STUFF HERE
+
+            return intersection;
+        }
+
+        // Returns, whether given vector intersects with given bounding box or not
+        public bool intersectVectorBoundingBox(Point3D point, Vector3D vector, List<Point3D> corners)
+        {
+            // DO STUFF HERE
+
+            return false;
+        }
+
+        /* OLD INTERSECTION FOOT
         // Returns the two closest points or intersection of two vectors
         public List<Point3D> vectorsIntersect(Vector vectorA, Vector vectorB)
         {
@@ -229,13 +235,38 @@ namespace WpfApplication3.lib
             }
             else
                 return feet;
+        }*/
+        #endregion
+
+        #region ROUTINES
+        /// <summary>
+        /// ROUTINES
+        /// </summary>
+
+        // Check for correctly sampled vector
+        public bool vectorOK(Vector v)
+        {
+            if (v.Direction.X == 0 & v.Direction.Z == 0)
+                return false;
+            else
+                return true;
         }
 
-        // Returns a vector's properties as string
+        // Returns a vector's properties as string (Start, End, Direction)
         public string getString(Vector v)
         { 
             string vector = ((int)v.Start.X).ToString() + '\t' + ((int)v.Start.Y).ToString() + '\t' + ((int)v.Start.Z).ToString() + '\t' + ((int)v.End.X).ToString() + '\t' + ((int)v.End.Y).ToString() + '\t' + ((int)v.End.Z).ToString() + '\t' + ((int)v.Direction.X).ToString() + '\t' + ((int)v.Direction.Y).ToString() + '\t' + ((int)v.Direction.Z).ToString();
             return vector;
+        }
+
+        public double maxAxis(Vector v)
+        {
+            return Math.Max(Math.Max(v.Direction.X, v.Direction.Y), v.Direction.Z);
+        }
+
+        public double minAxis(Vector v)
+        {
+            return Math.Min(Math.Min(v.Direction.X, v.Direction.Y), v.Direction.Z);
         }
 
         // Returns the "center" from a list of points
@@ -256,6 +287,7 @@ namespace WpfApplication3.lib
             return statistics.getAvg(points);
         }
 
+        // Returns the "center" of two points
         public Point3D getCenter(Point3D p1, Point3D p2)
         {
             List<Point3D> points = new List<Point3D>();
@@ -263,6 +295,27 @@ namespace WpfApplication3.lib
             points.Add(p2);
 
             return getCenter(points);
+        }
+
+        // Returns a List of "average" vectors from a List of vectors for X samples per Position
+        public List<Vector> getAvgVector(List<Vector> vectors, int samplesPerPosition)
+        {
+            List<Vector> avgs = new List<Vector>();
+            List<Vector> tmp = new List<Vector>();
+            int cnt = 0;
+
+            foreach (Vector v in vectors)
+            {
+                tmp.Add(v);
+                ++cnt;
+                if (cnt % samplesPerPosition == 0)
+                {
+                    avgs.Add(getAvgVector(tmp));
+                    tmp.Clear();
+                }
+            }
+
+            return avgs;
         }
 
         // Returns the "average" vector from a List of vectors
@@ -281,26 +334,8 @@ namespace WpfApplication3.lib
         }
 
         public void makePlane(Point3D start, Point3D end1, Point3D end2)
-        { 
-            
-        }
+        {
 
-        // Returns the intersection of given vector and given plane
-        public Point3D intersectVectorPlane(Point3D point, Vector3D vector, List<Point3D> corners)
-        { 
-            Point3D intersection = new Point3D();
-
-            // DO STUFF HERE
-
-            return intersection;
-        }
-        
-        // Returns, whether given vector intersects with given bounding box or not
-        public bool intersectVectorBbox(Point3D point, Vector3D vector, List<Point3D> corners)
-        { 
-            // DO STUFF HERE
-
-            return false;
         }
         #endregion
     }

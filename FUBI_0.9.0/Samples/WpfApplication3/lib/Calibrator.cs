@@ -12,7 +12,7 @@ namespace WpfApplication3.lib
         private DataLogger dataLogger;
         private GeometryHandler geometryHandler;
 
-        int samples; // Number of samples taken per position pointed from 
+        int samplesPerPosition; // Number of samples taken per position pointed from 
         #endregion
 
         #region CONSTRUCTOR
@@ -20,60 +20,136 @@ namespace WpfApplication3.lib
         {
             this.dataLogger = new DataLogger(); // TODO: Initialize properly!
             this.geometryHandler = new GeometryHandler();
-            this.samples = samples; 
+            this.samplesPerPosition = samples; 
         }
-        #endregion
+        #endregion 
 
         #region DEFINITIONS
-        public List<Point3D> definePlane(List<GeometryHandler.Vector> samples)
+        public List<Point3D> definePlane(List<GeometryHandler.Vector> samples, int positions, int samplesPerPosition, int mode) // Get all sampled vectors, pointing and aiming; mode: 0 = only pointing-samples, 1 = only aiming-samples, 2 = both samples
         {
-            int pointings = samples.Count / this.samples; // Pointing from a positions to b corners gives a*b pointings => up to a*b intersections
-            List<GeometryHandler.Vector> tmpVec = new List<GeometryHandler.Vector>();
-            List<GeometryHandler.Vector> vectors = new List<GeometryHandler.Vector>();
-            List<Point3D> footPoints = new List<Point3D>();
-            List<Point3D> projPoints = new List<Point3D>();
+            // It needs THREE Points to define a Plane
+            List<Point3D> pointCorners = new List<Point3D>(3);
+            List<Point3D> aimCorners = new List<Point3D>(3);
+            // Pointing variables
+            List<GeometryHandler.Vector> pointingSamples; // All or first half of "samples"-List (depending on mode)
+            List<GeometryHandler.Vector> pointAvgVectors;
+            List<Point3D> pointFootPoints = new List<Point3D>(); // Pointing intersections from foot point-algorithm
+            List<Point3D> pointProjPoints = new List<Point3D>(); // Pointing intersections from projection-algorithm
+            // Aiming variables
+            List<GeometryHandler.Vector> aimingSamples; // All or second half of "samples"-List (depending on mode)
+            List<GeometryHandler.Vector> aimAvgVectors;
+            List<Point3D> aimFootPoints = new List<Point3D>(); // Aiming intersections from foot point-algorithm
+            List<Point3D> aimProjPoints = new List<Point3D>(); // Aiming intersections from projection-algorithm
 
-            for (int pointing = 0; pointing != pointings; ++pointing)
-            {
-                for (int sample = pointing * this.samples; sample != (pointing + 1) * this.samples; ++sample)
-                {
-                    tmpVec.Add(samples[sample]);
-                }
-                vectors.Add(this.geometryHandler.getAvgVector(tmpVec));
-            }
-
-            for (int vectorA = 0; vectorA != (vectors.Count - 1); ++vectorA) // For each vector, except the last
-            {
-                for (int vectorB = (vectorA + 1); vectorB != vectors.Count; ++vectorB) // Every following vector
-                {
-                    if (vectors[vectorA] != vectors[vectorB]) //(vectorA.Start != vectorB.Start && vectorA.End != vectorB.End)
+            switch (mode)
+            { 
+                case 0: // Only pointing-samples
+                    pointingSamples = samples;
+                    pointAvgVectors = this.geometryHandler.getAvgVector(pointingSamples, samplesPerPosition);
+                    sortAvgVectors(ref pointAvgVectors, 3); // 3 corners
+                    setFootPoints(ref pointFootPoints, pointAvgVectors);
+                    setProjPoints(ref pointProjPoints, pointAvgVectors);
+                    break;
+                case 1: // Only aiming-samples
+                    aimingSamples = samples;
+                    aimAvgVectors = this.geometryHandler.getAvgVector(aimingSamples, samplesPerPosition);
+                    sortAvgVectors(ref aimAvgVectors, 3); // 3 corners
+                    setFootPoints(ref aimFootPoints, aimAvgVectors);
+                    setProjPoints(ref aimProjPoints, aimAvgVectors);
+                    break;
+                case 2: // Both kinds of samples
+                    pointingSamples = new List<GeometryHandler.Vector>();
+                    aimingSamples = new List<GeometryHandler.Vector>();
+                    int cnt = 0;
+                    foreach(GeometryHandler.Vector sample in samples)
                     {
-                        // TODO: Stuff
-                        foreach (Point3D intersection in this.geometryHandler.vectorsLotfuesse(vectors[vectorA], vectors[vectorB]))
+                        if (cnt < (samples.Count / 2))
+                            pointingSamples.Add(sample);
+                        else
+                            aimingSamples.Add(sample);
+                        ++cnt;
+                    }
+                    pointAvgVectors = this.geometryHandler.getAvgVector(pointingSamples, samplesPerPosition);
+                    sortAvgVectors(ref pointAvgVectors, 3); // 3 corners
+                    setFootPoints(ref pointFootPoints, pointAvgVectors);
+                    setProjPoints(ref pointProjPoints, pointAvgVectors);
+
+                    aimAvgVectors = this.geometryHandler.getAvgVector(aimingSamples, samplesPerPosition);
+                    sortAvgVectors(ref aimAvgVectors, 3); // 3 corners
+                    setFootPoints(ref aimFootPoints, aimAvgVectors);
+                    setProjPoints(ref aimProjPoints, aimAvgVectors);
+                    break;
+                default: // Undefined mode
+                    break;
+            }
+            //setCorners(out pointCorners, pointFootPoints);
+            return null;// pointFootPoints;
+        }
+
+        private void setFootPoints(ref List<Point3D> points, List<GeometryHandler.Vector> avgVectors)
+        {
+            List<Point3D> tmp = new List<Point3D>();
+
+            for (int vectorA = 0; vectorA != (avgVectors.Count - 1); ++vectorA) // For each vector, except the last
+            {
+                for (int vectorB = (vectorA + 1); vectorB != avgVectors.Count; ++vectorB) // and every following vector
+                {
+                    if (avgVectors[vectorA] != avgVectors[vectorB]) // Vectors are not equal(vectorA.Start != vectorB.Start && vectorA.End != vectorB.End)
+                    {
+                        foreach (Point3D intersection in this.geometryHandler.vectorsIntersectFoot(avgVectors[vectorA], avgVectors[vectorB]))
                         {
-                            footPoints.Add(intersection);
+                            points.Add(intersection); // Add intersections to List
                         }
-                        // TODO: Stuff
-                        //foreach (Point3D intersection in this.geometryHandler.vectorsIntersectTest(vectors[vectorA], vectors[vectorB]))
-                        //{
-                        //    projPoints.Add(intersection);
-                        //}
                     }
                 }
             }
 
-            Point3D footAve = this.geometryHandler.getCenter(footPoints);
-            //Point3D projAve = this.geometryHandler.getCenter(projPoints);
-            return footPoints;
+            //points = tmp;
         }
 
-        private Point3D definePointInSpace(List<GeometryHandler.Vector> vectors)
+        private void setProjPoints(ref List<Point3D> points, List<GeometryHandler.Vector> avgVectors)
         {
-            Point3D point = new Point3D();
+            for (int vectorA = 0; vectorA != (avgVectors.Count - 1); ++vectorA) // For each vector, except the last
+            {
+                for (int vectorB = (vectorA + 1); vectorB != avgVectors.Count; ++vectorB) // and every following vector
+                {
+                    if (avgVectors[vectorA] != avgVectors[vectorB]) // Vectors are not equal(vectorA.Start != vectorB.Start && vectorA.End != vectorB.End)
+                    {
+                        foreach (Point3D intersection in this.geometryHandler.vectorsIntersectProj(avgVectors[vectorA], avgVectors[vectorB]))
+                        {
+                            points.Add(intersection); // Add intersections to List
+                        }
+                    }
+                }
+            }
+        }
 
-            // TODO: Stuff
+        private void sortAvgVectors(ref List<GeometryHandler.Vector> vectors, int points)
+        {
+            int positions = vectors.Count / points;
+            int vecIndex; // Order for 3 points and 2 positions: (1st point)0, 3, 6; (2nd point)1, 4, 7; (3rd point)2, 5, 8
+            List<GeometryHandler.Vector> tmp = new List<GeometryHandler.Vector>();
 
-            return point;
+            for (int point = 0; point != points; ++point)
+            {
+                for (int position = 0; position != positions; ++position)
+                {
+                    vecIndex = point + (points * position); 
+                    tmp.Add(vectors[vecIndex]);
+                }
+            }
+
+            vectors = tmp;
+        }
+
+        private void setCorners(out List<Point3D> corners, List<Point3D> points)
+        {
+            int positions = points.Count / 3; // positions = 2; 3; 4;...
+
+            // TODO:
+            // - Something useful
+
+            corners = points;
         }
 
         public void definePointOnPlane(GeometryHandler.Plane plane, GeometryHandler.Vector vector)
@@ -96,16 +172,6 @@ namespace WpfApplication3.lib
         private bool validatePoint(Point3D point1, Point3D point2)
         {
             return false;
-        }
-
-        public void evaluateVectorInSpace()
-        { 
-            
-        }
-
-        public void evaluateVectorOnPlane()
-        {
-
         }
         #endregion
 

@@ -366,8 +366,8 @@ namespace WpfApplication3
         
         private void defineExhibitionPlane()
         {
-            this.calibrationSampleBreak = 0;
-            List<Point3D> corners1 = this.calibrator.definePlane(sampleVectors(1, 3, 10, 0)); // Calibration-points
+            this.calibrationSampleBreak = 500;
+            List<Point3D> corners1 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 2), 3, 10, 2); // Calibration-points
             //List<Point3D> corners2 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 0)); // Validation-points
 
             //if (this.calibrator.validatePlane(corners1, corners2))
@@ -383,9 +383,9 @@ namespace WpfApplication3
             List<GeometryHandler.Vector> pointingVectors = new List<GeometryHandler.Vector>();
             List<GeometryHandler.Vector> aimingVectors = new List<GeometryHandler.Vector>();
             
-            for (int point = 0; point != points; ++point) // For each corner
+            for (int position = 0; position != positions; ++position) // For each corner
             {
-                for (int position = 0; position != positions; ++position) // For each position
+                for (int point = 0; point != points; ++point) // For each position
                 {
                     //--- INSTRUCTIONS ---//
                     // Position to go to
@@ -400,7 +400,7 @@ namespace WpfApplication3
                     for (int sample = 0; sample != samples; ++sample)
                     {
                         //this.debug4 = sample.ToString();
-                        allVectors = takeSample(position); // Take poining- and aiming sample simultaniously
+                        allVectors = takeSample(point); // Take poining- and aiming sample simultaniously
                         pointingVectors.Add(allVectors[0]); // Add pointing-vector to pointing-vectors
                         aimingVectors.Add(allVectors[1]); // Add aiming-vector to aiming-vectors
                         Thread.Sleep(1000 / samples); // Sampling at [samples] per second
@@ -622,15 +622,15 @@ namespace WpfApplication3
         }
         */
         
-        private List<GeometryHandler.Vector> takeSample(int position)
+        private List<GeometryHandler.Vector> takeSample(int point)
         {
             Random random = new Random();
             double r1 = random.Next(-5, 5);
             double r2 = random.Next(-5, 5);
             List<GeometryHandler.Vector> vectors = new List<GeometryHandler.Vector>();
 
-            vectors.Add(takePointingSample(position, r1, r2));
-            vectors.Add(takeLookingSample(position, r1, r2));
+            vectors.Add(takePointingSample(point, r1, r2));
+            vectors.Add(takeLookingSample(point, r1, r2));
 
             return vectors;
         }
