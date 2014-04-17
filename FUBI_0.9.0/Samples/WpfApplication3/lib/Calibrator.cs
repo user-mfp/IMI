@@ -9,6 +9,9 @@ namespace WpfApplication3.lib
     class Calibrator
     {
         #region DECLARATIONS
+        public int round;
+        public string vp;
+
         private DataLogger dataLogger;
         private GeometryHandler geometryHandler;
 
@@ -16,9 +19,11 @@ namespace WpfApplication3.lib
         #endregion
 
         #region CONSTRUCTOR
-        public Calibrator(int samples)
+        public Calibrator(int samples, string vp, int round)
         {
-            this.dataLogger = new DataLogger(); // TODO: Initialize properly!
+            this.vp = vp;
+            this.round = round;
+            this.dataLogger = new DataLogger(@"D:\Master\TestFolder\CAL_0\", vp, round); // TODO: Initialize properly!
             this.geometryHandler = new GeometryHandler();
             this.samplesPerPosition = samples; 
         }
@@ -27,19 +32,22 @@ namespace WpfApplication3.lib
         #region DEFINITIONS
         public List<Point3D> definePlane(List<GeometryHandler.Vector> samples, int positions, int samplesPerPosition, int mode) // Get all sampled vectors, pointing and aiming; mode: 0 = only pointing-samples, 1 = only aiming-samples, 2 = both samples
         {
+            initLogger();
             // It needs THREE Points to define a Plane
-            List<Point3D> pointCorners = new List<Point3D>(3);
-            List<Point3D> aimCorners = new List<Point3D>(3);
+            List<Point3D> pointCorners = new List<Point3D>(4);
+            List<Point3D> aimCorners = new List<Point3D>(4);
             // Pointing variables
             List<GeometryHandler.Vector> pointingSamples; // All or first half of "samples"-List (depending on mode)
             List<GeometryHandler.Vector> pointAvgVectors;
             List<Point3D> pointFootPoints = new List<Point3D>(); // Pointing intersections from foot point-algorithm
-            List<Point3D> pointProjPoints = new List<Point3D>(); // Pointing intersections from projection-algorithm
+            //List<Point3D> pointProjPoints = new List<Point3D>(); // Pointing intersections from projection-algorithm
             // Aiming variables
             List<GeometryHandler.Vector> aimingSamples; // All or second half of "samples"-List (depending on mode)
             List<GeometryHandler.Vector> aimAvgVectors;
             List<Point3D> aimFootPoints = new List<Point3D>(); // Aiming intersections from foot point-algorithm
-            List<Point3D> aimProjPoints = new List<Point3D>(); // Aiming intersections from projection-algorithm
+            //List<Point3D> aimProjPoints = new List<Point3D>(); // Aiming intersections from projection-algorithm
+            //List<GeometryHandler.Vector> combineVectors;
+            List<Point3D> combinePoints;
 
             switch (mode)
             { 
@@ -48,14 +56,14 @@ namespace WpfApplication3.lib
                     pointAvgVectors = this.geometryHandler.getAvgVector(pointingSamples, samplesPerPosition);
                     sortAvgVectors(ref pointAvgVectors, 3); // 3 corners
                     setFootPoints(ref pointFootPoints, pointAvgVectors, 3);
-                    setProjPoints(ref pointProjPoints, pointAvgVectors, 3);
+                    //setProjPoints(ref pointProjPoints, pointAvgVectors, 3);
                     break;
                 case 1: // Only aiming-samples
                     aimingSamples = samples;
                     aimAvgVectors = this.geometryHandler.getAvgVector(aimingSamples, samplesPerPosition);
                     sortAvgVectors(ref aimAvgVectors, 3); // 3 corners
                     setFootPoints(ref aimFootPoints, aimAvgVectors, 3);
-                    setProjPoints(ref aimProjPoints, aimAvgVectors, 3);
+                    //setProjPoints(ref aimProjPoints, aimAvgVectors, 3);
                     break;
                 case 2: // Both kinds of samples
                     pointingSamples = new List<GeometryHandler.Vector>();
@@ -70,20 +78,29 @@ namespace WpfApplication3.lib
                         ++cnt;
                     }
                     pointAvgVectors = this.geometryHandler.getAvgVector(pointingSamples, samplesPerPosition);
-                    sortAvgVectors(ref pointAvgVectors, 3); // 3 corners
-                    setFootPoints(ref pointFootPoints, pointAvgVectors, 3);
-                    setProjPoints(ref pointProjPoints, pointAvgVectors, 3);
+                    sortAvgVectors(ref pointAvgVectors, 4); // 3 corners
+                    setFootPoints(ref pointFootPoints, pointAvgVectors, 4); // 3 corners
+                    //setProjPoints(ref pointProjPoints, pointAvgVectors, 3);
 
                     aimAvgVectors = this.geometryHandler.getAvgVector(aimingSamples, samplesPerPosition);
-                    sortAvgVectors(ref aimAvgVectors, 3); // 3 corners
-                    setFootPoints(ref aimFootPoints, aimAvgVectors, 3);
-                    setProjPoints(ref aimProjPoints, aimAvgVectors, 3);
+                    sortAvgVectors(ref aimAvgVectors, 4); // 3 corners
+                    setFootPoints(ref aimFootPoints, aimAvgVectors, 4); // 3 corners
+                    //setProjPoints(ref aimProjPoints, aimAvgVectors, 3);
+
+                    combinePoints = this.geometryHandler.getCenters(pointFootPoints, aimFootPoints);
+
+                    this.logVectors(pointAvgVectors, 1); // Index = 1
+                    this.logVectors(aimAvgVectors, 2); // Index = 2
+                    this.logPoints(pointFootPoints, 3); // Index = 3
+                    this.logPoints(aimFootPoints, 4); // Index = 4
+                    this.logPoints(combinePoints, 5); // Index = 5
+                    this.dataLogger.writeFile();
                     break;
                 default: // Undefined mode
                     break;
             }
-            //setCorners(out pointCorners, pointFootPoints);
-            return null;// pointFootPoints;
+
+            return aimFootPoints;
         }
 
         private void setFootPoints(ref List<Point3D> footPoints, List<GeometryHandler.Vector> avgVectors, int points)
@@ -210,9 +227,27 @@ namespace WpfApplication3.lib
         #region DATA-LOGGING
         private void initLogger()
         {
-            this.dataLogger = new DataLogger(@"D:\Master\TestFolder\2014-3-4_defPlane\Me.txt");
-            // Headline
-            this.dataLogger.newPargraph("leer");
+            this.dataLogger.newPargraph(this.vp + this.round); 
+        }
+
+        private void logVectors(List<GeometryHandler.Vector> vectors, int index)
+        {
+            this.dataLogger.newPargraph("Start.X" + '\t' + "Start.Y" + '\t' + "Start.Z" + '\t' + "End.X" + '\t' + "End.Y" + '\t' + "End.Z" + '\t' + "Direction.X" + '\t' + "Direction.Y" + '\t' + "Direction.Z");
+            
+            foreach (GeometryHandler.Vector vector in vectors)
+            {
+                this.dataLogger.addLineToParagraph(index, this.geometryHandler.getString(vector));
+            }
+        }
+
+        private void logPoints(List<Point3D> points, int index)
+        { 
+            this.dataLogger.newPargraph("Point.X" + '\t' + "Point.Y" + '\t' + "Point.Z");
+       
+            foreach (Point3D point in points)
+            {
+                this.dataLogger.addLineToParagraph(index, this.geometryHandler.getString(point));
+            }
         }
         #endregion
     }

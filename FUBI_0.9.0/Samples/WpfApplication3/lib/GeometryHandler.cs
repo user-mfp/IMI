@@ -255,8 +255,14 @@ namespace WpfApplication3.lib
         // Returns a vector's properties as string (Start, End, Direction)
         public string getString(Vector v)
         { 
-            string vector = ((int)v.Start.X).ToString() + '\t' + ((int)v.Start.Y).ToString() + '\t' + ((int)v.Start.Z).ToString() + '\t' + ((int)v.End.X).ToString() + '\t' + ((int)v.End.Y).ToString() + '\t' + ((int)v.End.Z).ToString() + '\t' + ((int)v.Direction.X).ToString() + '\t' + ((int)v.Direction.Y).ToString() + '\t' + ((int)v.Direction.Z).ToString();
+            string vector = (v.Start.X).ToString() + '\t' + (v.Start.Y).ToString() + '\t' + (v.Start.Z).ToString() + '\t' + (v.End.X).ToString() + '\t' + (v.End.Y).ToString() + '\t' + (v.End.Z).ToString() + '\t' + (v.Direction.X).ToString() + '\t' + (v.Direction.Y).ToString() + '\t' + (v.Direction.Z).ToString();
             return vector;
+        }
+
+        public string getString(Point3D p)
+        {
+            string point = (p.X).ToString() + '\t' + (p.Y).ToString() + '\t' + (p.Z).ToString();
+            return point;
         }
 
         public double maxAxis(Vector v)
@@ -269,6 +275,19 @@ namespace WpfApplication3.lib
             return Math.Min(Math.Min(v.Direction.X, v.Direction.Y), v.Direction.Z);
         }
 
+        // Returns the "centers" from equivalent points from lists of equal length
+        public List<Point3D> getCenters(List<Point3D> pointsA, List<Point3D> pointsB)
+        {
+            List<Point3D> centers = new List<Point3D>();
+
+            for (int point = 0; point != pointsA.Count; ++point)
+            { 
+                centers.Add(getCenter(pointsA[point], pointsB[point]));
+            }
+
+            return centers;
+        }
+        
         // Returns the "center" from a list of points
         public Point3D getCenter(List<Point3D> points)
         {

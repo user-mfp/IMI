@@ -41,20 +41,13 @@ namespace WpfApplication3
         private bool calibrating = false;
 
         //--- CALIBRATING ---//
+        Calibrator calibrator; // Declare calibrator
         private GeometryHandler geometryHandler = new GeometryHandler();
-        private List<GeometryHandler.Vector> calibrationVectors = new List<GeometryHandler.Vector>();
-        private List<GeometryHandler.Vector> mismatchVectors = new List<GeometryHandler.Vector>();
         private List<Point3D> calibrationPoints = new List<Point3D>();
         private List<Point3D> mismatchPoints = new List<Point3D>();
         private int calibrationSamples = 3; // Number of samples
         private int calibrationSampleVectors = 10; // Vectors per sample 
         private int calibrationSampleBreak = 4000; // Time between samples in ms
-        private double xMax = 1100;
-        private double xMin = -1300;
-        private double yMax = -1000;
-        private double yMin = -1200;
-        private double zMax = 2200;
-        private double zMin = -500;
         private List<Point3D> CHECK = new List<Point3D>(); 
 
         //--- EXHIBITION ---//
@@ -68,10 +61,10 @@ namespace WpfApplication3
         private string vp;
         private Statistics statistic = new Statistics();
         //--- OUTPUTS ---//
-        private string debug1 = "Debug...";
-        private string debug2 = "Debug...";
-        private string debug3 = "Debug...";
-        private string debug4 = "Debug...";
+        private string debug1;
+        private string debug2;
+        private int debug3;
+        private string debug4;
         //--- DRAWING ---//
         private List<Shape> shapesToDraw = new List<Shape>();
         private int shapeSize = 25;
@@ -212,6 +205,25 @@ namespace WpfApplication3
             this.label1.Content = this.debug1;
             this.label2.Content = this.debug2;
             this.label4.Content = this.debug4;
+
+            switch (this.debug3)
+            { 
+                case 0:
+                    this.label3.Background = Brushes.Blue;
+                    break;
+                case 1:
+                    this.label3.Background = Brushes.Green;
+                    break;
+                case 2:
+                    this.label3.Background = Brushes.Yellow;
+                    break;
+                case 3:
+                    this.label3.Background = Brushes.Red;
+                    break;
+                default:
+                    this.label3.Background = Brushes.Gainsboro;
+                    break;
+            }
         }
         
         private void updateShapes(uint id) 
@@ -268,14 +280,6 @@ namespace WpfApplication3
                 this.jointsToTrack[pointIndex] = point;
                 //jointsToBuff.Add(point);
             }
-            /*
-            int e = (int)this.jointsToTrack[0].X;
-            int h = (int)this.jointsToTrack[1].X;
-            int d = e - h;
-
-            this.debug4 = "e: " + e;
-            this.debug4 += '\n' + "h: " + h;
-            this.debug4 += '\n' + "d: " + d;*/
         }
 
         private void updateDirection(GeometryHandler.Vector v)
@@ -348,12 +352,12 @@ namespace WpfApplication3
         private void defineExhibition()
         {
             defineExhibitionPlane();
+            this.calibrating = false; 
+            this.calibrationThread.Abort();
         }
 
         private void defineExhibit()
         {
-            this.calibrationVectors.Clear();
-
             // DO SOMETHING USEFUL HERE
             // - Define Plane
             // - Define Exhibits
@@ -362,12 +366,11 @@ namespace WpfApplication3
             this.calibrating = false;        
         }
 
-        Calibrator calibrator = new Calibrator(10); // Initiate calibrator
-        
         private void defineExhibitionPlane()
         {
-            this.calibrationSampleBreak = 3000;
-            List<Point3D> corners1 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 2), 3, 10, 2); // Calibration-points
+            calibrator = new Calibrator(10, this.vp, this.round); // Initiate calibrator
+            this.calibrationSampleBreak = 200;
+            List<Point3D> corners1 = this.calibrator.definePlane(sampleVectors(4, 3, 10, 2), 3, 10, 2); // Calibration-points
             //List<Point3D> corners2 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 0)); // Validation-points
 
             //if (this.calibrator.validatePlane(corners1, corners2))
@@ -385,16 +388,20 @@ namespace WpfApplication3
             
             for (int position = 0; position != positions; ++position) // For each corner
             {
+                //--- INSTRUCTIONS ---//
+                // Position to go to
+                System.Media.SystemSounds.Asterisk.Play(); // Notice user of changed instruction
+                this.debug4 = "Position " + (position + 1); // Change to position #
+                countDown(this.calibrationSampleBreak); // Wait for 3s
+
                 for (int point = 0; point != points; ++point) // For each position
                 {
                     //--- INSTRUCTIONS ---//
-                    // Position to go to
-                    this.debug4 = "Position " + (position + 1); // Change to position #
-                    System.Media.SystemSounds.Asterisk.Play(); // Notice user of changed instruction
-                    countDown(this.calibrationSampleBreak); // Wait for 3s
                     // Corner to point at
+                    System.Media.SystemSounds.Hand.Play(); // Notice user of changed instruction
+                    this.debug3 = point;
                     this.debug4 = "Ecke " + (point + 1); // Point to corner #
-                    System.Media.SystemSounds.Asterisk.Play(); // Notice user of changed instruction
+                    //StaffWindow.pointTo(point);
                     countDown(this.calibrationSampleBreak / 2); // Wait for 3s
 
                     for (int sample = 0; sample != samples; ++sample)
@@ -660,6 +667,9 @@ namespace WpfApplication3
                     case 2:
                         v.reset(new Point3D(-502 + r1, -93 + r1, 1904 + r1), new Point3D(-453 + r2, -211 + r2, 1649 + r2));
                         break;
+                    case 3:
+                        v.reset(new Point3D(-402 + r1, -193 + r1, 1884 + r1), new Point3D(-553 + r2, -111 + r2, 1749 + r2));
+                        break;
                     default:
                         break;
                 }
@@ -691,6 +701,9 @@ namespace WpfApplication3
                         break;
                     case 2:
                         v.reset(new Point3D(-709 + r1, 290 + r1, 2067 + r1), new Point3D(-453 + r2, -211 + r2, 1649 + r2));
+                        break;
+                    case 3:
+                        v.reset(new Point3D(-809 + r1, 230 + r1, 1967 + r1), new Point3D(-553 + r2, -111 + r2, 1749 + r2));
                         break;
                     default:
                         break;
@@ -728,7 +741,7 @@ namespace WpfApplication3
             {
                 this.calibrationThread.Abort();
             }
-            // cloese the application
+            // close the application
             this.Close();
         }
 
@@ -740,85 +753,39 @@ namespace WpfApplication3
             if (!this.calibrating)
             {
                 // Starting the calibrating thread
-                this.calibrationVectors.Clear(); // Sicher ist sicher! ;)
-                this.calibrationThread = new Thread(defineExhibitionPlane);
+                this.calibrationThread = new Thread(defineExhibition);
                 this.calibrating = true;
                 this.calibrationThread.Start();
             }
             else
             {
-                this.calibrationVectors.Clear();
                 this.calibrating = false;
                 this.calibrationThread.Abort();
-                this.debug4 = "Debug...";
+                this.debug4 = "Calibration aborted";
             }
 
             ++this.round;
         }
 
-        //--- "FINISH" WRITE LOG-DATA TO FILE ---//
+        //--- Button3-Click ---//
         private void button3_Click(object sender, RoutedEventArgs e)
         {
-            int round = this.round;
-            this.round = 42;
-            List<Point3D> aim = new List<Point3D>();
-
-            initLogger();
-            this.dataLogger.newPargraph("P.X" + '\t' + "P.Y" + '\t' + "P.Z" + '\t' + "L.X" + '\t' + "L.Y" + '\t' + "L.Z" + '\t' + "EHMM.X" + '\t' + "EHMM.Y" + '\t' + "EHMM.Z" + '\t' + "EHMW.X" + '\t' + "EHMW.Y" + '\t' + "EHMW.Z");
-            
-            // All the points pointed and looked at
-            for (int i = 0; i != this.mismatchPoints.Count; ++i)
-            {
-                aim.Add(this.geometryHandler.getCenter(this.mismatchPoints[i], this.calibrationPoints[i]));
-                this.dataLogger.addLineToParagraph(1, this.calibrationPoints[i].X.ToString() + '\t' + this.calibrationPoints[i].Y.ToString() + '\t' + this.calibrationPoints[i].Z.ToString() + '\t' + this.mismatchPoints[i].X.ToString() + '\t' + this.mismatchPoints[i].Y.ToString() + '\t' + this.mismatchPoints[i].Z.ToString() + '\t' + (this.calibrationPoints[i].X - this.mismatchPoints[i].X).ToString() + '\t' + (this.calibrationPoints[i].Y - this.mismatchPoints[i].Y).ToString() + '\t' + (this.calibrationPoints[i].Z - this.mismatchPoints[i].Z).ToString() + '\t' + aim[i].X.ToString() + '\t' + aim[i].Y.ToString() + '\t' + aim[i].Z.ToString());
-            }
-            
-            this.dataLogger.addLineToParagraph(1, "");
-            // Average points pointed and looked at
-            Point3D pointing = this.statistic.getAvg(this.calibrationPoints);
-            Point3D mismatch = this.statistic.getAvg(this.mismatchPoints);
-            Point3D aiming = this.statistic.getAvg(aim);
-            this.dataLogger.addLineToParagraph(1, "MW");
-            this.dataLogger.addLineToParagraph(1, pointing.X.ToString() + '\t' + pointing.Y.ToString() + '\t' + pointing.Z.ToString() + '\t' + mismatch.X.ToString() + '\t' + mismatch.Y.ToString() + '\t' + mismatch.Z.ToString() + '\t' + (pointing.X - mismatch.X).ToString() + '\t' + (pointing.Y - mismatch.Y).ToString() + '\t' + (pointing.Z - mismatch.Z).ToString() + '\t' + aiming.X.ToString() + '\t' + aiming.Y.ToString() + '\t' + aiming.Z.ToString());
-
-            this.dataLogger.addLineToParagraph(1, "");
-            // Standard deviation points pointed and looked at
-            pointing = this.statistic.getStdAbw(this.calibrationPoints);
-            mismatch = this.statistic.getStdAbw(this.mismatchPoints);
-            aiming = this.statistic.getStdAbw(aim);
-            this.dataLogger.addLineToParagraph(1, "StdAbw");
-            this.dataLogger.addLineToParagraph(1, pointing.X.ToString() + '\t' + pointing.Y.ToString() + '\t' + pointing.Z.ToString() + '\t' + mismatch.X.ToString() + '\t' + mismatch.Y.ToString() + '\t' + mismatch.Z.ToString() + '\t' + (pointing.X - mismatch.X).ToString() + '\t' + (pointing.Y - mismatch.Y).ToString() + '\t' + (pointing.Z - mismatch.Z).ToString() + '\t' + aiming.X.ToString() + '\t' + aiming.Y.ToString() + '\t' + aiming.Z.ToString());
-
-            this.dataLogger.addLineToParagraph(1, "");
-            // Empiric standard deviation points pointed and looked at
-            pointing = this.statistic.getEmpStdAbw(this.calibrationPoints);
-            mismatch = this.statistic.getEmpStdAbw(this.mismatchPoints);
-            aiming = this.statistic.getEmpStdAbw(aim);
-            this.dataLogger.addLineToParagraph(1, "Emp. StdAbw");
-            this.dataLogger.addLineToParagraph(1, pointing.X.ToString() + '\t' + pointing.Y.ToString() + '\t' + pointing.Z.ToString() + '\t' + mismatch.X.ToString() + '\t' + mismatch.Y.ToString() + '\t' + mismatch.Z.ToString() + '\t' + (pointing.X - mismatch.X).ToString() + '\t' + (pointing.Y - mismatch.Y).ToString() + '\t' + (pointing.Z - mismatch.Z).ToString() + '\t' + aiming.X.ToString() + '\t' + aiming.Y.ToString() + '\t' + aiming.Z.ToString());
-
-            this.dataLogger.addLineToParagraph(1, "");
-            // Standard error points pointed and looked at
-            pointing = this.statistic.getStdErr(this.calibrationPoints);
-            mismatch = this.statistic.getStdErr(this.mismatchPoints);
-            aiming = this.statistic.getStdErr(aim);
-            this.dataLogger.addLineToParagraph(1, "StdFehler");
-            this.dataLogger.addLineToParagraph(1, pointing.X.ToString() + '\t' + pointing.Y.ToString() + '\t' + pointing.Z.ToString() + '\t' + mismatch.X.ToString() + '\t' + mismatch.Y.ToString() + '\t' + mismatch.Z.ToString() + '\t' + (pointing.X - mismatch.X).ToString() + '\t' + (pointing.Y - mismatch.Y).ToString() + '\t' + (pointing.Z - mismatch.Z).ToString() + '\t' + aiming.X.ToString() + '\t' + aiming.Y.ToString() + '\t' + aiming.Z.ToString());
-            
-            this.dataLogger.writeFile();
-            this.round = round;
+            System.Media.SystemSounds.Asterisk.Play(); // Position
         }
 
-        //--- UPDATE VPs NAME ---//
+        private void button4_Click(object sender, RoutedEventArgs e)
+        {
+            System.Media.SystemSounds.Hand.Play(); // Position
+        }
+
+        //--- "UPDATE VPs NAME" ---//
         private void textBox1_TextChanged(object sender, TextChangedEventArgs e)
         {
             this.vp = this.textBox1.Text;
-            this.debug1 = this.textBox1.Text;
             this.round = 0;
-            this.debug2 = this.round.ToString();
         }
 
-        //--- DETERMINE PROGRAM'S OPERATING MODE ---//
+        //--- "DETERMINE PROGRAM'S OPERATING MODE" ---//
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (this.comboBox1.SelectedIndex == 0)
@@ -833,22 +800,10 @@ namespace WpfApplication3
             }
         }
 
-        //--- DEBUG STATISTICS ---//
+        //--- Label3-Click ---//
         private void label3_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            List<double> check = new List<double>();
-            check.Add(1);
-            check.Add(2);
-            check.Add(4);
-            check.Add(8);
-            check.Add(16);
-            check.Add(32);
-            this.debug4 = "Average:" + '\t' + this.statistic.getAvg(check).ToString() + '\n';
-            this.debug4 += "Varianz:" + '\t' + this.statistic.getVar(check).ToString() + '\n';
-            this.debug4 += "StdAbw:" + '\t' + this.statistic.getStdAbw(check).ToString() + '\n';
-            this.debug4 += "empVar:" + '\t' + this.statistic.getEmpVar(check).ToString() + '\n';
-            this.debug4 += "empStdAbw:" + '\t' + this.statistic.getEmpStdAbw(check).ToString() + '\n';
-            this.debug4 += "StdErr:" + '\t' + this.statistic.getStdErr(check).ToString();
+            
         }
         #endregion
     }

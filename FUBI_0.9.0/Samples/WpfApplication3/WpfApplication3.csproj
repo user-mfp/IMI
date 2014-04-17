@@ -59,19 +59,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ExhibitionWindow.xaml.cs">
-      <DependentUpon>ExhibitionWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="lib\Calibrator.cs" />
     <Compile Include="lib\DataLogger.cs" />
     <Compile Include="lib\Statistics.cs" />
-    <Compile Include="SetupWindow.xaml.cs">
-      <DependentUpon>SetupWindow.xaml</DependentUpon>
-    </Compile>
-    <Page Include="ExhibitionWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -88,10 +78,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SetupWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

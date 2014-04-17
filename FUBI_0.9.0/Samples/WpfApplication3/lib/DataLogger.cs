@@ -31,10 +31,10 @@ namespace WpfApplication3.lib
             this.paragraphs = new List<List<string>>();
         }
 
-        public DataLogger(string path)
+        public DataLogger(string path, string vp)
         {
             this.path = path;
-            this.vp = "VP";
+            this.vp = vp;
             this.round = -1;
             this.paragraphs = new List<List<string>>();
         }
@@ -65,7 +65,7 @@ namespace WpfApplication3.lib
         public void writeFile()
         {
             // Build full path and filename
-            string fullPath = this.path + System.DateTime.Now.ToString("yyyy-M-dd_HH.mm.ss") + "_" + this.vp + "_defPlane()_" + this.round.ToString() + ".txt";
+            string fullPath = this.path + System.DateTime.Now.ToString("yyyy-M-dd_HH.mm.ss") + "_" + this.vp + "_CALIBRATION_" + this.round.ToString() + ".txt";
             // Start writing the file
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(fullPath)) //@"C:\Users\Public\TestFolder\pointingLines.txt"
             {
