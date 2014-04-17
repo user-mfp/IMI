@@ -110,7 +110,7 @@ namespace WpfApplication3.lib
             List<Point3D> testPoints = new List<Point3D>();
 
             testPoints.Add(xy);
-            //testPoints.Add(yz);
+            testPoints.Add(yz);
             testPoints.Add(xz);
 
             return testPoints;
@@ -157,7 +157,7 @@ namespace WpfApplication3.lib
             Point3D xz = new Point3D(i.X / i.Y, 0, i.Z / i.Y);
             return xz;
         }
-
+        
         public List<Point3D> vectorsIntersectFoot(Vector vectorA, Vector vectorB)
         {
             List<Point3D> feet = new List<Point3D>();
@@ -204,7 +204,7 @@ namespace WpfApplication3.lib
 
         /* OLD INTERSECTION FOOT
         // Returns the two closest points or intersection of two vectors
-        public List<Point3D> vectorsIntersect(Vector vectorA, Vector vectorB)
+        public List<Point3D> vectorsIntersectFoot(Vector vectorA, Vector vectorB)
         {
             List<Point3D> feet = new List<Point3D>();
             vectorA.Direction.Normalize();

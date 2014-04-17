@@ -47,15 +47,15 @@ namespace WpfApplication3.lib
                     pointingSamples = samples;
                     pointAvgVectors = this.geometryHandler.getAvgVector(pointingSamples, samplesPerPosition);
                     sortAvgVectors(ref pointAvgVectors, 3); // 3 corners
-                    setFootPoints(ref pointFootPoints, pointAvgVectors);
-                    setProjPoints(ref pointProjPoints, pointAvgVectors);
+                    setFootPoints(ref pointFootPoints, pointAvgVectors, 3);
+                    setProjPoints(ref pointProjPoints, pointAvgVectors, 3);
                     break;
                 case 1: // Only aiming-samples
                     aimingSamples = samples;
                     aimAvgVectors = this.geometryHandler.getAvgVector(aimingSamples, samplesPerPosition);
                     sortAvgVectors(ref aimAvgVectors, 3); // 3 corners
-                    setFootPoints(ref aimFootPoints, aimAvgVectors);
-                    setProjPoints(ref aimProjPoints, aimAvgVectors);
+                    setFootPoints(ref aimFootPoints, aimAvgVectors, 3);
+                    setProjPoints(ref aimProjPoints, aimAvgVectors, 3);
                     break;
                 case 2: // Both kinds of samples
                     pointingSamples = new List<GeometryHandler.Vector>();
@@ -71,13 +71,13 @@ namespace WpfApplication3.lib
                     }
                     pointAvgVectors = this.geometryHandler.getAvgVector(pointingSamples, samplesPerPosition);
                     sortAvgVectors(ref pointAvgVectors, 3); // 3 corners
-                    setFootPoints(ref pointFootPoints, pointAvgVectors);
-                    setProjPoints(ref pointProjPoints, pointAvgVectors);
+                    setFootPoints(ref pointFootPoints, pointAvgVectors, 3);
+                    setProjPoints(ref pointProjPoints, pointAvgVectors, 3);
 
                     aimAvgVectors = this.geometryHandler.getAvgVector(aimingSamples, samplesPerPosition);
                     sortAvgVectors(ref aimAvgVectors, 3); // 3 corners
-                    setFootPoints(ref aimFootPoints, aimAvgVectors);
-                    setProjPoints(ref aimProjPoints, aimAvgVectors);
+                    setFootPoints(ref aimFootPoints, aimAvgVectors, 3);
+                    setProjPoints(ref aimProjPoints, aimAvgVectors, 3);
                     break;
                 default: // Undefined mode
                     break;
@@ -86,41 +86,73 @@ namespace WpfApplication3.lib
             return null;// pointFootPoints;
         }
 
-        private void setFootPoints(ref List<Point3D> points, List<GeometryHandler.Vector> avgVectors)
+        private void setFootPoints(ref List<Point3D> footPoints, List<GeometryHandler.Vector> avgVectors, int points)
         {
-            List<Point3D> tmp = new List<Point3D>();
+            int positions = avgVectors.Count / points;
+            List<List<GeometryHandler.Vector>> vectors = new List<List<GeometryHandler.Vector>>();
+            List<List<Point3D>> feet = new List<List<Point3D>>();
 
-            for (int vectorA = 0; vectorA != (avgVectors.Count - 1); ++vectorA) // For each vector, except the last
+            int avgCount = 0;
+            for (int point = 0; point != points; ++point)
             {
-                for (int vectorB = (vectorA + 1); vectorB != avgVectors.Count; ++vectorB) // and every following vector
+                vectors.Add(new List<GeometryHandler.Vector>()); // Add a list for all vectors to particular point from all positions
+                for (int position = 0; position != positions; ++position)
                 {
-                    if (avgVectors[vectorA] != avgVectors[vectorB]) // Vectors are not equal(vectorA.Start != vectorB.Start && vectorA.End != vectorB.End)
+                    vectors[point].Add(avgVectors[avgCount]); // Fill list with vectors from particular position to one point
+                    ++avgCount;
+                }
+
+                feet.Add(new List<Point3D>()); // Add a list for all foot points concerning one point
+                for (int vectorA = 0; vectorA != (vectors[point].Count - 1); ++vectorA) // For each vector, except the last
+                {
+                    for (int vectorB = (vectorA + 1); vectorB != vectors[point].Count; ++vectorB) // and every following vector
                     {
-                        foreach (Point3D intersection in this.geometryHandler.vectorsIntersectFoot(avgVectors[vectorA], avgVectors[vectorB]))
+                        if (vectors[point][vectorA] != vectors[point][vectorB]) // Vectors are not equal(vectorA.Start != vectorB.Start && vectorA.End != vectorB.End)
                         {
-                            points.Add(intersection); // Add intersections to List
+                            foreach (Point3D foot in this.geometryHandler.vectorsIntersectFoot(vectors[point][vectorA], vectors[point][vectorB]))
+                            {
+                                feet[point].Add(foot); // Add foot point to list
+                            }
                         }
                     }
                 }
-            }
 
-            //points = tmp;
+                footPoints.Add(this.geometryHandler.getCenter(feet[point])); // Add the center of all foot points for particular point to list of foot points
+            }
         }
 
-        private void setProjPoints(ref List<Point3D> points, List<GeometryHandler.Vector> avgVectors)
+        private void setProjPoints(ref List<Point3D> projPoints, List<GeometryHandler.Vector> avgVectors, int points)
         {
-            for (int vectorA = 0; vectorA != (avgVectors.Count - 1); ++vectorA) // For each vector, except the last
+            int positions = avgVectors.Count / points;
+            List<List<GeometryHandler.Vector>> vectors = new List<List<GeometryHandler.Vector>>();
+            List<List<Point3D>> proj = new List<List<Point3D>>();
+
+            int avgCount = 0;
+            for (int point = 0; point != points; ++point)
             {
-                for (int vectorB = (vectorA + 1); vectorB != avgVectors.Count; ++vectorB) // and every following vector
+                vectors.Add(new List<GeometryHandler.Vector>()); // Add a list for all vectors to particular point from all positions
+                for (int position = 0; position != positions; ++position)
                 {
-                    if (avgVectors[vectorA] != avgVectors[vectorB]) // Vectors are not equal(vectorA.Start != vectorB.Start && vectorA.End != vectorB.End)
+                    vectors[point].Add(avgVectors[avgCount]); // Fill list with vectors from particular position to one point
+                    ++avgCount;
+                }
+
+                proj.Add(new List<Point3D>()); // Add a list for all foot points concerning one point
+                for (int vectorA = 0; vectorA != (vectors[point].Count - 1); ++vectorA) // For each vector, except the last
+                {
+                    for (int vectorB = (vectorA + 1); vectorB != vectors[point].Count; ++vectorB) // and every following vector
                     {
-                        foreach (Point3D intersection in this.geometryHandler.vectorsIntersectProj(avgVectors[vectorA], avgVectors[vectorB]))
+                        if (vectors[point][vectorA] != vectors[point][vectorB]) // Vectors are not equal(vectorA.Start != vectorB.Start && vectorA.End != vectorB.End)
                         {
-                            points.Add(intersection); // Add intersections to List
+                            foreach (Point3D foot in this.geometryHandler.vectorsIntersectProj(vectors[point][vectorA], vectors[point][vectorB]))
+                            {
+                                proj[point].Add(foot); // Add foot point to list
+                            }
                         }
                     }
                 }
+
+                projPoints.Add(this.geometryHandler.getCenter(proj[point])); // Add the center of all foot points for particular point to list of foot points
             }
         }
 

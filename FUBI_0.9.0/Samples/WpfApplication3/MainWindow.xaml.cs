@@ -366,7 +366,7 @@ namespace WpfApplication3
         
         private void defineExhibitionPlane()
         {
-            this.calibrationSampleBreak = 500;
+            this.calibrationSampleBreak = 3000;
             List<Point3D> corners1 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 2), 3, 10, 2); // Calibration-points
             //List<Point3D> corners2 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 0)); // Validation-points
 
