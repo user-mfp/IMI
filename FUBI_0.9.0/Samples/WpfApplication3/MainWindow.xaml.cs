@@ -369,7 +369,7 @@ namespace WpfApplication3
         private void defineExhibitionPlane()
         {
             calibrator = new Calibrator(10, this.vp, this.round); // Initiate calibrator
-            this.calibrationSampleBreak = 200;
+            this.calibrationSampleBreak = 3000;
             List<Point3D> corners1 = this.calibrator.definePlane(sampleVectors(4, 3, 10, 2), 3, 10, 2); // Calibration-points
             //List<Point3D> corners2 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 0)); // Validation-points
 
@@ -402,7 +402,7 @@ namespace WpfApplication3
                     this.debug3 = point;
                     this.debug4 = "Ecke " + (point + 1); // Point to corner #
                     //StaffWindow.pointTo(point);
-                    countDown(this.calibrationSampleBreak / 2); // Wait for 3s
+                    countDown(this.calibrationSampleBreak - 1000); // Wait for 3s
 
                     for (int sample = 0; sample != samples; ++sample)
                     {

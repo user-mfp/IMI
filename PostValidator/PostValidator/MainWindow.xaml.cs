@@ -36,14 +36,14 @@ namespace PostValidator
         private int pZall = 0;
 
         //--- Reading ---//
-        private string folder = @"D:\Master\TestFolder\2014-1-28_defPlane\Rohdaten\";
+        private string folder = @"D:\Master\TestFolder\CAL_0\Rohdaten\";
         //private string pointingPth = @"D:\Master\TestFolder\2014-2-12_defPlane\Rohdaten\";
-        private string completePth = "all.txt";
+        private string completePth = ".txt";
         //private string cleanedPth = "clean.txt";
         
         //--- Parsing ---//
         private List<Point3D> pointingPts = new List<Point3D>();
-        private List<Point3D> lookingPts = new List<Point3D>();
+        private List<Point3D> aimingPts = new List<Point3D>();
         private List<Point3D> mismatchPts = new List<Point3D>();
 
         //--- Constants ---//
@@ -83,19 +83,19 @@ namespace PostValidator
             switch (this.comboBox1.SelectedIndex)
             {
                 case 0: // Pointing
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingX" + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingY" + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingZ" + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingX4" + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingY4" + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingZ4" + this.completePth));
                     break;
-                case 1: // Looking
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "lookingX" + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "lookingY" + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "lookingZ" + this.completePth));
+                case 1: // aiming
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingX4" + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingY4" + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingZ4" + this.completePth));
                     break;
                 case 2: // Mismatch
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "MismatchX" + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "MismatchY" + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "MismatchZ" + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "CombinedX4" + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "CombinedY4" + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "CombinedZ4" + this.completePth));
                     break;
                 default:
                     break;
@@ -123,14 +123,14 @@ namespace PostValidator
                     }
                     break;
                 case 1:
-                    if (this.lookingPts.Count == 0)
+                    if (this.aimingPts.Count == 0)
                     {
                         for (int i = 0; i != data[0].Length; ++i)
                         {
                             tmpPnt.X = Double.Parse(data[0][i]);
                             tmpPnt.Y = Double.Parse(data[1][i]);
                             tmpPnt.Z = Double.Parse(data[2][i]);
-                            this.lookingPts.Add(tmpPnt);
+                            this.aimingPts.Add(tmpPnt);
                         }
                     }
                     break;
@@ -188,14 +188,14 @@ namespace PostValidator
                             }
                         }
                     }
-                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_pointing_" + this.threshold + ".BMP");
+                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Pointing4_" + this.threshold + ".BMP");
                     makeStats();
                     break;
                 case 1:
-                    tmpBmp = new Bitmap(this.lookingPts.Count * this.stretch, this.lookingPts.Count * this.stretch);
-                    for (int pt1 = 0; pt1 != this.lookingPts.Count; ++pt1)
+                    tmpBmp = new Bitmap(this.aimingPts.Count * this.stretch, this.aimingPts.Count * this.stretch);
+                    for (int pt1 = 0; pt1 != this.aimingPts.Count; ++pt1)
                     {
-                        for (int pt2 = 0; pt2 != this.lookingPts.Count; ++pt2)
+                        for (int pt2 = 0; pt2 != this.aimingPts.Count; ++pt2)
                         {
                             if (pt1 == pt2)
                             {
@@ -213,13 +213,13 @@ namespace PostValidator
                                 {
                                     for (int i2 = 0; i2 != this.stretch; ++i2)
                                     {
-                                        tmpBmp.SetPixel((pt1 * this.stretch) + i1, (pt2 * this.stretch) + i2, visualize(withinthreshold(this.lookingPts[pt1], this.lookingPts[pt2])));
+                                        tmpBmp.SetPixel((pt1 * this.stretch) + i1, (pt2 * this.stretch) + i2, visualize(withinthreshold(this.aimingPts[pt1], this.aimingPts[pt2])));
                                     }
                                 }
                             }
                         }
                     }
-                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_looking_" + this.threshold + ".BMP");
+                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Aiming4_" + this.threshold + ".BMP");
                     makeStats();
                     break;
                 case 2:
@@ -250,7 +250,7 @@ namespace PostValidator
                             }
                         }
                     }
-                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_mismatch_" + this.threshold + ".BMP");
+                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Combined4_" + this.threshold + ".BMP");
                     makeStats();
                     break;
                 default:
@@ -312,7 +312,7 @@ namespace PostValidator
         private void makeStats()
         {
             // NumberOfPoints
-            double nop = Math.Max(Math.Max(this.pointingPts.Count, this.lookingPts.Count), this.mismatchPts.Count);
+            double nop = Math.Max(Math.Max(this.pointingPts.Count, this.aimingPts.Count), this.mismatchPts.Count);
             // NumberOfValidations = number of pixels
             double nov = Math.Pow((nop * this.stretch), 2);
             // Pixels on diagonal
@@ -332,7 +332,7 @@ namespace PostValidator
             switch (this.comboBox1.SelectedIndex)
             { 
                 case 0:
-                    System.IO.StreamWriter pointingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_pointing_" + this.threshold + ".TXT");
+                    System.IO.StreamWriter pointingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Pointing4_" + this.threshold + ".TXT");
                     lines.Add("Pointing");
                     lines.Add("");
                     lines.Add("Points:" + '\t' + this.pointingPts.Count);
@@ -349,10 +349,10 @@ namespace PostValidator
                     pointingFile.Close();
                     break;
                 case 1:
-                    System.IO.StreamWriter lookingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_looking_" + this.threshold + ".TXT");
-                    lines.Add("Looking");
+                    System.IO.StreamWriter aimingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Aiming4_" + this.threshold + ".TXT");
+                    lines.Add("aiming");
                     lines.Add("");
-                    lines.Add("Points:" + '\t' + this.lookingPts.Count);
+                    lines.Add("Points:" + '\t' + this.aimingPts.Count);
                     lines.Add("threshold:" + '\t' + this.threshold + '\t' + "mm");
                     lines.Add("3 Passes:" + '\t' + pass3 + '\t' + "%");
                     lines.Add("2 Passes:" + '\t' + pass2 + '\t' + "%");
@@ -361,12 +361,12 @@ namespace PostValidator
 
                     foreach (string line in lines)
                     {
-                        lookingFile.WriteLine(line);
+                        aimingFile.WriteLine(line);
                     }
-                    lookingFile.Close();
+                    aimingFile.Close();
                     break;
                 case 2:
-                    System.IO.StreamWriter mitmatchFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_mismatch_" + this.threshold + ".TXT");
+                    System.IO.StreamWriter mitmatchFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Combined4_" + this.threshold + ".TXT");
                     lines.Add("Mismatch");
                     lines.Add("");
                     lines.Add("Points:" + '\t' + this.mismatchPts.Count);
@@ -405,8 +405,8 @@ namespace PostValidator
                     this.debug1 = "Pointing" + '\n';
                     evaluate();
                     break;
-                case 1: // Looking
-                    this.debug1 = "Looking" + '\n';
+                case 1: // aiming
+                    this.debug1 = "Aiming" + '\n';
                     evaluate();
                     break;
                 case 2: // Mismatch
