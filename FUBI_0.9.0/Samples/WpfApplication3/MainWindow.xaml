@@ -11,7 +11,7 @@
         <Label Content="" Height="200" HorizontalAlignment="Left" Margin="12,124,0,0" Name="label3" VerticalAlignment="Top" Width="500" FontSize="20" Background="Gainsboro" MouseLeftButtonUp="label3_MouseLeftButtonUp"/>
         <Label Content="Debug..." Height="250" HorizontalAlignment="Left" Margin="12,330,0,0" Name="label4" VerticalAlignment="Top" Width="500" FontSize="70" Foreground="LimeGreen" Background="Black" />
         <Button Content="X" Height="50" Width="50" HorizontalAlignment="Right" Name="button1" VerticalAlignment="Top"  FontSize="40" Click="button1_Click" Background="Red" />
-        <Button Content="Cali" Background="LimeGreen" Height="50" Width="200" HorizontalAlignment="Right" Name="button2" VerticalAlignment="Top" FontSize="40" Click="button2_Click" Margin="0,68,12,0" />
+        <Button Content="Cali" Height="50" Width="200" HorizontalAlignment="Right" Name="button2" VerticalAlignment="Top" FontSize="40" Click="button2_Click" Margin="0,68,12,0" />
         <Button Content="Pos" Height="50" Width="200" HorizontalAlignment="Right" Name="button3" VerticalAlignment="Top" FontSize="40" Click="button3_Click" Margin="0,522,12,0" />
         <Button Content="Pnt" Height="50" Width="200" Name="button4" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="40" Click="button4_Click" Margin="0,578,12,0" />
         <TextBox Text="VP" Width="200" FontSize="40" HorizontalAlignment="Right" Name="textBox1" VerticalAlignment="Top" Margin="0,124,12,0" TextChanged="textBox1_TextChanged" Height="64" />
