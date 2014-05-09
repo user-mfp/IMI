@@ -24,9 +24,8 @@ namespace PostValidator
         //--- Reading ---//
         private string folder = @"D:\Master\TestFolder\CAL_0\Rohdaten\PostEval\";
         private string curPnt; // Current point
-        //private string pointingPth = @"D:\Master\TestFolder\2014-2-12_defPlane\Rohdaten\";
-        private string completePth = ".txt";
-        //private string cleanedPth = "clean.txt";
+        private string completeTxt = "_CW1_s.TXT";
+        private string completeBmp = "_CW1_s.BMP";
         
         //--- Parsing ---//
         private List<Point3D> pointingPts = new List<Point3D>();
@@ -146,26 +145,27 @@ namespace PostValidator
         private List<string[]> readTxt()
         {
             List<string[]> data = new List<string[]>();
+                        
+            data.Add(System.IO.File.ReadAllLines(this.folder + "2014-5-08_Combined_#" + this.curPnt + "_TH" + this.threshold + this.completeTxt));
+            /*
             switch (this.comboBox1.SelectedIndex)
             {
                 case 0: // Pointing
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingX" + this.curPnt + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingY" + this.curPnt + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingZ" + this.curPnt + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingX" + this.curPnt + this.completeTxt));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingY" + this.curPnt + this.completeTxt));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingZ" + this.curPnt + this.completeTxt));
                     break;
                 case 1: // Aiming
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingX" + this.curPnt + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingY" + this.curPnt + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingZ" + this.curPnt + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingX" + this.curPnt + this.completeTxt));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingY" + this.curPnt + this.completeTxt));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingZ" + this.curPnt + this.completeTxt));
                     break;
                 case 2: // Combined
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "CombinedX" + this.curPnt + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "CombinedY" + this.curPnt + this.completePth));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "CombinedZ" + this.curPnt + this.completePth));
+                    data.Add(System.IO.File.ReadAllLines(this.folder + "2014-5-08_Combined_#" + this.curPnt + "_TH" + this.threshold + this.completeTxt));
                     break;
                 default:
                     break;
-            }
+            }*/
             return data;
         }
 
@@ -175,14 +175,14 @@ namespace PostValidator
             List<string[]> pointingData = new List<string[]>();
             List<string[]> aimingData = new List<string[]>();
 
-            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingX" + this.curPnt + this.completePth));
-            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingY" + this.curPnt + this.completePth));
-            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingZ" + this.curPnt + this.completePth));
+            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingX" + this.curPnt + this.completeTxt));
+            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingY" + this.curPnt + this.completeTxt));
+            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingZ" + this.curPnt + this.completeTxt));
             classificationData.Add(pointingData);
 
-            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingX" + this.curPnt + this.completePth));
-            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingY" + this.curPnt + this.completePth));
-            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingZ" + this.curPnt + this.completePth));
+            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingX" + this.curPnt + this.completeTxt));
+            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingY" + this.curPnt + this.completeTxt));
+            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingZ" + this.curPnt + this.completeTxt));
             classificationData.Add(aimingData);
 
             return classificationData;
@@ -266,39 +266,76 @@ namespace PostValidator
         #endregion
 
         #region PARSING
-        private void parseLines(List<string[]> data)
+        private void parse(List<string[]> data)
         {
-            Point3D tmpPnt = new Point3D();
+            Point3D tmp = new Point3D();
+
             switch (this.comboBox1.SelectedIndex)
             {
                 case 0:
                     this.pointingPts.Clear();                    
                     for (int i = 0; i != data[0].Length; ++i)
                     {
-                        tmpPnt.X = Double.Parse(data[0][i]);
-                        tmpPnt.Y = Double.Parse(data[1][i]);
-                        tmpPnt.Z = Double.Parse(data[2][i]);
-                        this.pointingPts.Add(tmpPnt);
+                        tmp.X = Double.Parse(data[0][i]);
+                        tmp.Y = Double.Parse(data[1][i]);
+                        tmp.Z = Double.Parse(data[2][i]);
+                        this.pointingPts.Add(tmp);
                     }                    
                     break;
                 case 1:
                     this.aimingPts.Clear();
                     for (int i = 0; i != data[0].Length; ++i)
                     {
-                        tmpPnt.X = Double.Parse(data[0][i]);
-                        tmpPnt.Y = Double.Parse(data[1][i]);
-                        tmpPnt.Z = Double.Parse(data[2][i]);
-                        this.aimingPts.Add(tmpPnt);
+                        tmp.X = Double.Parse(data[0][i]);
+                        tmp.Y = Double.Parse(data[1][i]);
+                        tmp.Z = Double.Parse(data[2][i]);
+                        this.aimingPts.Add(tmp);
                     }
                     break;
                 case 2:
                     this.combinedPts.Clear();
                     for (int i = 0; i != data[0].Length; ++i)
                     {
-                        tmpPnt.X = Double.Parse(data[0][i]);
-                        tmpPnt.Y = Double.Parse(data[1][i]);
-                        tmpPnt.Z = Double.Parse(data[2][i]);
-                        this.combinedPts.Add(tmpPnt);
+                        tmp.X = Double.Parse(data[0][i]);
+                        tmp.Y = Double.Parse(data[1][i]);
+                        tmp.Z = Double.Parse(data[2][i]);
+                        this.combinedPts.Add(tmp);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            updateView();
+        }
+
+        private void parseLines(List<string[]> data)
+        {
+            Point3D tmp = new Point3D();
+
+            switch (this.comboBox1.SelectedIndex)
+            {
+                case 0:
+                    this.pointingPts.Clear();
+                    for (int i = 0; i != data[0].Length; ++i)
+                    {
+                        tmp = Point3D.Parse(data[0][i]);
+                        this.pointingPts.Add(tmp);
+                    }
+                    break;
+                case 1:
+                    this.aimingPts.Clear();
+                    for (int i = 0; i != data[0].Length; ++i)
+                    {
+                        tmp = Point3D.Parse(data[0][i]);
+                        this.aimingPts.Add(tmp);
+                    }
+                    break;
+                case 2:
+                    this.combinedPts.Clear();
+                    for (int i = 0; i != data[0].Length; ++i)
+                    {
+                        tmp = Point3D.Parse(data[0][i]);
+                        this.combinedPts.Add(tmp);
                     }
                     break;
                 default:
@@ -309,24 +346,24 @@ namespace PostValidator
 
         private void parseForClassification(List<List<string[]>> data)
         {
-            Point3D tmpPnt = new Point3D();
+            Point3D tmp = new Point3D();
 
             this.pointingPts.Clear(); 
             for (int i = 0; i != data[0][0].Length; ++i)
             {
-                tmpPnt.X = Double.Parse(data[0][0][i]);
-                tmpPnt.Y = Double.Parse(data[0][1][i]);
-                tmpPnt.Z = Double.Parse(data[0][2][i]);
-                this.pointingPts.Add(tmpPnt);
+                tmp.X = Double.Parse(data[0][0][i]);
+                tmp.Y = Double.Parse(data[0][1][i]);
+                tmp.Z = Double.Parse(data[0][2][i]);
+                this.pointingPts.Add(tmp);
             }    
 
             this.aimingPts.Clear();
             for (int i = 0; i != data[1][0].Length; ++i)
             {
-                tmpPnt.X = Double.Parse(data[1][0][i]);
-                tmpPnt.Y = Double.Parse(data[1][1][i]);
-                tmpPnt.Z = Double.Parse(data[1][2][i]);
-                this.aimingPts.Add(tmpPnt);
+                tmp.X = Double.Parse(data[1][0][i]);
+                tmp.Y = Double.Parse(data[1][1][i]);
+                tmp.Z = Double.Parse(data[1][2][i]);
+                this.aimingPts.Add(tmp);
             }
         }
         #endregion
@@ -366,7 +403,7 @@ namespace PostValidator
                             }
                         }
                     }
-                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Pointing" + this.curPnt + "_" + this.threshold + ".BMP");
+                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Pointing" + this.curPnt + "_" + this.threshold + this.completeBmp);
                     break;
                 case 1:
                     tmpBmp = new Bitmap(this.aimingPts.Count * this.stretch, this.aimingPts.Count * this.stretch);
@@ -396,7 +433,7 @@ namespace PostValidator
                             }
                         }
                     }
-                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Aiming" + this.curPnt + "_" + this.threshold + ".BMP");
+                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Aiming" + this.curPnt + "_" + this.threshold + this.completeBmp);
                     break;
                 case 2:
                     tmpBmp = new Bitmap(this.combinedPts.Count * this.stretch, this.combinedPts.Count * this.stretch);
@@ -426,7 +463,7 @@ namespace PostValidator
                             }
                         }
                     }
-                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Combined" + this.curPnt + "_" + this.threshold + ".BMP");
+                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Combined" + this.curPnt + "_" + this.threshold + this.completeBmp);
                     break;
                 default:
                     break;
@@ -503,7 +540,7 @@ namespace PostValidator
             switch (this.comboBox1.SelectedIndex)
             { 
                 case 0:
-                    System.IO.StreamWriter pointingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Pointing" + this.curPnt + "_" + this.threshold + ".TXT");
+                    System.IO.StreamWriter pointingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Pointing" + this.curPnt + "_" + this.threshold + this.completeTxt);
                     lines.Add("Pointing to Point #" + this.curPnt);
                     lines.Add("");
                     lines.Add("Points:" + '\t' + this.pointingPts.Count);
@@ -532,7 +569,7 @@ namespace PostValidator
                     pointingFile.Close();
                     break;
                 case 1:
-                    System.IO.StreamWriter aimingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Aiming" + this.curPnt + "_" + this.threshold + ".TXT");
+                    System.IO.StreamWriter aimingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Aiming" + this.curPnt + "_" + this.threshold + this.completeTxt);
                     lines.Add("Aiming to Point #" + this.curPnt);
                     lines.Add("");
                     lines.Add("Points:" + '\t' + this.aimingPts.Count);
@@ -561,7 +598,7 @@ namespace PostValidator
                     aimingFile.Close();
                     break;
                 case 2:
-                    System.IO.StreamWriter mitmatchFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Combined" + this.curPnt + "_" + this.threshold + ".TXT");
+                    System.IO.StreamWriter mitmatchFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Combined" + this.curPnt + "_" + this.threshold + this.completeTxt);
                     lines.Add("Combined of Point #" + this.curPnt);
                     lines.Add("");
                     lines.Add("Points:" + '\t' + this.combinedPts.Count);
@@ -789,15 +826,15 @@ namespace PostValidator
 
         private void button2_Click(object sender, RoutedEventArgs e)
         {
-            for (int mode = 0; mode != 3; ++mode)
+            //for (int mode = 0; mode != 3; ++mode)
+            //{
+            this.comboBox1.SelectedIndex = 2;// mode;
+            for (int threshold = 0; threshold != 11; ++threshold)
             {
-                this.comboBox1.SelectedIndex = mode;
-                for (int threshold = 0; threshold != 11; ++threshold)
-                {
-                    this.comboBox2.SelectedIndex = threshold;
-                    evaluate();
-                }
+                this.comboBox2.SelectedIndex = threshold;
+                evaluate();
             }
+            //}
         }
 
         private void comboBox3_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
