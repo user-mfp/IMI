@@ -35,7 +35,13 @@ namespace PostValidator
 
         //--- Constants ---//
         private int stretch = 10;
+
+        //--- Variables ---//
         private double threshold;
+        private double classWeight;
+        private List<Point3D> classification = new List<Point3D>(); // Only coded dominant (classified) axis
+        private List<double> weights = new List<double>(); // Only weights for respective point's axis' values
+        private List<Point3D> weightPts = new List<Point3D>(); 
         #endregion
 
         #region INITIALIZATION
@@ -114,17 +120,25 @@ namespace PostValidator
         #region EVALUATE
         private void evaluate()
         {
-            List<string[]> data = readTxt();
-
-            parseLines(data);
-
-            drawBitmap();
-
-            evalPassesDict();
-            
-            makeStats();
-
-            resetPassesDict();
+            if (this.classWeight == 1) // "No Classification"
+            {
+                List<string[]> data = readTxt();
+                parseLines(data);
+                drawBitmap();
+                evalPassesDict();
+                makeStats();
+                resetPassesDict();
+            }
+            else
+            {
+                // TODO
+                List<List<string[]>> data = readForClassification(); // - read pointing- [0] and aiming-data [1]
+                parseForClassification(data); // - parse pointing- and aiming-data and fill pointingPts and aimingPts
+                classifyCombined(); // - compare both and write classification
+                writeClassificationTxt();
+                weighCombined();
+                writeWeightedTxt();
+            }
         }
         #endregion
 
@@ -153,6 +167,101 @@ namespace PostValidator
                     break;
             }
             return data;
+        }
+
+        private List<List<string[]>> readForClassification()
+        {
+            List<List<string[]>> classificationData = new List<List<string[]>>();
+            List<string[]> pointingData = new List<string[]>();
+            List<string[]> aimingData = new List<string[]>();
+
+            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingX" + this.curPnt + this.completePth));
+            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingY" + this.curPnt + this.completePth));
+            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingZ" + this.curPnt + this.completePth));
+            classificationData.Add(pointingData);
+
+            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingX" + this.curPnt + this.completePth));
+            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingY" + this.curPnt + this.completePth));
+            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingZ" + this.curPnt + this.completePth));
+            classificationData.Add(aimingData);
+
+            return classificationData;
+        }
+        #endregion
+
+        #region WRITING
+        private void writeClassificationTxt()
+        {
+            string fullPath = this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + "Classification_#" + this.curPnt + "_TH" + this.threshold.ToString() + "_CW" + this.comboBox4.SelectedIndex.ToString() + "_b.TXT";
+            List<string> classifications = new List<string>();
+
+            foreach (Point3D point in this.classification)
+            { 
+                classifications.Add(point.X.ToString() + '\t' + point.Y.ToString() + '\t' + point.Z.ToString());
+            }
+
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fullPath))
+            {
+                foreach (string line in classifications)
+                {
+                    file.WriteLine(line);
+                }
+                file.Close();
+            }
+        }
+
+        private void writeWeightedTxt()
+        {
+            string wieghtPath = this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + "Weights_#" + this.curPnt + "_TH" + this.threshold.ToString() + "_CW" + this.comboBox4.SelectedIndex.ToString() + "_b.TXT";
+            List<string> weights = new List<string>();
+            Point3D tmp = new Point3D();
+            string combinedPath = this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + "Combined_#" + this.curPnt + "_TH" + this.threshold.ToString() + "_CW" + this.comboBox4.SelectedIndex.ToString() + "_b.TXT";
+            List<string> combined = new List<string>();
+
+            for (int axis = 0; axis != this.weights.Count; ++axis)
+            {                
+                if(axis % 3 == 0)
+                {
+                    tmp.X = this.weights[axis];
+                }
+                else if (axis % 3 == 1)
+                {
+                    tmp.Y = this.weights[axis];                
+                }
+                else // (axis % 3 == 2)
+                {
+                    tmp.Z = this.weights[axis];
+                    this.weightPts.Add(tmp);
+                }
+            }
+            this.weights.Clear();
+            foreach (Point3D point in this.weightPts)
+            {
+                weights.Add(point.X.ToString() + '\t' + point.Y.ToString() + '\t' + point.Z.ToString());
+            }
+            this.weightPts.Clear();
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(wieghtPath))
+            {
+                foreach (string line in weights)
+                {
+                    file.WriteLine(line);
+                }
+                file.Close();
+            }
+
+            foreach (Point3D point in this.combinedPts)
+            {
+                combined.Add(point.X.ToString() + '\t' + point.Y.ToString() + '\t' + point.Z.ToString());
+            }
+            this.combinedPts.Clear();
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(combinedPath))
+            {
+                foreach (string line in combined)
+                {
+                    file.WriteLine(line);
+                }
+                file.Close();
+            }
         }
         #endregion
 
@@ -196,6 +305,29 @@ namespace PostValidator
                     break;
             }
             updateView();
+        }
+
+        private void parseForClassification(List<List<string[]>> data)
+        {
+            Point3D tmpPnt = new Point3D();
+
+            this.pointingPts.Clear(); 
+            for (int i = 0; i != data[0][0].Length; ++i)
+            {
+                tmpPnt.X = Double.Parse(data[0][0][i]);
+                tmpPnt.Y = Double.Parse(data[0][1][i]);
+                tmpPnt.Z = Double.Parse(data[0][2][i]);
+                this.pointingPts.Add(tmpPnt);
+            }    
+
+            this.aimingPts.Clear();
+            for (int i = 0; i != data[1][0].Length; ++i)
+            {
+                tmpPnt.X = Double.Parse(data[1][0][i]);
+                tmpPnt.Y = Double.Parse(data[1][1][i]);
+                tmpPnt.Z = Double.Parse(data[1][2][i]);
+                this.aimingPts.Add(tmpPnt);
+            }
         }
         #endregion
 
@@ -463,6 +595,128 @@ namespace PostValidator
 
             this.debug1 += "3 Passes:" + '\t' + Math.Round(pass3, 3) + "%" + '\n' + "2 Passes:" + '\t' + Math.Round(pass2, 3) + "%" + '\n' + "1 Pass:" + '\t' + Math.Round(pass1, 3) + "%" + '\n' + "0 Passes:" + '\t' + Math.Round(pass0, 3) + "%" + '\n';
         }
+        
+        private void classifyCombined()
+        {
+            Point3D tmp = new Point3D();
+
+            this.classification.Clear();
+            for (int i = 0; i != this.aimingPts.Count; ++i)
+            {
+                tmp = classifyPoints(this.pointingPts[i], this.aimingPts[i]); // Check IF a classification is possible or necessary
+                this.classification.Add(tmp); // Add result of classification for respective pair of points
+            }
+        }
+        
+        private Point3D classifyPoints(Point3D pointing, Point3D aiming)
+        {
+            Point3D tmp = new Point3D();
+
+            tmp.X = classifyAxis(pointing.X, aiming.X);
+            tmp.Y = classifyAxis(pointing.Y, aiming.Y);
+            tmp.Z = classifyAxis(pointing.Z, aiming.Z);
+
+            return tmp;
+        }
+
+        private double classifyAxis(double pointing, double aiming) // Returns 1.0 for pointing-, 2.0 for aiming- and 0.0 for no bias
+        {
+            // Bias to center
+            double bias = smallerValue(pointing, aiming);
+            //double bias = biggerValue(pointing, aiming);
+            double diff = Math.Abs(Math.Abs(pointing) - Math.Abs(aiming));
+            
+            if (bias == pointing && diff > this.threshold) // Poiting is closer to 0 AND difference is above than current threshold
+            {
+                return 1.0;
+            }
+            else if (bias == aiming && diff > this.threshold) // Aiming is closer to 0 AND difference is above than threschold
+            {
+                return 2.0;
+            }
+            else // Either ist closer to 0 BUT difference is within threshold
+            {
+                return 0.0;
+            }
+
+        }
+
+        private double smallerValue(double lhs, double rhs)
+        {
+            double closer = Math.Min(Math.Abs(lhs), Math.Abs(rhs));
+
+            if (closer == Math.Abs(lhs))
+                return lhs;
+            else
+                return rhs;
+        }
+
+        private double biggerValue(double lhs, double rhs)
+        {
+            double closer = Math.Max(Math.Abs(lhs), Math.Abs(rhs));
+
+            if (closer == Math.Abs(lhs))
+                return lhs;
+            else
+                return rhs;
+        }
+
+        private void weighCombined()
+        {
+            Point3D tmp = new Point3D();
+
+            this.combinedPts.Clear();
+            for (int i = 0; i != this.classification.Count; ++i)
+            {
+                tmp = weighPoints(this.pointingPts[i], this.aimingPts[i], this.classification[i]);
+                this.combinedPts.Add(tmp);
+            }
+        }
+
+        private Point3D weighPoints(Point3D pointing, Point3D aiming, Point3D classification)
+        {
+            Point3D tmp = new Point3D();
+
+            tmp.X = weighAxis(pointing.X, aiming.X, classification.X);
+            tmp.Y = weighAxis(pointing.Y, aiming.Y, classification.Y);
+            tmp.Z = weighAxis(pointing.Z, aiming.Z, classification.Z);
+
+            return tmp;
+        }
+
+        private double weighAxis(double pointing, double aiming, double classification)
+        {
+            double weighted;
+
+            if (this.comboBox4.SelectedIndex == 1) // Automatic classification enabled
+            {
+                setClassWeight(pointing, aiming); // Calculate weight for each pointing- / aiming-pair
+            }
+
+            if (classification == 1) // Biased toward pointing
+            {
+                weighted = (pointing * this.classWeight) + (aiming * (1 - this.classWeight));
+            }
+            else if (classification == 2) // Biased toward aiming
+            {
+                weighted = (aiming * this.classWeight) + (pointing * (1 - this.classWeight));
+            }
+            else // No bias
+            {
+                weighted = (pointing + aiming) / 2; // Average
+            }
+
+            this.weights.Add(this.classWeight);
+
+            return weighted;
+        }
+
+        private void setClassWeight(double pointing, double aiming)
+        {
+            double diff = Math.Abs(Math.Abs(pointing) - Math.Abs(aiming));
+
+            this.classWeight = Math.Min(0.9, (Math.Max(0.6, (1 - (this.threshold / diff))))); // Min-,Max-Funktion: classWeight is bewteen 0.6 and 0.9
+        }
         #endregion
 
         #region EVENTS
@@ -564,6 +818,36 @@ namespace PostValidator
                     break;
                 default:
                     this.curPnt = "?";
+                    break;
+            }
+        }
+
+        private void comboBox4_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            switch (this.comboBox4.SelectedIndex)
+            { 
+                default: // case 0: "No Classification
+                    this.classWeight = 1.0;
+                    break;
+                case 1: // "Auto Classification"
+                    this.classWeight = 0.0;
+                    this.comboBox1.SelectedIndex = 2;
+                    break;
+                case 2: // "90% Classification"
+                    this.classWeight = 0.9;
+                    this.comboBox1.SelectedIndex = 2;
+                    break;
+                case 3: // "80% Classification"
+                    this.classWeight = 0.8;
+                    this.comboBox1.SelectedIndex = 2;
+                    break;
+                case 4: // "70% Classification"
+                    this.classWeight = 0.7;
+                    this.comboBox1.SelectedIndex = 2;
+                    break;
+                case 5: // "60% Classification"
+                    this.classWeight = 0.6;
+                    this.comboBox1.SelectedIndex = 2;
                     break;
             }
         }
