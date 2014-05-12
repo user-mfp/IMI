@@ -492,19 +492,24 @@ namespace PostValidator
         private int withinthreshold(Point3D a, Point3D b)
         {
             int passes = 0;
+            Point3D avg = new Point3D();
             Point3D tmp = new Point3D();
 
-            if (Math.Abs(a.X - b.X) < this.threshold)
+            avg.X = (a.X - b.X) / 2;
+            avg.Y = (a.Y - b.Y) / 2;
+            avg.Z = (a.Z - b.Z) / 2;
+
+            if (Math.Abs(a.X - avg.X) < this.threshold && Math.Abs(b.X - avg.X) < this.threshold)
             {
                 tmp.X = 1;
                 ++passes;
             }
-            if (Math.Abs(a.Y - b.Y) < this.threshold)
+            if (Math.Abs(a.Y - avg.Y) < this.threshold && Math.Abs(b.Y - avg.Y) < this.threshold)
             {
                 tmp.Y = 1;
                 ++passes;
             }
-            if (Math.Abs(a.Z - b.Z) < this.threshold)
+            if (Math.Abs(a.Z - avg.Z) < this.threshold && Math.Abs(a.Z - avg.Z) < this.threshold)
             {
                 tmp.Z = 1;
                 ++passes;
