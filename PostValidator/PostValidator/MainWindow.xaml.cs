@@ -22,10 +22,12 @@ namespace PostValidator
         private Dictionary<Point3D, int> passes = new Dictionary<Point3D, int>();
 
         //--- Reading ---//
-        private string folder = @"D:\Master\TestFolder\CAL_0\Rohdaten\PostEval\";
+        private string folder = @"D:\Master\TestFolder\CAL_0\Rohdaten\";//PostEval\";
+        private string curFile;// Current file
         private string curPnt; // Current point
-        private string completeTxt = "_CW1_s.TXT";
-        private string completeBmp = "_CW1_s.BMP";
+        private string curOrient; // Current orientation
+        private string completeTxt = ".TXT";
+        private string completeBmp = ".BMP";
         
         //--- Parsing ---//
         private List<Point3D> pointingPts = new List<Point3D>();
@@ -33,7 +35,7 @@ namespace PostValidator
         private List<Point3D> combinedPts = new List<Point3D>();
 
         //--- Constants ---//
-        private int stretch = 10;
+        private int stretch = 1;
 
         //--- Variables ---//
         private double threshold;
@@ -99,7 +101,6 @@ namespace PostValidator
                 
                 this.pall += pair.Value;
             }
-            int i = 0;
         }
 
         private void resetPassesDict()
@@ -134,9 +135,14 @@ namespace PostValidator
                 List<List<string[]>> data = readForClassification(); // - read pointing- [0] and aiming-data [1]
                 parseForClassification(data); // - parse pointing- and aiming-data and fill pointingPts and aimingPts
                 classifyCombined(); // - compare both and write classification
-                writeClassificationTxt();
-                weighCombined();
-                writeWeightedTxt();
+                writeClassificationTxt(); // - write classifications-file as TXT
+                weighCombined(); // - weigh points, according to classification, threshold and orientation
+                writeWeightedTxt(); // - write weights- and combinedPts-file as TXT
+                drawBitmap();
+                evalPassesDict();
+                makeStats();
+                resetPassesDict();
+                this.combinedPts.Clear();
             }
         }
         #endregion
@@ -146,26 +152,8 @@ namespace PostValidator
         {
             List<string[]> data = new List<string[]>();
                         
-            data.Add(System.IO.File.ReadAllLines(this.folder + "2014-5-08_Combined_#" + this.curPnt + "_TH" + this.threshold + this.completeTxt));
-            /*
-            switch (this.comboBox1.SelectedIndex)
-            {
-                case 0: // Pointing
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingX" + this.curPnt + this.completeTxt));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingY" + this.curPnt + this.completeTxt));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "PointingZ" + this.curPnt + this.completeTxt));
-                    break;
-                case 1: // Aiming
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingX" + this.curPnt + this.completeTxt));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingY" + this.curPnt + this.completeTxt));
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "AimingZ" + this.curPnt + this.completeTxt));
-                    break;
-                case 2: // Combined
-                    data.Add(System.IO.File.ReadAllLines(this.folder + "2014-5-08_Combined_#" + this.curPnt + "_TH" + this.threshold + this.completeTxt));
-                    break;
-                default:
-                    break;
-            }*/
+            data.Add(System.IO.File.ReadAllLines(this.folder + this.curFile + this.curPnt + this.completeTxt));
+
             return data;
         }
 
@@ -175,14 +163,10 @@ namespace PostValidator
             List<string[]> pointingData = new List<string[]>();
             List<string[]> aimingData = new List<string[]>();
 
-            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingX" + this.curPnt + this.completeTxt));
-            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingY" + this.curPnt + this.completeTxt));
-            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "PointingZ" + this.curPnt + this.completeTxt));
+            pointingData.Add(System.IO.File.ReadAllLines(this.folder + "Pointing_#" + this.curPnt + this.completeTxt));
             classificationData.Add(pointingData);
 
-            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingX" + this.curPnt + this.completeTxt));
-            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingY" + this.curPnt + this.completeTxt));
-            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "AimingZ" + this.curPnt + this.completeTxt));
+            aimingData.Add(System.IO.File.ReadAllLines(this.folder + "Aiming_#" + this.curPnt + this.completeTxt));
             classificationData.Add(aimingData);
 
             return classificationData;
@@ -192,7 +176,7 @@ namespace PostValidator
         #region WRITING
         private void writeClassificationTxt()
         {
-            string fullPath = this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + "Classification_#" + this.curPnt + "_TH" + this.threshold.ToString() + "_CW" + this.comboBox4.SelectedIndex.ToString() + "_b.TXT";
+            string fullPath = this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + "Classification_#" + this.curPnt + "_TH" + this.threshold + "_CW" + this.comboBox4.SelectedIndex + "_" + this.curOrient + ".TXT";
             List<string> classifications = new List<string>();
 
             foreach (Point3D point in this.classification)
@@ -212,10 +196,10 @@ namespace PostValidator
 
         private void writeWeightedTxt()
         {
-            string wieghtPath = this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + "Weights_#" + this.curPnt + "_TH" + this.threshold.ToString() + "_CW" + this.comboBox4.SelectedIndex.ToString() + "_b.TXT";
+            string wieghtPath = this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + "Weights_#" + this.curPnt + "_TH" + this.threshold + "_CW" + this.comboBox4.SelectedIndex + "_" + this.curOrient + ".TXT";
             List<string> weights = new List<string>();
             Point3D tmp = new Point3D();
-            string combinedPath = this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + "Combined_#" + this.curPnt + "_TH" + this.threshold.ToString() + "_CW" + this.comboBox4.SelectedIndex.ToString() + "_b.TXT";
+            string combinedPath = this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + "Combined_#" + this.curPnt + "_TH" + this.threshold + "_CW" + this.comboBox4.SelectedIndex + "_" + this.curOrient + ".TXT";
             List<string> combined = new List<string>();
 
             for (int axis = 0; axis != this.weights.Count; ++axis)
@@ -253,7 +237,6 @@ namespace PostValidator
             {
                 combined.Add(point.X.ToString() + '\t' + point.Y.ToString() + '\t' + point.Z.ToString());
             }
-            this.combinedPts.Clear();
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(combinedPath))
             {
                 foreach (string line in combined)
@@ -351,18 +334,14 @@ namespace PostValidator
             this.pointingPts.Clear(); 
             for (int i = 0; i != data[0][0].Length; ++i)
             {
-                tmp.X = Double.Parse(data[0][0][i]);
-                tmp.Y = Double.Parse(data[0][1][i]);
-                tmp.Z = Double.Parse(data[0][2][i]);
+                tmp = Point3D.Parse(data[0][0][i]);
                 this.pointingPts.Add(tmp);
             }    
 
             this.aimingPts.Clear();
             for (int i = 0; i != data[1][0].Length; ++i)
             {
-                tmp.X = Double.Parse(data[1][0][i]);
-                tmp.Y = Double.Parse(data[1][1][i]);
-                tmp.Z = Double.Parse(data[1][2][i]);
+                tmp = Point3D.Parse(data[1][0][i]);
                 this.aimingPts.Add(tmp);
             }
         }
@@ -403,7 +382,7 @@ namespace PostValidator
                             }
                         }
                     }
-                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Pointing" + this.curPnt + "_" + this.threshold + this.completeBmp);
+                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + this.curFile + this.curPnt + "_TH" + this.threshold + "_CW" + this.comboBox4.SelectedIndex + "_" + this.curOrient + ".BMP");
                     break;
                 case 1:
                     tmpBmp = new Bitmap(this.aimingPts.Count * this.stretch, this.aimingPts.Count * this.stretch);
@@ -433,7 +412,7 @@ namespace PostValidator
                             }
                         }
                     }
-                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Aiming" + this.curPnt + "_" + this.threshold + this.completeBmp);
+                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + this.curFile + this.curPnt + "_TH" + this.threshold + "_CW" + this.comboBox4.SelectedIndex + "_" + this.curOrient + ".BMP");
                     break;
                 case 2:
                     tmpBmp = new Bitmap(this.combinedPts.Count * this.stretch, this.combinedPts.Count * this.stretch);
@@ -463,7 +442,7 @@ namespace PostValidator
                             }
                         }
                     }
-                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Combined" + this.curPnt + "_" + this.threshold + this.completeBmp);
+                    tmpBmp.Save(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + this.curFile + this.curPnt + "_TH" + this.threshold + "_CW" + this.comboBox4.SelectedIndex + "_" + this.curOrient + ".BMP");
                     break;
                 default:
                     break;
@@ -495,21 +474,21 @@ namespace PostValidator
             Point3D avg = new Point3D();
             Point3D tmp = new Point3D();
 
-            avg.X = (a.X - b.X) / 2;
-            avg.Y = (a.Y - b.Y) / 2;
-            avg.Z = (a.Z - b.Z) / 2;
+            avg.X = (a.X + b.X) / 2;
+            avg.Y = (a.Y + b.Y) / 2;
+            avg.Z = (a.Z + b.Z) / 2;
 
-            if (Math.Abs(a.X - avg.X) < this.threshold && Math.Abs(b.X - avg.X) < this.threshold)
+            if (Math.Abs(Math.Abs(a.X) - Math.Abs(avg.X)) < this.threshold && Math.Abs(Math.Abs(b.X) - Math.Abs(avg.X)) < this.threshold)
             {
                 tmp.X = 1;
                 ++passes;
             }
-            if (Math.Abs(a.Y - avg.Y) < this.threshold && Math.Abs(b.Y - avg.Y) < this.threshold)
+            if (Math.Abs(Math.Abs(a.Y) - Math.Abs(avg.Y)) < this.threshold && Math.Abs(Math.Abs(b.Y) - Math.Abs(avg.Y)) < this.threshold)
             {
                 tmp.Y = 1;
                 ++passes;
             }
-            if (Math.Abs(a.Z - avg.Z) < this.threshold && Math.Abs(a.Z - avg.Z) < this.threshold)
+            if (Math.Abs(Math.Abs(a.Z) - Math.Abs(avg.Z)) < this.threshold && Math.Abs(Math.Abs(a.Z) - Math.Abs(avg.Z)) < this.threshold)
             {
                 tmp.Z = 1;
                 ++passes;
@@ -545,7 +524,7 @@ namespace PostValidator
             switch (this.comboBox1.SelectedIndex)
             { 
                 case 0:
-                    System.IO.StreamWriter pointingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Pointing" + this.curPnt + "_" + this.threshold + this.completeTxt);
+                    System.IO.StreamWriter pointingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + this.curFile + this.curPnt + "_TH" + this.threshold + "_CW" + this.comboBox4.SelectedIndex + "_" + this.curOrient + ".TXT");
                     lines.Add("Pointing to Point #" + this.curPnt);
                     lines.Add("");
                     lines.Add("Points:" + '\t' + this.pointingPts.Count);
@@ -574,7 +553,7 @@ namespace PostValidator
                     pointingFile.Close();
                     break;
                 case 1:
-                    System.IO.StreamWriter aimingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Aiming" + this.curPnt + "_" + this.threshold + this.completeTxt);
+                    System.IO.StreamWriter aimingFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + this.curFile + this.curPnt + "_TH" + this.threshold + "_CW" + this.comboBox4.SelectedIndex + "_" + this.curOrient + ".TXT");
                     lines.Add("Aiming to Point #" + this.curPnt);
                     lines.Add("");
                     lines.Add("Points:" + '\t' + this.aimingPts.Count);
@@ -603,7 +582,7 @@ namespace PostValidator
                     aimingFile.Close();
                     break;
                 case 2:
-                    System.IO.StreamWriter mitmatchFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_Combined" + this.curPnt + "_" + this.threshold + this.completeTxt);
+                    System.IO.StreamWriter combinedFile = new System.IO.StreamWriter(this.folder + System.DateTime.Now.ToString("yyyy-M-dd") + "_" + this.curFile + this.curPnt + "_TH" + this.threshold + "_CW" + this.comboBox4.SelectedIndex + "_" + this.curOrient + ".TXT");
                     lines.Add("Combined of Point #" + this.curPnt);
                     lines.Add("");
                     lines.Add("Points:" + '\t' + this.combinedPts.Count);
@@ -627,9 +606,9 @@ namespace PostValidator
 
                     foreach (string line in lines)
                     {
-                        mitmatchFile.WriteLine(line);
+                        combinedFile.WriteLine(line);
                     }
-                    mitmatchFile.Close();
+                    combinedFile.Close();
                     break;
                 default:
                     break;
@@ -664,8 +643,12 @@ namespace PostValidator
         private double classifyAxis(double pointing, double aiming) // Returns 1.0 for pointing-, 2.0 for aiming- and 0.0 for no bias
         {
             // Bias to center
-            double bias = smallerValue(pointing, aiming);
-            //double bias = biggerValue(pointing, aiming);
+            double bias;
+            if (this.comboBox5.SelectedIndex == 0) // Bigger value-bias
+                bias = smallerValue(pointing, aiming);
+            else // Smaller value-bias
+                bias = biggerValue(pointing, aiming);
+
             double diff = Math.Abs(Math.Abs(pointing) - Math.Abs(aiming));
             
             if (bias == pointing && diff > this.threshold) // Poiting is closer to 0 AND difference is above than current threshold
@@ -685,9 +668,9 @@ namespace PostValidator
 
         private double smallerValue(double lhs, double rhs)
         {
-            double closer = Math.Min(Math.Abs(lhs), Math.Abs(rhs));
+            double orient = Math.Min(Math.Abs(lhs), Math.Abs(rhs));
 
-            if (closer == Math.Abs(lhs))
+            if (orient == Math.Abs(lhs))
                 return lhs;
             else
                 return rhs;
@@ -695,9 +678,9 @@ namespace PostValidator
 
         private double biggerValue(double lhs, double rhs)
         {
-            double closer = Math.Max(Math.Abs(lhs), Math.Abs(rhs));
+            double orient = Math.Max(Math.Abs(lhs), Math.Abs(rhs));
 
-            if (closer == Math.Abs(lhs))
+            if (orient == Math.Abs(lhs))
                 return lhs;
             else
                 return rhs;
@@ -767,14 +750,17 @@ namespace PostValidator
             switch (this.comboBox1.SelectedIndex) // Mode of operation
             { 
                 case 0: // Pointing
+                    this.curFile = "Pointing_#";
                     this.debug1 = "Pointing" + '\n';
                     evaluate();
                     break;
                 case 1: // Aiming
+                    this.curFile = "Aiming_#";
                     this.debug1 = "Aiming" + '\n';
                     evaluate();
                     break;
                 case 2: // Combined
+                    this.curFile = "Combined_#";
                     this.debug1 = "Combined" + '\n';
                     evaluate();
                     break;
@@ -828,18 +814,38 @@ namespace PostValidator
                     break;
             }
         }
-
+        
+        // EV-ALL
         private void button2_Click(object sender, RoutedEventArgs e)
         {
-            //for (int mode = 0; mode != 3; ++mode)
-            //{
-            this.comboBox1.SelectedIndex = 2;// mode;
-            for (int threshold = 0; threshold != 11; ++threshold)
+            if (this.classWeight == 1)
             {
-                this.comboBox2.SelectedIndex = threshold;
-                evaluate();
+                for (int mode = 0; mode != 3; ++mode) // Ponting = 0, Aiming = 1, Combined = 2
+                {
+                    this.comboBox1.SelectedIndex = mode;
+                    for (int threshold = 0; threshold != 11; ++threshold)
+                    {
+                        this.comboBox2.SelectedIndex = threshold;
+                        evaluate();
+                    }
+                }
             }
-            //}
+            else
+            {
+                for (int threshold = 0; threshold != 11; ++threshold)
+                {
+                    this.comboBox2.SelectedIndex = threshold;
+                    for (int orient = 0; orient != 2; ++orient)
+                    {
+                        this.comboBox5.SelectedIndex = orient;
+                        for (int weight = 1; weight != 6; ++weight)
+                        {
+                            this.comboBox4.SelectedIndex = weight;
+                            evaluate();
+                        }
+                    }
+                }
+            }
         }
 
         private void comboBox3_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -890,6 +896,38 @@ namespace PostValidator
                 case 5: // "60% Classification"
                     this.classWeight = 0.6;
                     this.comboBox1.SelectedIndex = 2;
+                    break;
+            }
+        }
+
+        private void comboBox1_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            switch (this.comboBox1.SelectedIndex) // Mode of operation
+            {
+                case 0: // Pointing
+                    this.curFile = "Pointing_#";
+                    break;
+                case 1: // Aiming
+                    this.curFile = "Aiming_#";
+                    break;
+                case 2: // Combined
+                    this.curFile = "Combined_#";
+                    break;
+                default:
+                    this.debug1 = "Choose Mode!";
+                    break;
+            }
+        }
+
+        private void comboBox5_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            switch (this.comboBox5.SelectedIndex)
+            { 
+                default: // == 0
+                    this.curOrient = "b";
+                    break;
+                case 1:
+                    this.curOrient = "s";
                     break;
             }
         }

@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="369" Width="523">
     <Grid>
-        <Button Content="Evaluate" Height="23" HorizontalAlignment="Left" Margin="12,128,0,0" Name="button1" VerticalAlignment="Top" Width="120" Click="button1_Click"/>
-        <Label Content="" HorizontalAlignment="Left" Margin="12,157,0,47" Name="label1" Width="118" />
+        <Button Content="Evaluate" Height="23" HorizontalAlignment="Left" Margin="10,171,0,0" Name="button1" VerticalAlignment="Top" Width="120" Click="button1_Click"/>
+        <Label Content="" HorizontalAlignment="Left" Margin="12,200,0,47" Name="label1" Width="118" />
         <Canvas Height="300" HorizontalAlignment="Left" Margin="136,12,0,0" Name="canvas1" VerticalAlignment="Top" Width="300"></Canvas>
         <ComboBox Height="23" HorizontalAlignment="Left" Margin="12,70,0,0" Name="comboBox2" VerticalAlignment="Top" Width="120" SelectedIndex="0" SelectionChanged="comboBox2_SelectionChanged">
             <ComboBoxItem>Treshold: 100mm</ComboBoxItem>
@@ -26,7 +26,7 @@
             <ComboBoxItem>Point #3</ComboBoxItem>
             <ComboBoxItem>Point #4</ComboBoxItem>
         </ComboBox>
-        <ComboBox Height="23" HorizontalAlignment="Left" Name="comboBox1" VerticalAlignment="Top" Width="120" Margin="12,41,0,0" SelectedIndex="2">
+        <ComboBox Height="23" HorizontalAlignment="Left" Name="comboBox1" VerticalAlignment="Top" Width="120" Margin="12,41,0,0" SelectedIndex="2" SelectionChanged="comboBox1_SelectionChanged">
             <ComboBoxItem>Pointing</ComboBoxItem>
             <ComboBoxItem>Aiming</ComboBoxItem>
             <ComboBoxItem>Combined</ComboBoxItem>
@@ -38,6 +38,10 @@
             <ComboBoxItem>80% Classification</ComboBoxItem>
             <ComboBoxItem>70% Classification</ComboBoxItem>
             <ComboBoxItem>60% Classification</ComboBoxItem>
+        </ComboBox>
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="12,128,0,0" Name="comboBox5" VerticalAlignment="Top" Width="120" SelectedIndex="0" SelectionChanged="comboBox5_SelectionChanged">
+            <ComboBoxItem>Big</ComboBoxItem>
+            <ComboBoxItem>Small</ComboBoxItem>
         </ComboBox>
     </Grid>
 </Window>
