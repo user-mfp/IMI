@@ -633,11 +633,64 @@ namespace PostValidator
         {
             Point3D tmp = new Point3D();
 
-            tmp.X = classifyAxis(pointing.X, aiming.X);
-            tmp.Y = classifyAxis(pointing.Y, aiming.Y);
-            tmp.Z = classifyAxis(pointing.Z, aiming.Z);
+            if (this.comboBox5.SelectedIndex == 2) // Dynamic bias
+            {
+                classifyBig(pointing.X, aiming.X);
+                classifySmall(pointing.Y, aiming.Y);
+                if (pointing.X > 0)
+                    classifyBig(pointing.Z, aiming.Z);
+                else
+                    classifySmall(pointing.Z, aiming.Z);
+            }
+            else // Normal bias
+            {
+                tmp.X = classifyAxis(pointing.X, aiming.X);
+                tmp.Y = classifyAxis(pointing.Y, aiming.Y);
+                tmp.Z = classifyAxis(pointing.Z, aiming.Z);
+            }
 
             return tmp;
+        }
+
+
+        private double classifySmall(double pointing, double aiming)
+        {
+            double bias = smallerValue(pointing, aiming);
+
+            double diff = Math.Abs(Math.Abs(pointing) - Math.Abs(aiming));
+
+            if (bias == pointing && diff > this.threshold) // Poiting is closer to 0 AND difference is above than current threshold
+            {
+                return 1.0;
+            }
+            else if (bias == aiming && diff > this.threshold) // Aiming is closer to 0 AND difference is above than threschold
+            {
+                return 2.0;
+            }
+            else // Either ist closer to 0 BUT difference is within threshold
+            {
+                return 0.0;
+            }
+        }
+
+        private double classifyBig(double pointing, double aiming)
+        {
+            double bias = biggerValue(pointing, aiming);
+
+            double diff = Math.Abs(Math.Abs(pointing) - Math.Abs(aiming));
+
+            if (bias == pointing && diff > this.threshold) // Poiting is closer to 0 AND difference is above than current threshold
+            {
+                return 1.0;
+            }
+            else if (bias == aiming && diff > this.threshold) // Aiming is closer to 0 AND difference is above than threschold
+            {
+                return 2.0;
+            }
+            else // Either ist closer to 0 BUT difference is within threshold
+            {
+                return 0.0;
+            }
         }
 
         private double classifyAxis(double pointing, double aiming) // Returns 1.0 for pointing-, 2.0 for aiming- and 0.0 for no bias
@@ -928,6 +981,9 @@ namespace PostValidator
                     break;
                 case 1:
                     this.curOrient = "s";
+                    break;
+                case 2:
+                    this.curOrient = "d";
                     break;
             }
         }

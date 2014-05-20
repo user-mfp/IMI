@@ -90,6 +90,15 @@ namespace WpfApplication3.lib
                 this.Direction1 = dir1;
                 this.Direction2 = dir2;
             }
+
+            public Plane(List<Point3D> corners)
+            {
+                this.Start = corners[0];
+                this.End1 = corners[1];
+                this.End2 = corners[2];
+                this.Direction1 = corners[1] - corners[0];
+                this.Direction2 = corners[2] - corners[0];
+            }
         }
         #endregion
 

@@ -49,6 +49,8 @@ namespace WpfApplication3
         private int calibrationSampleVectors = 10; // Vectors per sample 
         private int calibrationSampleBreak = 4000; // Time between samples in ms
         private List<Point3D> CHECK = new List<Point3D>(); 
+        private GeometryHandler.Plane exhibitionSetExhibitionPlane;
+
 
         //--- EXHIBITION ---//
         //private Exhibition exhibition = new Exhibition();
@@ -370,14 +372,13 @@ namespace WpfApplication3
         {
             calibrator = new Calibrator(10, this.vp, this.round); // Initiate calibrator
             this.calibrationSampleBreak = 3000;
-            List<Point3D> corners1 = this.calibrator.definePlane(sampleVectors(4, 3, 10, 2), 3, 10, 2); // Calibration-points
-            //List<Point3D> corners2 = this.calibrator.definePlane(sampleVectors(3, 3, 10, 0)); // Validation-points
+            List<Point3D> corners = this.calibrator.definePlane(sampleVectors(3, 3, 10, 2), 3, 10, 2); // Calibration-points
+            this.exhibitionSetExhibitionPlane = new GeometryHandler.Plane(corners);
+        }
 
-            //if (this.calibrator.validatePlane(corners1, corners2))
-            //{ 
-                // DO STUFF
-            //}
-            this.debug4 = corners1.Count.ToString();
+        private void validateExhibitionPlane()
+        {
+            List<Point3D> corners = this.calibrator.definePlane(sampleVectors(3, 3, 10, 2), 3, 10, 2); // Validation-points
         }
 
         private List<GeometryHandler.Vector> sampleVectors(int points, int positions, int samples, int returnMode) // Amounts of points to define, positions to point from (at least 2!), samples per position and return mode: 0 = only pointing-samples, 1 = only aiming-samples, 2 = both samples
@@ -402,7 +403,7 @@ namespace WpfApplication3
                     this.debug3 = point;
                     this.debug4 = "Ecke " + (point + 1); // Point to corner #
                     //StaffWindow.pointTo(point);
-                    countDown(this.calibrationSampleBreak - 1000); // Wait for 3s
+                    countDown(this.calibrationSampleBreak - 1000); // Wait for 2s
 
                     for (int sample = 0; sample != samples; ++sample)
                     {

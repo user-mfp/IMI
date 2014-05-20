@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fubi_CS_Wrapper", "Fubi_CS_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApplication3", "Samples\WpfApplication3\WpfApplication3.csproj", "{AF2818D2-08F7-4AE5-A077-E9043638E89A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IMI_Administration", "IMI_Administration\IMI_Administration.csproj", "{852DF5AA-0CCB-4776-8667-986A9E8BEF83}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -44,11 +46,20 @@ Global
 		{AF2818D2-08F7-4AE5-A077-E9043638E89A}.Release|Mixed Platforms.Build.0 = Release|x86
 		{AF2818D2-08F7-4AE5-A077-E9043638E89A}.Release|x86.ActiveCfg = Release|x86
 		{AF2818D2-08F7-4AE5-A077-E9043638E89A}.Release|x86.Build.0 = Release|x86
+		{852DF5AA-0CCB-4776-8667-986A9E8BEF83}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{852DF5AA-0CCB-4776-8667-986A9E8BEF83}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{852DF5AA-0CCB-4776-8667-986A9E8BEF83}.Debug|x86.ActiveCfg = Debug|x86
+		{852DF5AA-0CCB-4776-8667-986A9E8BEF83}.Debug|x86.Build.0 = Debug|x86
+		{852DF5AA-0CCB-4776-8667-986A9E8BEF83}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{852DF5AA-0CCB-4776-8667-986A9E8BEF83}.Release|Mixed Platforms.Build.0 = Release|x86
+		{852DF5AA-0CCB-4776-8667-986A9E8BEF83}.Release|x86.ActiveCfg = Release|x86
+		{852DF5AA-0CCB-4776-8667-986A9E8BEF83}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{AF2818D2-08F7-4AE5-A077-E9043638E89A} = {791CC081-A6A6-4CA0-B326-86668EDE3819}
+		{852DF5AA-0CCB-4776-8667-986A9E8BEF83} = {791CC081-A6A6-4CA0-B326-86668EDE3819}
 	EndGlobalSection
 EndGlobal
