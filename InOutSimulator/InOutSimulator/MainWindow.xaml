@@ -1,0 +1,12 @@
+﻿<Window x:Class="InOutSimulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="InOutSimulator" Height="350" Width="525" Background="Gainsboro">
+    <Grid>
+        <TextBox Text="Input" FontSize="15" Height="164" HorizontalAlignment="Left" Margin="12,48,0,0" Name="textBox1" VerticalAlignment="Top" Width="236" />
+        <Button Content="Safe" FontSize="15" Height="Auto" HorizontalAlignment="Right" Margin="0,218,457,0" Name="button1" VerticalAlignment="Top" Width="Auto" Click="button1_Click" />
+        <Label Content="Label" FontSize="15" Background="White" Height="200" HorizontalAlignment="Right" Margin="0,0,12,99" Name="label1" VerticalAlignment="Bottom" Width="236" />
+        <Button Content="Load" FontSize="15" Height="Auto" HorizontalAlignment="Right" Margin="0,218,12,0" Name="button2" VerticalAlignment="Top" Width="Auto" Click="button2_Click" />
+        <ComboBox Height="30" HorizontalAlignment="Left" Margin="12,12,0,0" Name="comboBox1" VerticalAlignment="Top" Width="236" />
+    </Grid>
+</Window>

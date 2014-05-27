@@ -9,19 +9,18 @@
         <Label Content="[INSTRUCTIONS]" Name="label2" FontSize="70" Height="600" Width="1200" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Background="White" Grid.ColumnSpan="2" />
 
         <!-- Buttons -->
-        <Button Content="button1" Name="button1" FontSize="70" Height="Auto" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click"/>
+        <Button Content="button1" Name="button1" FontSize="70" MinHeight="0" MinWidth="0" Height="Auto" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click"/>
         <Button Content="button2" Name="button2" FontSize="70" Height="Auto" Width="Auto" Margin="10,261,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button2_Click"/>
-        <Button Content="button5" Name="button5" FontSize="70" Height="Auto" Width="Auto" Margin="10,388,0,0" Padding="10" HorizontalAlignment="Left"   VerticalAlignment="Top" Click="button5_Click"/>
+        <Button Content="button3" Name="button3" FontSize="70" Height="Auto" Width="Auto" Margin="10,388,0,0" Padding="10" HorizontalAlignment="Left"   VerticalAlignment="Top" Click="button3_Click"/>
         
-        <Button Content="button3" Name="button3" FontSize="70" Height="Auto" Width="Auto" Margin="0,0,10,10" Padding="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="button3_Click" Grid.Column="1" />
         <Button Content="button4" Name="button4" FontSize="70" Height="Auto" Width="Auto" Margin="10,0,0,10" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="button4_Click"/>
+        <Button Content="button5" Name="button5" FontSize="70" Height="Auto" Width="Auto" Margin="0,0,10,10" Padding="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="button5_Click" Grid.Column="1" />
 
         <!-- Boxes -->
-        <ComboBox Name="comboBox1" Text="comboBox1" FontSize="70" Height="Auto" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox1_SelectionChanged">
-            <ComboBoxItem>comboBox_1[0]</ComboBoxItem>
-            <ComboBoxItem>comboBox_1[1]</ComboBoxItem>
-            <ComboBoxItem>comboBox_1[2]</ComboBoxItem>
+        <ComboBox Name="comboBox1" FontSize="70" Height="Auto" MinWidth="300" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox1_SelectionChanged">
+          
         </ComboBox>
+        
         <TextBox Text="textBox1.Text" Name="textBox1" FontSize="70" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2" />
     </Grid>
 </Window>
