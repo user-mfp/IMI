@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Media.Media3D;
 using System.Xml;
+using Microsoft.Win32;
 
 namespace InOutSimulator
 {
@@ -13,8 +14,26 @@ namespace InOutSimulator
         public MainWindow()
         {
             InitializeComponent();
+
+            initMembers();
+
             //Init Layout
             this.state = State.start;
+        }
+
+        private void initMembers()
+        {
+            safeFileDialog = new SaveFileDialog();
+            safeFileDialog.Filter = "XML-Files|*.xml";
+            safeFileDialog.Title = "Datei Speichern";
+
+            openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "XML-Files|*.xml";
+            openFileDialog.Title = "Datei Speichern";
+
+            this.corners.Add(new Point3D(0.1, 0.1, 0.1));
+            this.corners.Add(new Point3D(1000.1, 0.1, 0.1));
+            this.corners.Add(new Point3D(0.1, 1000.1, 0.1));
         }
 
         #region DECLARATIONS
@@ -32,8 +51,16 @@ namespace InOutSimulator
         private string button2Content;
 
         //Simulation
+        private SaveFileDialog safeFileDialog;
+        private OpenFileDialog openFileDialog;
         private string testPath = @"D:\Master\TestFolder\InOutSimulator\test.xml";
-        private List<Point3D> corners;
+        private string exhibitionTestPath = @"D:\Master\TestFolder\InOutSimulator\exhibitionTest.xml";
+        private string exhibitionPlaneTestPath = @"D:\Master\TestFolder\InOutSimulator\exhibitionPlaneTest.xml";
+        private string exhibit1TestPath = @"D:\Master\TestFolder\InOutSimulator\exhibit1Test.xml";
+        private string exhibit2TestPath = @"D:\Master\TestFolder\InOutSimulator\exhibit2Test.xml";
+        private Point3D center = new Point3D(500.1, 500.1, 0.1);
+        private Point3D point = new Point3D(111.222, 333.444, 555.666);
+        private List<Point3D> corners = new List<Point3D>();
         #endregion
 
         #region LAYOUT
@@ -132,24 +159,24 @@ namespace InOutSimulator
             writer.WriteStartElement("Exhibition");
             // Start-Tag von 'ExhibitionPlane'
             writer.WriteStartElement("ExhibitionPlane");
-            writer.WriteElementString("Corner", "0.0   0.0 0.0");
-            writer.WriteElementString("Corner", "1.0   0.0 0.0");
-            writer.WriteElementString("Corner", "0.0   1.0 0.0");
+            writer.WriteElementString("Corner", this.corners[0].ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteElementString("Corner", this.corners[1].ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteElementString("Corner", this.corners[2].ToString().Replace(',', '.').Replace(';', ' '));
             // End-Tag von 'ExhibitionPlane'
             writer.WriteEndElement();
             // Element 'Exhibit' mit Attributen
             writer.WriteStartElement("Exhibits");
             writer.WriteStartElement("Exhibit");
-            writer.WriteAttributeString("Position", "0.5    0.5 0.0");
+            writer.WriteAttributeString("Position", this.center.ToString().Replace(',', '.').Replace(';', ' '));
             writer.WriteAttributeString("Bild", "D:\\Master\\TestFolder\\InOutSimulator\\center.jpg");
             writer.WriteAttributeString("Text", "D:\\Master\\TestFolder\\InOutSimulator\\center.txt");
             writer.WriteValue("Center");
             writer.WriteEndElement();
             writer.WriteStartElement("Exhibit");
-            writer.WriteAttributeString("Position", "0.0    0.0 0.0");
-            writer.WriteAttributeString("Bild", "D:\\Master\\TestFolder\\InOutSimulator\\zero.jpg");
-            writer.WriteAttributeString("Text", "D:\\Master\\TestFolder\\InOutSimulator\\zero.txt");
-            writer.WriteValue("Zero");
+            writer.WriteAttributeString("Position", this.point.ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteAttributeString("Bild", "D:\\Master\\TestFolder\\InOutSimulator\\point.jpg");
+            writer.WriteAttributeString("Text", "D:\\Master\\TestFolder\\InOutSimulator\\point.txt");
+            writer.WriteValue("Point");
             writer.WriteEndElement();
             writer.WriteEndElement();
             // End-Tag des Stammelements
@@ -160,15 +187,53 @@ namespace InOutSimulator
 
         private void writeExhibition()
         {
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            XmlWriter writer = XmlWriter.Create(this.exhibitionTestPath, settings);
+            writer.WriteStartDocument();
+            // Start-Tag des Stammelements
+            writer.WriteStartElement("Exhibition");
+            // Start-Tag von 'ExhibitionPlane'
+            writer.WriteStartElement("ExhibitionPlane");
+            writer.WriteAttributeString("Path", this.exhibitionPlaneTestPath);
+            // End-Tag von 'ExhibitionPlane'
+            writer.WriteEndElement();
 
+            writeExhibitionPlane();
+
+            // Element 'Exhibit' mit Attributen
+            writer.WriteStartElement("Exhibits");
+            writer.WriteStartElement("Exhibit");
+            writer.WriteAttributeString("Path", this.exhibit1TestPath);
+            writer.WriteEndElement();
+            writer.WriteStartElement("Exhibit");
+            writer.WriteAttributeString("Path", this.exhibit2TestPath);
+            writer.WriteEndElement();
+            writer.WriteEndElement();
+            // End-Tag des Stammelements
+            writer.WriteEndElement();
+            writer.WriteEndDocument();
+            writer.Close();
         }
 
         private void writeExhibitionPlane()
         {
-
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            XmlWriter writer = XmlWriter.Create(this.exhibitionPlaneTestPath, settings);
+            writer.WriteStartDocument();
+            // Start-Tag von 'ExhibitionPlane'
+            writer.WriteStartElement("ExhibitionPlane");
+            writer.WriteElementString("Corner", this.corners[0].ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteElementString("Corner", this.corners[1].ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteElementString("Corner", this.corners[2].ToString().Replace(',', '.').Replace(';', ' '));
+            // End-Tag von 'ExhibitionPlane'
+            writer.WriteEndElement();
+            writer.WriteEndDocument();
+            writer.Close();
         }
 
-        private void writeExhibit()
+        private void writeExhibit(int index)
         {
 
         }
@@ -235,7 +300,7 @@ namespace InOutSimulator
 
         }
 
-        private void readExhibit()
+        private void readExhibit(int index)
         {
 
         }
@@ -247,13 +312,18 @@ namespace InOutSimulator
             switch ((int)this.state)
             { 
                 case 0: //Start
+                    this.safeFileDialog.ShowDialog();
+                    this.testPath = safeFileDialog.FileName;
                     writeTest();
                     break;
                 case 1: //Exhibition
+                    writeExhibition();
                     break;
                 case 2: //ExhibitionPlane
+                    writeExhibitionPlane();
                     break;
                 case 3: //Exhibit
+                    writeExhibit(0);
                     break;
                 default:
                     break;
@@ -265,15 +335,40 @@ namespace InOutSimulator
             switch ((int)this.state)
             {
                 case 0: //Start
+                    this.openFileDialog.ShowDialog();
+                    this.testPath = this.openFileDialog.FileName;
                     readTest();
                     break;
                 case 1: //Exhibition
+                    readExhibition();
                     break;
                 case 2: //ExhibitionPlane
+                    readExhibitionPlane();
                     break;
                 case 3: //Exhibit
+                    readExhibit(0);
                     break;
                 default:
+                    break;
+            }
+        }
+
+
+        private void comboBox1_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            switch (this.comboBox1.SelectedIndex)
+            { 
+                case 0: //Start
+                    this.state = State.start;
+                    break;
+                case 1:
+                    this.state = State.exhibition;
+                    break;
+                case 2:
+                    this.state = State.exhibitionPlane;
+                    break;
+                case 3:
+                    this.state = State.exhibit;
                     break;
             }
         }
