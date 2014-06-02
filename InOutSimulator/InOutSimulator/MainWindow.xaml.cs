@@ -23,13 +23,28 @@ namespace InOutSimulator
 
         private void initMembers()
         {
-            safeFileDialog = new SaveFileDialog();
-            safeFileDialog.Filter = "XML-Files|*.xml";
-            safeFileDialog.Title = "Datei Speichern";
+            this.exhibits = new List<Exhibit>();
+            this.exhibitionPlane = new List<Point3D>();
 
-            openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "XML-Files|*.xml";
-            openFileDialog.Title = "Datei Speichern";
+            this.safeConfigFile = new SaveFileDialog();
+            this.safeConfigFile.Filter = "Config-Files|*.xml";
+            this.safeConfigFile.Title = "Konfigurationsdatei speichern";
+
+            this.openConfigFile = new OpenFileDialog();
+            this.openConfigFile.Filter = "Config-Files|*.xml";
+            this.openConfigFile.Title = "Konfiguarationsdatei laden";
+
+            this.safeTextFile = new SaveFileDialog();
+            this.safeTextFile.Filter = "Text-Files|*.txt";
+            this.safeTextFile.Title = "Textdatei speichern";
+
+            this.openTextFile = new OpenFileDialog();
+            this.openTextFile.Filter = "Text-Files|*.txt";
+            this.openTextFile.Title = "Textdatei laden";
+
+            this.openImageFile = new OpenFileDialog();
+            this.openImageFile.Filter = "Image-Files|*.jpg|*.png|*.bmp";
+            this.openImageFile.Title = "Bilddatei laden";
 
             this.corners.Add(new Point3D(0.1, 0.1, 0.1));
             this.corners.Add(new Point3D(1000.1, 0.1, 0.1));
@@ -45,14 +60,44 @@ namespace InOutSimulator
             exhibit 
         };
         private State state;
+
+        private struct Exhibit {
+            public string name;
+            public Point3D position;
+            public List<string> images;
+            public string description;
+
+            public Exhibit(string name, Point3D position, string image, string description)
+            {
+                this.name = name;
+                this.position = position;
+                this.images = new List<string>();
+                this.images.Add(image);
+                this.description = description;
+            }
+
+            public Exhibit(string name, Point3D position, List<string> images, string description)
+            {
+                this.name = name;
+                this.position = position;
+                this.images = images;
+                this.description = description;
+            }
+        }
+        private List<Exhibit> exhibits;
+        private List<Point3D> exhibitionPlane;
+
         private string textBox1Text;
-        private string label1Content;
+        private string label1Content = "";
         private string button1Content;
         private string button2Content;
 
         //Simulation
-        private SaveFileDialog safeFileDialog;
-        private OpenFileDialog openFileDialog;
+        private SaveFileDialog safeConfigFile;
+        private OpenFileDialog openConfigFile;
+        private SaveFileDialog safeTextFile;
+        private OpenFileDialog openTextFile;
+        private OpenFileDialog openImageFile;
         private string testPath = @"D:\Master\TestFolder\InOutSimulator\test.xml";
         private string exhibitionTestPath = @"D:\Master\TestFolder\InOutSimulator\exhibitionTest.xml";
         private string exhibitionPlaneTestPath = @"D:\Master\TestFolder\InOutSimulator\exhibitionPlaneTest.xml";
@@ -87,7 +132,7 @@ namespace InOutSimulator
             this.button2.Content = this.button2Content;
 
             //Label
-            this.label1.Content = "";
+            this.label1.Content = this.label1Content;
         }
 
         private void showExhibition()
@@ -159,20 +204,22 @@ namespace InOutSimulator
             writer.WriteStartElement("Exhibition");
             // Start-Tag von 'ExhibitionPlane'
             writer.WriteStartElement("ExhibitionPlane");
-            writer.WriteElementString("Corner", this.corners[0].ToString().Replace(',', '.').Replace(';', ' '));
-            writer.WriteElementString("Corner", this.corners[1].ToString().Replace(',', '.').Replace(';', ' '));
-            writer.WriteElementString("Corner", this.corners[2].ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteAttributeString("Corner1", this.corners[0].ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteAttributeString("Corner2", this.corners[1].ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteAttributeString("Corner3", this.corners[2].ToString().Replace(',', '.').Replace(';', ' '));
             // End-Tag von 'ExhibitionPlane'
             writer.WriteEndElement();
             // Element 'Exhibit' mit Attributen
             writer.WriteStartElement("Exhibits");
             writer.WriteStartElement("Exhibit");
+            writer.WriteAttributeString("Name", "Zentrum");
             writer.WriteAttributeString("Position", this.center.ToString().Replace(',', '.').Replace(';', ' '));
             writer.WriteAttributeString("Bild", "D:\\Master\\TestFolder\\InOutSimulator\\center.jpg");
             writer.WriteAttributeString("Text", "D:\\Master\\TestFolder\\InOutSimulator\\center.txt");
             writer.WriteValue("Center");
             writer.WriteEndElement();
             writer.WriteStartElement("Exhibit");
+            writer.WriteAttributeString("Name", "Punkt");
             writer.WriteAttributeString("Position", this.point.ToString().Replace(',', '.').Replace(';', ' '));
             writer.WriteAttributeString("Bild", "D:\\Master\\TestFolder\\InOutSimulator\\point.jpg");
             writer.WriteAttributeString("Text", "D:\\Master\\TestFolder\\InOutSimulator\\point.txt");
@@ -224,9 +271,9 @@ namespace InOutSimulator
             writer.WriteStartDocument();
             // Start-Tag von 'ExhibitionPlane'
             writer.WriteStartElement("ExhibitionPlane");
-            writer.WriteElementString("Corner", this.corners[0].ToString().Replace(',', '.').Replace(';', ' '));
-            writer.WriteElementString("Corner", this.corners[1].ToString().Replace(',', '.').Replace(';', ' '));
-            writer.WriteElementString("Corner", this.corners[2].ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteAttributeString("Corner1", this.corners[0].ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteAttributeString("Corner2", this.corners[1].ToString().Replace(',', '.').Replace(';', ' '));
+            writer.WriteAttributeString("Corner3", this.corners[2].ToString().Replace(',', '.').Replace(';', ' '));
             // End-Tag von 'ExhibitionPlane'
             writer.WriteEndElement();
             writer.WriteEndDocument();
@@ -242,11 +289,11 @@ namespace InOutSimulator
         #region IN
         private void readTest()
         {
-            int exhibit = 0;
-            List<Point3D> exhibitionPlane = new List<Point3D>();
-            Dictionary<int, Point3D> exhibitsPosition = new Dictionary<int, Point3D>();
-            Dictionary<int, string> exhibitsImage = new Dictionary<int, string>();
-            Dictionary<int, string> exhibitsText = new Dictionary<int, string>();
+            string debug = "";
+            string exhibitsName = "";
+            Point3D exhibitsPosition = new Point3D();
+            string exhibitsImage = "";
+            string exhibitsText = "";
             XmlReader reader = XmlReader.Create(this.testPath);
             while (reader.Read())
             {
@@ -256,16 +303,16 @@ namespace InOutSimulator
                     // alle relevanten Elemente untersuchen
                     switch (reader.Name)
                     {
-                        case "ExhibitionPlane":
-                            break;
-                        case "Corner":
+                        case "ExhibitionPlane":// Attributsliste durchlaufen
                             while (reader.MoveToNextAttribute())
                             {
-                                if (reader.Name == "Position")
-                                    exhibitionPlane.Add(Point3D.Parse(reader.Value));
+                                if (reader.Name == "Corner1")
+                                    this.exhibitionPlane.Add(Point3D.Parse(reader.Value));
+                                else if (reader.Name == "Corner2")
+                                    this.exhibitionPlane.Add(Point3D.Parse(reader.Value));
+                                else if (reader.Name == "Corner3")
+                                    this.exhibitionPlane.Add(Point3D.Parse(reader.Value));
                             }
-                            break;
-                        case "Exhibits":
                             break;
                         case "Exhibit":
                             if (reader.HasAttributes)
@@ -273,20 +320,27 @@ namespace InOutSimulator
                                 // Attributsliste durchlaufen
                                 while (reader.MoveToNextAttribute())
                                 {
-                                    if (reader.Name == "Position")
-                                        exhibitsPosition.Add(exhibit, Point3D.Parse(reader.Value));
+                                    if (reader.Name == "Name")
+                                        exhibitsName = reader.Value;
+                                    else if (reader.Name == "Position")
+                                        exhibitsPosition = Point3D.Parse(reader.Value);
                                     else if (reader.Name == "Bild")
-                                        exhibitsImage.Add(exhibit, reader.Value);
+                                        exhibitsImage = reader.Value;
                                     else if (reader.Name == "Text")
-                                        exhibitsText.Add(exhibit, reader.Value);
+                                        exhibitsText = reader.Value;
                                 }
                             }
-                            ++exhibit;
+                            this.exhibits.Add(new Exhibit(exhibitsName, exhibitsPosition, exhibitsImage, exhibitsText));
                             break;
                     }
                 }
             }
-            label1Content = "Corners: " + exhibitionPlane.Count.ToString() + '\n' + "0. ExPos: " + exhibitsPosition[0].ToString(); 
+            //this.label1Content = "Ausstellungsebene:" + '\n' + this.exhibitionPlane[0].ToString() + '\n' + this.exhibitionPlane[1].ToString() + '\n' + this.exhibitionPlane[2].ToString();
+            this.label1Content = "Exponate:";
+            foreach (Exhibit ex in this.exhibits)
+            {
+                this.label1Content += '\n' + ex.name + '\n' + ex.position + '\n' + ex.images[0] + '\n' + ex.description + '\n';
+            }
             updateLayout();
         }
 
@@ -312,8 +366,8 @@ namespace InOutSimulator
             switch ((int)this.state)
             { 
                 case 0: //Start
-                    this.safeFileDialog.ShowDialog();
-                    this.testPath = safeFileDialog.FileName;
+                    this.safeConfigFile.ShowDialog();
+                    this.testPath = this.safeConfigFile.FileName;
                     writeTest();
                     break;
                 case 1: //Exhibition
@@ -335,8 +389,8 @@ namespace InOutSimulator
             switch ((int)this.state)
             {
                 case 0: //Start
-                    this.openFileDialog.ShowDialog();
-                    this.testPath = this.openFileDialog.FileName;
+                    this.openConfigFile.ShowDialog();
+                    this.testPath = this.openConfigFile.FileName;
                     readTest();
                     break;
                 case 1: //Exhibition

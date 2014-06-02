@@ -17,7 +17,7 @@ namespace IMI_Administration
     public partial class MainWindow : Window
     {
         #region DECLARATIONS
-        // Menu states determine the layout (visibility, labeling and functions)
+        // Headlines determine the layout (visibility, labeling and functions)
         private enum Headline {
             Start = 0,
             Exhibition, //1
@@ -35,7 +35,7 @@ namespace IMI_Administration
             Settings //13
         };
         private Headline headline;
-
+        // Updateable contents of widgets
         private string contentLabel1;
         private string contentLabel2;
         private string contentButton1;
@@ -44,11 +44,24 @@ namespace IMI_Administration
         private string contentButton4;
         private string contentButton5;
         private string contentTextBox1;
+        // Exhibition
+        private Exhibition exhibition;
+        // For temporary use only!
+        private Exhibit tmpExhibit;
+        private GeometryHandler.Plane tmpExhibitionPlane;
+        // Handler
+        private GeometryHandler geometryHandler;
+        private FileHandler fileHandler;
         #endregion
 
         public MainWindow()
         {
             InitializeComponent();
+
+            // Initialize handlers
+            this.geometryHandler = new GeometryHandler();
+            this.fileHandler = new FileHandler();
+
             // Initialize layout
             this.headline = 0;
             updateLayout();
@@ -827,38 +840,6 @@ namespace IMI_Administration
                 this.headline = 0;
 
             updateLayout();
-        }
-        #endregion
-
-        #region PARSER
-        // Load a complete exhibition
-        private void parseExhibition(string path)
-        { 
-            
-        }
-
-        // Load a predefinded exhibition plane
-        private void parseExhibitionPlane(string path)
-        {
-
-        }
-
-        // Load an exhibit
-        private void parseExhibit(string path)
-        { 
-        
-        }
-
-        // Load an image
-        private void parseImage(string path)
-        { 
-        
-        }
-
-        // Laod a text
-        private void parseText(string path)
-        {
-        
         }
         #endregion
 
