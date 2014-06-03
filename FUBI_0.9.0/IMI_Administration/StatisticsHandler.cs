@@ -4,13 +4,9 @@ using System.Windows.Media.Media3D;
 
 namespace IMI_Administration
 {
-    public class Statistics
+    public class StatisticsHandler
     {
         #region ROUTINES
-        /// <summary>
-        /// ROUTINES
-        /// </summary>
-        
         public Point3D getAvg(List<Point3D> points)
         {
             Point3D center = new Point3D();
