@@ -6,7 +6,7 @@
     <Grid Width="Auto" Background="Gray">
         <!-- Labels -->
         <Label Content="MENU - HEADLINE" Name="label1" FontSize="70" Height="Auto" Width="Auto" Margin="10,10,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Background="White" MouseLeftButtonUp="label1_MouseLeftButtonUp"/>
-        <Label Content="[INSTRUCTIONS]" Name="label2" FontSize="70" Height="600" Width="1200" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Background="White" Grid.ColumnSpan="2" />
+        <Label Content="[INSTRUCTIONS]" Name="label2" FontSize="70" Height="Auto" Width="Auto" MaxHeight="600" MaxWidth="1200" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Background="White" Grid.ColumnSpan="2" />
 
         <!-- Buttons -->
         <Button Content="button1" Name="button1" FontSize="70" MinHeight="0" MinWidth="0" Height="Auto" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click"/>
@@ -21,6 +21,7 @@
           
         </ComboBox>
         
-        <TextBox Text="textBox1.Text" Name="textBox1" FontSize="70" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2" />
+        <TextBox Text="" Name="textBox1" FontSize="70" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox1_TextChanged"/>
+        <TextBox Text="" Name="textBox2" FontSize="70" Height="116" Width="1200" Margin="10,262,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox2_TextChanged"/>
     </Grid>
 </Window>

@@ -45,9 +45,13 @@ namespace IMI_Administration
         #endregion
 
         #region LOADING
-        public void loadExhibition()
-        { 
-        
+        public Exhibition loadExhibition()
+        {
+            // TODO
+            // - read exhibition's config-file(s)
+            // - build whole exhibition with exhibition plane and all of the exhibits
+
+            return this.exhibition;
         }
 
         public void loadExhibitionPlane()
@@ -72,7 +76,30 @@ namespace IMI_Administration
         #endregion
 
         #region SAVING
+        public void saveExhibition()
+        {
 
+        }
+
+        public void saveExhibitionPlane()
+        {
+
+        }
+
+        public void saveExhibit()
+        {
+
+        }
+
+        public void saveDescription()
+        {
+
+        }
+
+        public void saveImage()
+        {
+
+        }
         #endregion
     }
 }
