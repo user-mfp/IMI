@@ -9,10 +9,14 @@ namespace IMI_Administration
     class Exhibition
     {
         #region DECLARATIONS
-        private string name;
-        private string path;
+        // Elements
         private GeometryHandler.Plane exhibitionPlane;
         private List<Exhibit> exhibits;
+        // Attributes
+        private string name;
+        private string path;
+        private Point3D user; // User's head position
+        private double threshold = 100; // Default radius := 100mm
         #endregion
 
         #region CONSTRUCTORS

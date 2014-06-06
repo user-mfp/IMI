@@ -20,8 +20,8 @@
         <ComboBox Name="comboBox1" FontSize="70" Height="Auto" MinWidth="300" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox1_SelectionChanged">
           
         </ComboBox>
-        
-        <TextBox Text="" Name="textBox1" FontSize="70" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox1_TextChanged"/>
+
+        <TextBox Text="" Name="textBox1" FontSize="70" TextWrapping="Wrap" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox1_TextChanged"/>
         <TextBox Text="" Name="textBox2" FontSize="70" Height="116" Width="1200" Margin="10,262,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox2_TextChanged"/>
     </Grid>
 </Window>

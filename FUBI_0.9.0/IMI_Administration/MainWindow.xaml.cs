@@ -63,9 +63,7 @@ namespace IMI_Administration
             // Initialize handlers
             this.geometryHandler = new GeometryHandler();
             this.fileHandler = new FileHandler();
-
-            this.TMP_NAME = "TMP_NAME";
-
+            
             // Initialize layout
             this.headline = Headline.Start;
             updateLayout();
@@ -423,7 +421,8 @@ namespace IMI_Administration
             this.button2.Content = this.contentButton2;
             this.button2.Visibility = Visibility.Visible;
 
-            this.button3.Visibility = Visibility.Hidden;
+            this.button3.Content = contentButton3;
+            this.button3.Visibility = Visibility.Visible;
 
             this.button4.Content = this.contentButton4;
             this.button4.Visibility = Visibility.Visible;
@@ -542,7 +541,8 @@ namespace IMI_Administration
             this.button4.Content = "Einstellungen";
             this.button4.Visibility = Visibility.Visible;
 
-            this.button5.Visibility = Visibility.Hidden;
+            this.button5.Content = "Schließen";
+            this.button5.Visibility = Visibility.Visible;
         }
 
         // ... show the start screen
@@ -634,7 +634,8 @@ namespace IMI_Administration
                     {
                         case -1: // No item selected: "initialization" 
                             this.contentButton2 = "     ";
-                            this.contentButton4 = "Text laden";
+                            this.contentButton3 = "Text laden";
+                            this.contentButton4 = "Eigenschaften";
                             this.contentButton5 = "OK";
                             break;
                         case 0: // First item selected: "new image"
@@ -758,7 +759,20 @@ namespace IMI_Administration
                     this.headline = Headline.NewName;
                     updateLayout();
                     break;
-                case 4: //EditExhibit: ""
+                case 4: //EditExhibit: "delete image from exhibit"
+                    switch (this.comboBox1.SelectedIndex)
+                    { 
+                        case -1: // No item selected
+                            break;
+                        case 0: // "new image"
+                            MessageBox.Show("neues Bild laden");
+                            break;
+                        default: // Any other image selected
+                            string msg = (this.comboBox1.SelectedIndex - 1) + ". Bild des " + this.TMP_EXHIBIT_INDEX + ". Exponates löschen";
+                            MessageBox.Show(msg);
+                            break;
+                    }                    
+                    updateLayout();
                     break;
                 case 5: //ExhibitionPlane: "define new exhibition plane"
                     MessageBox.Show("Neue Ausstellungsebene definieren");
@@ -798,7 +812,8 @@ namespace IMI_Administration
                     break;
                 case 3: //NewExhibit: "hidden"
                     break;
-                case 4: //EditExhibit:
+                case 4: //EditExhibit: "load text from txt-file"
+                    MessageBox.Show("Text laden");
                     break;
                 case 5: //ExhibitionPlane:
                     break;
@@ -835,8 +850,8 @@ namespace IMI_Administration
                     break;
                 case 3: //NewExhibit: "hidden"
                     break;
-                case 4: //EditExhibit: "load a text-file"
-                    MessageBox.Show("Dialog: Text laden");
+                case 4: //EditExhibit: "open exhibit's properties"
+                    MessageBox.Show("Exponat-Einstellungen öffnen");
                     break;
                 case 5: //ExhibitionPlane: "back to the start"
                     MessageBox.Show("Zurück zum Start");
@@ -886,7 +901,8 @@ namespace IMI_Administration
                 case 0: //Start: "close the application"
                     closeAllThreads();
                     break;
-                case 1: //Exhibition: "hidden"
+                case 1: //Exhibition: "close the application"
+                    closeAllThreads();
                     break;
                 case 2: //LoadExhibit: "hidden"
                     break;
@@ -1067,13 +1083,15 @@ namespace IMI_Administration
             this.exhibition = this.fileHandler.loadExhibition();
         }
         
-        private void newExhibition()
+        private void saveExhibition()
         {
             // TODO
-            // - name exhibition
-            // - define and validate exhibition plane
-            // - define exhibits (images and text)
+            // - exhibition's name
+            // - exhibition plane
+            // - exhibits
+            //   - name, position, description, images, images' paths
             // - save everything
+            this.fileHandler.saveExhibition(this.exhibition);
         }
         #endregion
 

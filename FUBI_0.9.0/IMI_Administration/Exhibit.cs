@@ -10,12 +10,16 @@ namespace IMI_Administration
     class Exhibit
     {
         #region DECLARATIONS
+        // Elements
+        private List<Image> images;
+        private List<string> imagePaths;
+        // Attributes
         private string name;
         private Point3D position;
         private string path;
         private string description;
-        private List<Image> images;
-        private List<string> imagePaths;
+        private double kernelSize = 100.0; // Default radius := 100mm
+        private double kernelWeight = 1.0; // Default size := 100%
         #endregion
 
         #region CONSTRUCTORS

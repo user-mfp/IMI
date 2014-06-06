@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Win32;
+using System.Windows.Media.Media3D;
+using System.Windows.Controls;
 
 namespace IMI_Administration
 {
@@ -76,24 +78,37 @@ namespace IMI_Administration
         #endregion
 
         #region SAVING
-        public void saveExhibition()
+        public void saveExhibition(Exhibition exhibition)
+        {
+            string name;
+            string path;
+            GeometryHandler.Plane exhibitionPlane;
+            List<Exhibit> exhibits;
+        }
+
+        public void saveExhibitionPlane(GeometryHandler.Plane exhibitionPlane)
         {
 
         }
 
-        public void saveExhibitionPlane()
+        public void saveExhibit(Exhibit exhibit)
+        {
+            string name;
+            Point3D position;
+            string path;
+            string description;
+            List<Image> images;
+            List<string> imagePaths;
+        }
+
+        public void saveDescription(string description)
         {
 
         }
 
-        public void saveExhibit()
-        {
-
-        }
-
-        public void saveDescription()
-        {
-
+        public void saveImages()
+        { 
+            
         }
 
         public void saveImage()
