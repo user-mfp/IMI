@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 
@@ -11,8 +8,7 @@ namespace IMI_Administration
     {
         #region DECLARATIONS
         // Elements
-        private List<Image> images;
-        private List<string> imagePaths;
+        private Dictionary<string, Image> images; // string := imagePath (unique)
         // Attributes
         private string name;
         private Point3D position;
@@ -29,90 +25,127 @@ namespace IMI_Administration
             this.position = position;
         }
 
-        public Exhibit(string name, Point3D position, string path, string description, List<Image> images, List<string> imagePaths)
+        public Exhibit(string name, Point3D position, string path, string description, Dictionary<string, Image> images)
         {
             this.name = name;
             this.position = position;
             this.path = path;
             this.description = description;
             this.images = images;
-            this.imagePaths = imagePaths;
         }
         #endregion
 
         #region SAVE AND LOAD
+        public string getName()
+        {
+            return this.name;
+        }
+
+        public Point3D getPosition()
+        {
+            return this.position;
+        }
+
         public string getPath()
         {
             return this.path;
         }
 
-        public void setPath(string path)
+        public string getDescription()
         {
-            this.path = path;
-        }        
-        #endregion
+            return this.description;
+        }
 
-        #region NAME
-        public string getName()
+        public double getKernelSize()
         {
-            return this.name;
+            return this.kernelSize;
+        }
+
+        public double getKernelWeight()
+        {
+            return this.kernelWeight;
         }
 
         public void setName(string name)
         {
             this.name = name;
         }
-        #endregion
 
-        #region DESCRIPTION
-        public string getDescription()
+        public void setPosition(Point3D position)
         {
-            return this.description;
+            this.position = position;
         }
+
+        public void setPath(string path)
+        {
+            this.path = path;
+        }  
 
         public void setDescription(string description)
         {
             this.description = description;
         }
+
+        public void setKernelSize(double kernelSize)
+        {
+            this.kernelSize = kernelSize;
+        }
+
+        public void setKernelWeight(double kernelWeight)
+        {
+            this.kernelWeight = kernelWeight;
+        }
         #endregion
 
         #region IMAGES
-        public List<Image> getImages()
+        public Dictionary<string, Image> getImages()
         {
             return this.images;
         }
-        
-        public Image getImage(int index)
+
+        public List<Image> getActualImages(List<string> paths)
         {
-            return this.images[index];
+            List<Image> images = new List<Image>();
+
+            foreach (KeyValuePair<string, Image> image in this.images)
+            {
+                images.Add(getActualImage(image.Key));
+            }
+
+            return images;
         }
 
-        public void addImages(List<Image> images)
+        public Image getActualImage(string path)
         {
-            foreach (Image image in images)
+            return this.images[path];
+        }
+
+        public void addImages(Dictionary<string, Image> images)
+        {
+            foreach (KeyValuePair<string, Image> image in images)
             {
-                this.images.Add(image);
+                addImage(image);
             }
         }
 
-        public void addImage(Image image)
+        public void addImage(KeyValuePair<string, Image> image)
         {
-            this.images.Add(image);
+            this.images.Add(image.Key, image.Value);
         }
 
-        public void changeImage(int index, Image image)
+        public void changeImage(string path, Image image)
         {
-            this.images[index] = image;
+            this.images[path] = image;
         }
 
-        public void setImages(List<Image> images)
+        public void setImages(Dictionary<string, Image> images)
         {
             this.images = images;
         }
 
-        public void removeImage(Image image)
+        public void removeImage(KeyValuePair<string, Image> image)
         {
-            this.images.Remove(image);
+            this.images.Remove(image.Key);
         }
         #endregion
     }

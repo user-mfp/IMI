@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using System.Windows.Shapes;
-using System.Windows.Threading;
-using FubiNET;
 
 namespace IMI_Administration
 {
@@ -902,6 +895,7 @@ namespace IMI_Administration
                     closeAllThreads();
                     break;
                 case 1: //Exhibition: "close the application"
+                    saveExhibition();
                     closeAllThreads();
                     break;
                 case 2: //LoadExhibit: "hidden"
