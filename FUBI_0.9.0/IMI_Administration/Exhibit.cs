@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace IMI_Administration
 {
@@ -8,7 +10,7 @@ namespace IMI_Administration
     {
         #region DECLARATIONS
         // Elements
-        private Dictionary<string, Image> images; // string := imagePath (unique)
+        private Dictionary<string, System.Drawing.Image> images; // string := imagePath (unique)
         // Attributes
         private string name;
         private Point3D position;
@@ -19,13 +21,24 @@ namespace IMI_Administration
         #endregion
 
         #region CONSTRUCTORS
+        public Exhibit()  // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE)
+        {
+            this.position = new Point3D();
+        }
+
+        public Exhibit(string name)  // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE)
+        {
+            this.name = name;
+            this.position = new Point3D();
+        }
+
         public Exhibit(string name, Point3D position)
         {
             this.name = name;
             this.position = position;
         }
 
-        public Exhibit(string name, Point3D position, string path, string description, Dictionary<string, Image> images)
+        public Exhibit(string name, Point3D position, string path, string description, Dictionary<string, System.Drawing.Image> images)
         {
             this.name = name;
             this.position = position;
@@ -98,16 +111,16 @@ namespace IMI_Administration
         #endregion
 
         #region IMAGES
-        public Dictionary<string, Image> getImages()
+        public Dictionary<string, System.Drawing.Image> getImages()
         {
             return this.images;
         }
 
-        public List<Image> getActualImages(List<string> paths)
+        public List<System.Drawing.Image> getActualImages(List<string> paths)
         {
-            List<Image> images = new List<Image>();
+            List<System.Drawing.Image> images = new List<System.Drawing.Image>();
 
-            foreach (KeyValuePair<string, Image> image in this.images)
+            foreach (KeyValuePair<string, System.Drawing.Image> image in this.images)
             {
                 images.Add(getActualImage(image.Key));
             }
@@ -115,35 +128,39 @@ namespace IMI_Administration
             return images;
         }
 
-        public Image getActualImage(string path)
+        public System.Drawing.Image getActualImage(string path)
         {
             return this.images[path];
         }
 
-        public void addImages(Dictionary<string, Image> images)
+        public void addImages(Dictionary<string, System.Drawing.Image> images)
         {
-            foreach (KeyValuePair<string, Image> image in images)
+            foreach (KeyValuePair<string, System.Drawing.Image> image in images)
             {
                 addImage(image);
             }
         }
 
-        public void addImage(KeyValuePair<string, Image> image)
+        public void addImage(KeyValuePair<string, System.Drawing.Image> image)
         {
+            if (this.images == null) // No images, yet
+            {
+                this.images = new Dictionary<string, System.Drawing.Image>();
+            }
             this.images.Add(image.Key, image.Value);
         }
 
-        public void changeImage(string path, Image image)
+        public void changeImage(string path, System.Drawing.Image image)
         {
             this.images[path] = image;
         }
 
-        public void setImages(Dictionary<string, Image> images)
+        public void setImages(Dictionary<string, System.Drawing.Image> images)
         {
             this.images = images;
         }
 
-        public void removeImage(KeyValuePair<string, Image> image)
+        public void removeImage(KeyValuePair<string, System.Drawing.Image> image)
         {
             this.images.Remove(image.Key);
         }

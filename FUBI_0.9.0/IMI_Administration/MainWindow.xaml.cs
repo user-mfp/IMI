@@ -1,6 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Collections.Generic;
 
 namespace IMI_Administration
 {
@@ -426,14 +429,19 @@ namespace IMI_Administration
             // Boxes
             this.comboBox1.Items.Clear();
             this.comboBox1.Items.Add("neues Bild");
-            if (0 == 0) // The exhibit has images
-            for (int i = 1; i != 4; ++i)
+            if (this.TMP_EXHIBIT.getImages() != null) // The exhibit has images
             {
-                this.comboBox1.Items.Add(i + ". Bild");
+                foreach (KeyValuePair<string, System.Drawing.Image> image in this.TMP_EXHIBIT.getImages())
+                {
+                    int start = image.Key.LastIndexOf('\\') + 1;
+                    int length = image.Key.LastIndexOf('.') - start;
+                    string imageName = image.Key.Substring(start, length);
+                    this.comboBox1.Items.Add(imageName);
+                }
             }
             this.comboBox1.Visibility = Visibility.Visible;
 
-            this.textBox1.Text = this.contentTextBox1;
+            this.textBox1.Text = this.TMP_EXHIBIT.getDescription();
             this.textBox1.Visibility = Visibility.Visible;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -668,14 +676,7 @@ namespace IMI_Administration
                 default:
                     break;
                 case 0: //Start: "load existing exhibition"
-                    //DUMMY-PLANE
-                    this.TMP_EXHIBITION_PLANE = new GeometryHandler.Plane(new Point3D(), new Point3D(), new Point3D());
-                    //DUMMY-EXHIBITION
-                    this.exhibition = new Exhibition("expo", this.TMP_EXHIBITION_PLANE);
-                    this.exhibition.addExhibit(new Exhibit("ex1", new Point3D()));
-                    this.exhibition.addExhibit(new Exhibit("ex2", new Point3D()));
-                    this.exhibition.addExhibit(new Exhibit("ex3", new Point3D()));
-                    this.exhibition.addExhibit(new Exhibit("ex4", new Point3D()));
+                    this.exhibition = this.fileHandler.loadExhibition();
 
                     this.headline = Headline.Exhibition;
                     updateLayout();
@@ -692,7 +693,7 @@ namespace IMI_Administration
                     updateLayout();
                     break;
                 case 3: //NewExhibit: "load existing exhibit"
-                    this.TMP_EXHIBIT = new Exhibit("Muster-Exponat", new Point3D());
+                    this.TMP_EXHIBIT = this.fileHandler.loadExhibit();
                     this.exhibition.addExhibit(this.TMP_EXHIBIT);
                     this.TMP_EXHIBIT_INDEX = this.exhibition.getExhibits().Count - 1;
 
@@ -704,9 +705,7 @@ namespace IMI_Administration
                 case 4: //EditExhibit: "hidden"
                     break;
                 case 5: //ExhibitionPlane: "load exisiting definition of the exhibition plane"
-                    //DUMMY-PLANE
-                    this.TMP_EXHIBITION_PLANE = new GeometryHandler.Plane(new Point3D(), new Point3D(), new Point3D());
-                    //DUMMY-EXHIBITION
+                    this.TMP_EXHIBITION_PLANE = this.fileHandler.loadExhibitionPlane();
                     this.exhibition = new Exhibition(this.TMP_NAME, this.TMP_EXHIBITION_PLANE);
 
                     this.headline = Headline.Exhibition;
@@ -758,7 +757,7 @@ namespace IMI_Administration
                         case -1: // No item selected
                             break;
                         case 0: // "new image"
-                            MessageBox.Show("neues Bild laden");
+                            this.TMP_EXHIBIT.addImage(this.fileHandler.loadImage());
                             break;
                         default: // Any other image selected
                             string msg = (this.comboBox1.SelectedIndex - 1) + ". Bild des " + this.TMP_EXHIBIT_INDEX + ". Exponates löschen";
@@ -895,7 +894,7 @@ namespace IMI_Administration
                     closeAllThreads();
                     break;
                 case 1: //Exhibition: "close the application"
-                    saveExhibition();
+                    this.fileHandler.saveExhibition(this.exhibition);
                     closeAllThreads();
                     break;
                 case 2: //LoadExhibit: "hidden"
@@ -907,12 +906,13 @@ namespace IMI_Administration
 
                     if (this.TMP_EXHIBIT_INDEX != -1) // No new exhibit
                     {
-                        this.exhibition.replaceExhibit(this.TMP_EXHIBIT_INDEX, this.TMP_EXHIBIT);
+                        this.exhibition.setExhibit(this.TMP_EXHIBIT_INDEX, this.TMP_EXHIBIT);
                     }
                     else
                     {
                         this.exhibition.addExhibit(this.TMP_EXHIBIT);
                     }
+                    this.fileHandler.saveExhibit(this.TMP_EXHIBIT);
 
                     this.headline = Headline.Exhibition;
                     updateLayout();
@@ -939,7 +939,7 @@ namespace IMI_Administration
                     updateLayout();
                     break;
                 case 9: //NewName: "safe name and continue to next view"
-                    if (this.exhibition == null) // New Exhibition
+                    if (this.exhibition == null) // New exhibition
                     {
                         this.TMP_NAME = this.textBox2.Text;
                         this.headline = Headline.ExhibitionPlane;
@@ -1070,25 +1070,7 @@ namespace IMI_Administration
             updateLayout();
         }
         #endregion
-
-        #region EXHIBITION
-        private void loadExhibition()
-        {
-            this.exhibition = this.fileHandler.loadExhibition();
-        }
         
-        private void saveExhibition()
-        {
-            // TODO
-            // - exhibition's name
-            // - exhibition plane
-            // - exhibits
-            //   - name, position, description, images, images' paths
-            // - save everything
-            this.fileHandler.saveExhibition(this.exhibition);
-        }
-        #endregion
-
         private void closeAllThreads()
         {
             this.Close();

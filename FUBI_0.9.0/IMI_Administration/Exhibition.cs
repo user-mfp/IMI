@@ -13,7 +13,7 @@ namespace IMI_Administration
         private string name;
         private string path;
         private Point3D userHeadPosition; // User's head position
-        private double threshold = 100; // Default radius := 100mm
+        private double threshold = 100.0; // Default radius := 100mm
         private int selectionTime = 1000; // Default dwelltime for selection := 1s
         private int lockTime = 3000; // Default time for locking an exhibit := 3s
         private int slideTime = 5000; // Default time a slide is shown := 5s
@@ -21,6 +21,17 @@ namespace IMI_Administration
         #endregion
 
         #region CONSTRUCTORS
+        public Exhibition() // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE)
+        {
+            this.exhibitionPlane = new GeometryHandler.Plane();
+        }
+
+        public Exhibition(string name) // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE)
+        {
+            this.name = name;
+            this.exhibitionPlane = new GeometryHandler.Plane();
+        }
+
         public Exhibition(string name, List<Point3D> plane)
         {
             this.name = name;
@@ -195,7 +206,12 @@ namespace IMI_Administration
             this.exhibits.Add(exhibit);
         }
 
-        public void replaceExhibit(int index, Exhibit exhibit)
+        public void setExhibits(List<Exhibit> exhibits)
+        {
+            this.exhibits = exhibits;
+        }
+
+        public void setExhibit(int index, Exhibit exhibit)
         {
             this.exhibits[index] = exhibit; // Replace old with new exhibit
         }

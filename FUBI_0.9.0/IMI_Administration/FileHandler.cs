@@ -3,6 +3,8 @@ using Microsoft.Win32;
 using System.Windows.Media.Media3D;
 using System.Windows.Controls;
 using System.Xml;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace IMI_Administration
 {
@@ -81,73 +83,231 @@ namespace IMI_Administration
         #region LOADING
         public Exhibition loadExhibition()
         {
-            // TODO
-            // - read exhibition's config-file(s)
-            // - build whole exhibition with exhibition plane and all of the exhibits
+            this.loadConfigDialog.ShowDialog(); // Open dialog...
+            this.TMP_PATH = this.loadConfigDialog.FileName; // ... to get file's path
+            this.exhibitionFolder = this.TMP_PATH.Substring(0, (this.TMP_PATH.LastIndexOf('.'))); // Find the exhibition's folder including the exhibition's name at the end
+
+            XmlReader exhibitionReader = XmlReader.Create(this.TMP_PATH); // Create XmlReader for file's path
+            while (exhibitionReader.Read())
+            {
+                if (exhibitionReader.NodeType == XmlNodeType.Element)
+                {
+                    switch (exhibitionReader.Name)
+                    { 
+                        case "Exhibition":
+                            this.TMP_EXHIBITION = new Exhibition();
+
+                            while (exhibitionReader.MoveToNextAttribute())
+                            {
+                                switch (exhibitionReader.Name)
+                                { 
+                                    case "Name":
+                                        this.TMP_EXHIBITION.setName(exhibitionReader.Value);
+                                        break;
+                                    case "Path":
+                                        this.TMP_EXHIBITION.setPath(exhibitionReader.Value);
+                                        break;
+                                    case "UserHeadPosition":
+                                        this.TMP_EXHIBITION.setUserHeadPosition(Point3D.Parse(exhibitionReader.Value));
+                                        break;
+                                    case "Threshold":
+                                        this.TMP_EXHIBITION.setThreshold(double.Parse(exhibitionReader.Value));
+                                        break;
+                                    case "SelectionTime":
+                                        this.TMP_EXHIBITION.setSelectionTime(int.Parse(exhibitionReader.Value));
+                                        break;
+                                    case "LockTime":
+                                        this.TMP_EXHIBITION.setLockTime(int.Parse(exhibitionReader.Value));
+                                        break;
+                                    case "SlideTime":
+                                        this.TMP_EXHIBITION.setSlideTime(int.Parse(exhibitionReader.Value));
+                                        break;
+                                    case "EndWait":
+                                        this.TMP_EXHIBITION.setEndWait(int.Parse(exhibitionReader.Value));
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                            break;
+                        case "ExhibitionPlane":
+                            while (exhibitionReader.MoveToNextAttribute())
+                            {
+                                if (exhibitionReader.Name == "Path")
+                                {
+                                    this.TMP_EXHIBITION.setExhibitionPlane(loadExhibitionPlane(exhibitionReader.Value));
+                                }
+                            }
+                            break;
+                        case "Exhibits": // There are exhibits in the exhibition (exhibtion.getExhibits() != null)
+                            this.TMP_EXHIBITION.setExhibits(new List<Exhibit>());
+                            break;
+                        case "Exhibit":
+                            while (exhibitionReader.MoveToNextAttribute())
+                            {
+                                if (exhibitionReader.Name == "Path")
+                                {
+                                    this.TMP_EXHIBITION.addExhibit(loadExhibit(exhibitionReader.Value));
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
 
             return this.TMP_EXHIBITION;
         }
 
         public GeometryHandler.Plane loadExhibitionPlane()
         {
-            return this.TMP_EXHIBITION_PLANE;
+            this.loadConfigDialog.ShowDialog(); // Open dialog...
+            return loadExhibitionPlane(this.loadConfigDialog.FileName); // ... to get file's path
+        }
+
+        public GeometryHandler.Plane loadExhibitionPlane(string path)
+        {
+            List<Point3D> corners = new List<Point3D>();
+
+            XmlReader exhibitionPlaneReader = XmlReader.Create(path); // Create XmlReader for file's path
+            while (exhibitionPlaneReader.Read())
+            {
+                if (exhibitionPlaneReader.NodeType == XmlNodeType.Element)
+                {
+                    switch (exhibitionPlaneReader.Name)
+                    { 
+                        case "ExhibitionPlane":                            
+                            break;
+                        case "Corner":
+                            while (exhibitionPlaneReader.MoveToNextAttribute())
+                            {
+                                if (exhibitionPlaneReader.Name == "Position")
+                                {
+                                    corners.Add(Point3D.Parse(exhibitionPlaneReader.Value));
+                                }
+                            }                            
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            return new GeometryHandler.Plane(corners[0], corners[1], corners[2]);
         }
 
         public Exhibit loadExhibit()
         {
+            this.loadConfigDialog.ShowDialog(); // Open dialog...
+            return loadExhibit(this.loadConfigDialog.FileName); // ... to get file's path
+        }
+
+        public Exhibit loadExhibit(string path)
+        {
+            Dictionary<string, System.Drawing.Image> images = new Dictionary<string, System.Drawing.Image>(); // Prepare Dictionary for storage of coming images
+
+            XmlReader exhibitReader = XmlReader.Create(path); // Create XmlReader for file's path
+            while (exhibitReader.Read())
+            {
+                if (exhibitReader.NodeType == XmlNodeType.Element)
+                {
+                    switch (exhibitReader.Name)
+                    {
+                        case "Exhibit":
+                            this.TMP_EXHIBIT = new Exhibit();
+
+                            while (exhibitReader.MoveToNextAttribute())
+                            {
+                                switch (exhibitReader.Name)
+                                {
+                                    case "Name":
+                                        this.TMP_EXHIBIT.setName(exhibitReader.Value);
+                                        break;
+                                    case "Path":
+                                        this.TMP_EXHIBIT.setPath(exhibitReader.Value);
+                                        break;
+                                    case "KernelSize":
+                                        this.TMP_EXHIBIT.setKernelSize(double.Parse(exhibitReader.Value));
+                                        break;
+                                    case "KernelWeight":
+                                        this.TMP_EXHIBIT.setKernelWeight(double.Parse(exhibitReader.Value));
+                                        break;
+                                    case "Description":
+                                        this.TMP_EXHIBIT.setDescription(exhibitReader.Value);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                            break;
+                        case "Position":
+                            while (exhibitReader.MoveToNextAttribute())
+                            {
+                                if (exhibitReader.Name == "Position")
+                                {
+                                    this.TMP_EXHIBIT.setPosition(Point3D.Parse(exhibitReader.Value));
+                                }
+                            }
+                            break;
+                        case "Images": // There are images in the exhibit
+                            break;
+                        case "Image":
+                            while (exhibitReader.MoveToNextAttribute())
+                            {
+                                if (exhibitReader.Name == "Path")
+                                {
+                                    KeyValuePair<string, System.Drawing.Image> image = loadImage(exhibitReader.Value);
+                                    images.Add(image.Key, image.Value);
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            this.TMP_EXHIBIT.setImages(images);
+
             return this.TMP_EXHIBIT;
         }
 
-        public string loadDescription()
+        public KeyValuePair<string, System.Drawing.Image> loadImage()
         {
-            return this.TMP_EXHIBIT.getDescription();
+            this.loadImageDialog.ShowDialog();
+            return loadImage(this.loadImageDialog.FileName);
         }
 
-        public Dictionary<string, Image> loadImages()
+        public KeyValuePair<string, System.Drawing.Image> loadImage(string path)
         {
-            Dictionary<string, Image> images = new Dictionary<string, Image>();
-            KeyValuePair<string, Image> image = new KeyValuePair<string, Image>();
-
-
-
-            return images;
-        }
-
-        public KeyValuePair<string, Image> loadImage()
-        {
-            string imagePath = "";
-            Image image = new Image();
-            KeyValuePair<string, Image> imagePair = new KeyValuePair<string, Image>(imagePath, image);
-
-            return imagePair;
+            System.Drawing.Image image = System.Drawing.Image.FromFile(path);
+            return new KeyValuePair<string, System.Drawing.Image>(path, image);
         }
         #endregion
 
         #region SAVING
         public void saveExhibition(Exhibition exhibition)
         {
-            this.saveConfigDialog.ShowDialog(); // Open dialog...
-            this.TMP_PATH = this.saveConfigDialog.FileName; // ... to get file's path
-            this.exhibitionFolder = this.TMP_PATH.Substring(0, (this.TMP_PATH.LastIndexOf('.'))); // Find the exhibition's folder including the exhibition's name at the end
-            
-            XmlWriter exhibitionWriter = XmlWriter.Create(this.TMP_PATH, this.xmlWriterSettings); // Create XmlWriter for file's path
+            if (exhibition.getPath() == null) // No path yet
+            {
+                this.saveConfigDialog.ShowDialog(); // Open dialog...
+                exhibition.setPath(this.saveConfigDialog.FileName); // ... to get file's path
+            }
+            this.exhibitionFolder = exhibition.getPath().Substring(0, (exhibition.getPath().LastIndexOf('.'))); // Find the exhibition's folder including the exhibition's name at the end
+
+            XmlWriter exhibitionWriter = XmlWriter.Create(exhibition.getPath(), this.xmlWriterSettings); // Create XmlWriter for file's path
             exhibitionWriter.WriteStartDocument(); // Start writing the file
 
             //<Exhibition>
             exhibitionWriter.WriteStartElement("Exhibition");
             exhibitionWriter.WriteAttributeString("Name", exhibition.getName());
-            exhibitionWriter.WriteAttributeString("Path", this.TMP_PATH);
+            exhibitionWriter.WriteAttributeString("Path", exhibition.getPath());
+            exhibitionWriter.WriteAttributeString("UserHeadPosition", exhibition.getUserHeadPosition().ToString().Replace(',', '.').Replace(';', ' '));
             exhibitionWriter.WriteAttributeString("Threshold", exhibition.getThreshold().ToString().Replace(',', '.'));
             exhibitionWriter.WriteAttributeString("SelectionTime", exhibition.getSelectionTime().ToString());
             exhibitionWriter.WriteAttributeString("LockTime", exhibition.getLockTime().ToString());
             exhibitionWriter.WriteAttributeString("SlideTime", exhibition.getSlideTime().ToString());
-            exhibitionWriter.WriteAttributeString("endWait", exhibition.getEndWait().ToString());
-
-                //<UserHeadPosition>
-            exhibitionWriter.WriteStartElement("UserHeadPosition");
-            exhibitionWriter.WriteAttributeString("Position", exhibition.getUserHeadPosition().ToString().Replace(',', '.').Replace(';', ' '));
-            exhibitionWriter.WriteEndElement();
-                //</UserHEadPosition>
+            exhibitionWriter.WriteAttributeString("EndWait", exhibition.getEndWait().ToString());
             
             saveExhibitionPlane(exhibition.getExhibitionPlane());
             
@@ -219,6 +379,11 @@ namespace IMI_Administration
 
         public void saveExhibit(Exhibit exhibit)
         {
+            if (exhibit.getPath() == null) // New exhibit hast no file path yet
+            {
+                this.saveConfigDialog.ShowDialog(); // Open dialog...
+                exhibit.setPath(this.saveConfigDialog.FileName); // ... to set file's path
+            }
             XmlWriter exhibitWriter = XmlWriter.Create(exhibit.getPath(), this.xmlWriterSettings); // Create XmlWriter for file's path
             exhibitWriter.WriteStartDocument(); // Start writing the file
 
@@ -245,7 +410,7 @@ namespace IMI_Administration
                 //<Images>
                 exhibitWriter.WriteStartElement("Images");
 
-                foreach (KeyValuePair<string, Image> image in exhibit.getImages())
+                foreach (KeyValuePair<string, System.Drawing.Image> image in exhibit.getImages())
                 { 
                     //<Image>
                     exhibitWriter.WriteStartElement("Image");
