@@ -441,7 +441,7 @@ namespace IMI_Administration
             }
             this.comboBox1.Visibility = Visibility.Visible;
 
-            this.textBox1.Text = this.TMP_EXHIBIT.getDescription();
+            this.textBox1.Text = this.contentTextBox1;
             this.textBox1.Visibility = Visibility.Visible;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -617,14 +617,17 @@ namespace IMI_Administration
                             this.contentLabel1 = "NEUES EXPONAT";
                             this.contentButton1 = "Laden";
                             this.contentButton2 = "Erstellen";
+
                             this.headline = Headline.NewExhibit;
+                            updateLayout();
                             break;
                         default: // Existing item selected: "exhibit XY"
                             this.contentLabel1 = this.comboBox1.SelectedItem.ToString();
+
                             this.headline = Headline.LoadExhibit;
+                            updateLayout();
                             break;
                     }
-                    updateLayout();
                     break;
                 case 2: //LoadExhibit: "hidden"
                     break;
@@ -744,6 +747,7 @@ namespace IMI_Administration
                     break;
                 case 2: //LoadExhibit: "remove exhibit from exhibition's list of exhibits"
                     this.exhibition.removeExhibit(this.TMP_EXHIBIT_INDEX);
+
                     this.headline = Headline.Exhibition;
                     updateLayout();
                     break;
@@ -757,14 +761,31 @@ namespace IMI_Administration
                         case -1: // No item selected
                             break;
                         case 0: // "new image"
-                            this.TMP_EXHIBIT.addImage(this.fileHandler.loadImage());
+                            this.TMP_EXHIBIT.addImage(this.fileHandler.loadImage());                    
+                            updateLayout();
                             break;
                         default: // Any other image selected
-                            string msg = (this.comboBox1.SelectedIndex - 1) + ". Bild des " + this.TMP_EXHIBIT_INDEX + ". Exponates löschen";
-                            MessageBox.Show(msg);
+                            KeyValuePair<string, System.Drawing.Image> img = new KeyValuePair<string,System.Drawing.Image>();
+
+                            foreach (KeyValuePair<string, System.Drawing.Image> image in this.TMP_EXHIBIT.getImages())
+                            {
+                                if (image.Key.Contains(this.comboBox1.SelectedItem.ToString()))
+                                {
+                                    img = image;
+                                }
+                            }
+                            if (img.Key != null) // Image found
+                            {
+                                this.TMP_EXHIBIT.removeImage(img);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Bild konnte nicht gelöscht werden.");
+                            }
+
+                            updateLayout();
                             break;
-                    }                    
-                    updateLayout();
+                    }
                     break;
                 case 5: //ExhibitionPlane: "define new exhibition plane"
                     MessageBox.Show("Neue Ausstellungsebene definieren");
@@ -992,6 +1013,7 @@ namespace IMI_Administration
                 case 3: //NewExhibit: "hidden"
                     break;
                 case 4: //EditExhibit: "hidden"
+                    this.contentTextBox1 = this.textBox1.Text;
                     break;
                 case 5: //ExhibitionPlane: "hidden"
                     break;

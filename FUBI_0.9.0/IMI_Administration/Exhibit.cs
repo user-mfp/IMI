@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Windows;
 
 namespace IMI_Administration
 {
@@ -147,7 +148,16 @@ namespace IMI_Administration
             {
                 this.images = new Dictionary<string, System.Drawing.Image>();
             }
-            this.images.Add(image.Key, image.Value);
+
+            if (!this.images.ContainsKey(image.Key)) // Image not already in exhibition
+            {
+                this.images.Add(image.Key, image.Value);
+            }
+            else
+            {
+                MessageBox.Show("Dieses Bild in bereits vorhanden.");
+            }
+
         }
 
         public void changeImage(string path, System.Drawing.Image image)

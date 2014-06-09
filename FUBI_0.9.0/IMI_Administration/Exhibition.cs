@@ -202,7 +202,7 @@ namespace IMI_Administration
         }
 
         public void addExhibit(Exhibit exhibit)
-        {
+        {       
             this.exhibits.Add(exhibit);
         }
 
