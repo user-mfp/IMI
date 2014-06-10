@@ -1,9 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Collections.Generic;
+using Microsoft.Win32;
 
 namespace IMI_Administration
 {
@@ -13,6 +12,8 @@ namespace IMI_Administration
     public partial class MainWindow : Window
     {
         #region DECLARATIONS
+        // Exhibition
+        private Exhibition exhibition;
         // Headlines determine the layout (visibility, labeling and functions)
         private enum Headline {
             Start = 0,
@@ -40,13 +41,18 @@ namespace IMI_Administration
         private string contentButton4;
         private string contentButton5;
         private string contentTextBox1;
-        // Exhibition
-        private Exhibition exhibition;
-        // For temporary use only!
+        // FOR TEMPORARY USE ONLY!
         private string TMP_NAME;
+        private string TMP_PATH;
         private Exhibit TMP_EXHIBIT;
         private int TMP_EXHIBIT_INDEX;
         private GeometryHandler.Plane TMP_EXHIBITION_PLANE;
+        // Dialogs
+        private OpenFileDialog loadConfigDialog;
+        private OpenFileDialog loadTextDialog;
+        private OpenFileDialog loadImageDialog;
+        private SaveFileDialog saveConfigDialog;
+        private SaveFileDialog saveTextDialog;
         // Handler
         private GeometryHandler geometryHandler;
         private FileHandler fileHandler;
@@ -55,6 +61,28 @@ namespace IMI_Administration
         public MainWindow()
         {
             InitializeComponent();
+
+            // Initialize dialogs
+            this.loadConfigDialog = new OpenFileDialog();
+            this.loadConfigDialog.Filter = "Config-Files|*.xml";
+            this.loadConfigDialog.Title = "Konfigurationsdatei laden";
+            this.loadConfigDialog.FileOk += new System.ComponentModel.CancelEventHandler(loadConfigDialog_FileOk);
+            this.loadTextDialog = new OpenFileDialog();
+            this.loadTextDialog.Filter = "Text-Files|*.txt";
+            this.loadTextDialog.Title = "Textdatei laden";
+            this.loadTextDialog.FileOk += new System.ComponentModel.CancelEventHandler(loadTextDialog_FileOk);
+            this.loadImageDialog = new OpenFileDialog();
+            this.loadImageDialog.Filter = "Image-Files|*.jpg|*.png|*.bmp";
+            this.loadImageDialog.Title = "Bilddatei laden";
+            this.loadImageDialog.FileOk += new System.ComponentModel.CancelEventHandler(loadImageDialog_FileOk);
+            this.saveConfigDialog = new SaveFileDialog();
+            this.saveConfigDialog.Filter = "Config-Files|*.xml";
+            this.saveConfigDialog.Title = "Konfigurationsdatei speichern";
+            this.saveConfigDialog.FileOk += new System.ComponentModel.CancelEventHandler(saveConfigDialog_FileOk);
+            this.saveTextDialog = new SaveFileDialog(); ;
+            this.saveTextDialog.Filter = "Text-Files|*.txt";
+            this.saveTextDialog.Title = "Textdatei speichern";
+            this.saveTextDialog.FileOk += new System.ComponentModel.CancelEventHandler(saveTextDialog_FileOk);
 
             // Initialize handlers
             this.geometryHandler = new GeometryHandler();
@@ -679,10 +707,17 @@ namespace IMI_Administration
                 default:
                     break;
                 case 0: //Start: "load existing exhibition"
-                    this.exhibition = this.fileHandler.loadExhibition();
+                    this.loadConfigDialog.ShowDialog();
+                    if (this.TMP_PATH != null) // Temporary file path has been set
+                    {
+                        this.exhibition = this.fileHandler.loadExhibition(this.TMP_PATH);
+                        this.TMP_PATH = null;
 
-                    this.headline = Headline.Exhibition;
-                    updateLayout();
+                        this.headline = Headline.Exhibition;
+                        updateLayout();
+                    }
+                    else // Temporary file path hat not been set
+                    { }
                     break;
                 case 1: //Exhibition: "hidden"
                     break;
@@ -696,23 +731,37 @@ namespace IMI_Administration
                     updateLayout();
                     break;
                 case 3: //NewExhibit: "load existing exhibit"
-                    this.TMP_EXHIBIT = this.fileHandler.loadExhibit();
-                    this.exhibition.addExhibit(this.TMP_EXHIBIT);
-                    this.TMP_EXHIBIT_INDEX = this.exhibition.getExhibits().Count - 1;
+                    this.loadConfigDialog.ShowDialog();
+                    if (this.TMP_PATH != null) // Temporary file path has been set
+                    {
+                        this.TMP_EXHIBIT = this.fileHandler.loadExhibit(this.TMP_PATH);
+                        this.TMP_PATH = null;
+                        this.exhibition.addExhibit(this.TMP_EXHIBIT);
+                        this.TMP_EXHIBIT_INDEX = this.exhibition.getExhibits().Count - 1;
 
-                    this.contentLabel1 = this.TMP_EXHIBIT.getName();
-                    this.contentTextBox1 = this.TMP_EXHIBIT.getDescription();
-                    this.headline = Headline.EditExhibit;
-                    updateLayout();
+                        this.contentLabel1 = this.TMP_EXHIBIT.getName();
+                        this.contentTextBox1 = this.TMP_EXHIBIT.getDescription();
+                        this.headline = Headline.EditExhibit;
+                        updateLayout();
+                    }
+                    else // Temporary file path hat not been set
+                    { }
                     break;
                 case 4: //EditExhibit: "hidden"
                     break;
                 case 5: //ExhibitionPlane: "load exisiting definition of the exhibition plane"
-                    this.TMP_EXHIBITION_PLANE = this.fileHandler.loadExhibitionPlane();
-                    this.exhibition = new Exhibition(this.TMP_NAME, this.TMP_EXHIBITION_PLANE);
+                    this.loadConfigDialog.ShowDialog();
+                    if (this.TMP_PATH != null) // Temporary file path has been set
+                    {
+                        this.TMP_EXHIBITION_PLANE = this.fileHandler.loadExhibitionPlane(this.TMP_PATH);
+                        this.TMP_PATH = null;
+                        this.exhibition = new Exhibition(this.TMP_NAME, this.TMP_EXHIBITION_PLANE);
 
-                    this.headline = Headline.Exhibition;
-                    updateLayout();
+                        this.headline = Headline.Exhibition;
+                        updateLayout();
+                    }
+                    else // Temporary file path hat not been set
+                    { }
                     break;
                 case 6: //ExhibitionPlaneDef: "hidden"
                     break;
@@ -761,8 +810,15 @@ namespace IMI_Administration
                         case -1: // No item selected
                             break;
                         case 0: // "new image"
-                            this.TMP_EXHIBIT.addImage(this.fileHandler.loadImage());                    
-                            updateLayout();
+                            this.loadImageDialog.ShowDialog();
+                            if (this.TMP_PATH != null)
+                            {
+                                this.TMP_EXHIBIT.addImage(this.fileHandler.loadImage(this.TMP_PATH));
+                                this.TMP_PATH = null;
+                                updateLayout();
+                            }
+                            else
+                            { }
                             break;
                         default: // Any other image selected
                             KeyValuePair<string, System.Drawing.Image> img = new KeyValuePair<string,System.Drawing.Image>();
@@ -925,18 +981,31 @@ namespace IMI_Administration
                 case 4: //EditExhibit: "editing done"
                     this.TMP_EXHIBIT.setDescription(this.textBox1.Text);
 
-                    if (this.TMP_EXHIBIT_INDEX != -1) // No new exhibit
+                    if (this.TMP_EXHIBIT_INDEX != -1) // Existing exhibit
                     {
                         this.exhibition.setExhibit(this.TMP_EXHIBIT_INDEX, this.TMP_EXHIBIT);
-                    }
-                    else
-                    {
-                        this.exhibition.addExhibit(this.TMP_EXHIBIT);
-                    }
-                    this.fileHandler.saveExhibit(this.TMP_EXHIBIT);
+                        this.fileHandler.saveExhibit(this.TMP_EXHIBIT);
 
-                    this.headline = Headline.Exhibition;
-                    updateLayout();
+                        this.headline = Headline.Exhibition;
+                        updateLayout();
+                    }
+                    else // New exhibit
+                    {
+                        this.saveConfigDialog.ShowDialog();
+                        if (this.TMP_PATH != null)
+                        {
+                            this.TMP_EXHIBIT.setPath(this.saveConfigDialog.FileName);
+                            this.TMP_PATH = null;
+                            this.exhibition.addExhibit(this.TMP_EXHIBIT);
+
+                            this.fileHandler.saveExhibit(this.TMP_EXHIBIT);
+
+                            this.headline = Headline.Exhibition;
+                            updateLayout();
+                        }
+                        else
+                        { }
+                    }
                     break;
                 case 5: //ExhibitionPlane: "hidden"
                     break;
@@ -1079,6 +1148,31 @@ namespace IMI_Administration
                 case 13: //Settings: "hidden"
                     break;
             }
+        }
+
+        void saveTextDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.TMP_PATH = this.saveTextDialog.FileName;
+        }
+
+        void saveConfigDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.TMP_PATH = this.saveConfigDialog.FileName;
+        }
+
+        void loadImageDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.TMP_PATH = this.loadImageDialog.FileName;
+        }
+
+        void loadTextDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.TMP_PATH = this.loadTextDialog.FileName;
+        }
+
+        void loadConfigDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.TMP_PATH = this.loadConfigDialog.FileName;
         }
 
         //--- FOR DEBUGGING ONLY ---// 

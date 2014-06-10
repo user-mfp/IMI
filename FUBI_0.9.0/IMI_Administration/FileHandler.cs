@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Xml;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Windows;
 
 namespace IMI_Administration
 {
@@ -14,12 +15,6 @@ namespace IMI_Administration
         // Writer and reader
         private XmlWriterSettings xmlWriterSettings;
 
-        // Dialogs
-        private OpenFileDialog loadConfigDialog;
-        private OpenFileDialog loadTextDialog;
-        private OpenFileDialog loadImageDialog;
-        private SaveFileDialog saveConfigDialog;
-        private SaveFileDialog saveTextDialog;
         private string TMP_PATH;
 
         private string exhibitionFolder;
@@ -36,22 +31,6 @@ namespace IMI_Administration
             // Initialize settings for XmlWriter
             this.xmlWriterSettings = new XmlWriterSettings();
             this.xmlWriterSettings.Indent = true;
-            // Initialize dialogs
-            this.loadConfigDialog = new OpenFileDialog();
-            this.loadConfigDialog.Filter = "Config-Files|*.xml";
-            this.loadConfigDialog.Title = "Konfigurationsdatei laden";
-            this.loadTextDialog = new OpenFileDialog();
-            this.loadTextDialog.Filter = "Text-Files|*.txt";
-            this.loadTextDialog.Title = "Textdatei laden";
-            this.loadImageDialog = new OpenFileDialog();
-            this.loadImageDialog.Filter = "Image-Files|*.jpg|*.png|*.bmp";
-            this.loadImageDialog.Title = "Bilddatei laden";
-            this.saveConfigDialog = new SaveFileDialog();
-            this.saveConfigDialog.Filter = "Config-Files|*.xml";
-            this.saveConfigDialog.Title = "Konfigurationsdatei speichern";
-            this.saveTextDialog = new SaveFileDialog(); ;
-            this.saveTextDialog.Filter = "Text-Files|*.txt";
-            this.saveTextDialog.Title = "Textdatei speichern";
         }
 
         public FileHandler(string exhibitionFolder)
@@ -59,35 +38,18 @@ namespace IMI_Administration
             // Initialize settings for XmlWriter
             this.xmlWriterSettings = new XmlWriterSettings();
             this.xmlWriterSettings.Indent = true;
-            // Initialize dialogs
-            this.loadConfigDialog = new OpenFileDialog();
-            this.loadConfigDialog.Filter = "Config-Files|*.xml";
-            this.loadConfigDialog.Title = "Konfigurationsdatei laden";
-            this.loadTextDialog = new OpenFileDialog();
-            this.loadTextDialog.Filter = "Text-Files|*.txt";
-            this.loadTextDialog.Title = "Textdatei laden";
-            this.loadImageDialog = new OpenFileDialog();
-            this.loadImageDialog.Filter = "Image-Files|*.jpg|*.png|*.bmp";
-            this.loadImageDialog.Title = "Bilddatei laden";
-            this.saveConfigDialog = new SaveFileDialog();
-            this.saveConfigDialog.Filter = "Config-Files|*.xml";
-            this.saveConfigDialog.Title = "Konfigurationsdatei speichern";
-            this.saveTextDialog = new SaveFileDialog(); ;
-            this.saveTextDialog.Filter = "Text-Files|*.txt";
-            this.saveTextDialog.Title = "Textdatei speichern";
+
             // Set the exhibition's main folder
             this.exhibitionFolder = exhibitionFolder;
         }
         #endregion
 
         #region LOADING
-        public Exhibition loadExhibition()
+        public Exhibition loadExhibition(string path)
         {
-            this.loadConfigDialog.ShowDialog(); // Open dialog...
-            this.TMP_PATH = this.loadConfigDialog.FileName; // ... to get file's path
-            this.exhibitionFolder = this.TMP_PATH.Substring(0, (this.TMP_PATH.LastIndexOf('.'))); // Find the exhibition's folder including the exhibition's name at the end
+            this.exhibitionFolder = path.Substring(0, (path.LastIndexOf('.'))); // Find the exhibition's folder including the exhibition's name at the end
 
-            XmlReader exhibitionReader = XmlReader.Create(this.TMP_PATH); // Create XmlReader for file's path
+            XmlReader exhibitionReader = XmlReader.Create(path); // Create XmlReader for file's path
             while (exhibitionReader.Read())
             {
                 if (exhibitionReader.NodeType == XmlNodeType.Element)
@@ -160,12 +122,6 @@ namespace IMI_Administration
             return this.TMP_EXHIBITION;
         }
 
-        public GeometryHandler.Plane loadExhibitionPlane()
-        {
-            this.loadConfigDialog.ShowDialog(); // Open dialog...
-            return loadExhibitionPlane(this.loadConfigDialog.FileName); // ... to get file's path
-        }
-
         public GeometryHandler.Plane loadExhibitionPlane(string path)
         {
             List<Point3D> corners = new List<Point3D>();
@@ -195,12 +151,6 @@ namespace IMI_Administration
             }
 
             return new GeometryHandler.Plane(corners[0], corners[1], corners[2]);
-        }
-
-        public Exhibit loadExhibit()
-        {
-            this.loadConfigDialog.ShowDialog(); // Open dialog...
-            return loadExhibit(this.loadConfigDialog.FileName); // ... to get file's path
         }
 
         public Exhibit loadExhibit(string path)
@@ -272,12 +222,6 @@ namespace IMI_Administration
             return this.TMP_EXHIBIT;
         }
 
-        public KeyValuePair<string, System.Drawing.Image> loadImage()
-        {
-            this.loadImageDialog.ShowDialog();
-            return loadImage(this.loadImageDialog.FileName);
-        }
-
         public KeyValuePair<string, System.Drawing.Image> loadImage(string path)
         {
             System.Drawing.Image image = System.Drawing.Image.FromFile(path);
@@ -290,8 +234,8 @@ namespace IMI_Administration
         {
             if (exhibition.getPath() == null) // No path yet
             {
-                this.saveConfigDialog.ShowDialog(); // Open dialog...
-                exhibition.setPath(this.saveConfigDialog.FileName); // ... to get file's path
+                //this.saveConfigDialog.ShowDialog(); // Open dialog...
+                //exhibition.setPath(this.saveConfigDialog.FileName); // ... to get file's path
             }
             this.exhibitionFolder = exhibition.getPath().Substring(0, (exhibition.getPath().LastIndexOf('.'))); // Find the exhibition's folder including the exhibition's name at the end
 
@@ -379,11 +323,6 @@ namespace IMI_Administration
 
         public void saveExhibit(Exhibit exhibit)
         {
-            if (exhibit.getPath() == null) // New exhibit hast no file path yet
-            {
-                this.saveConfigDialog.ShowDialog(); // Open dialog...
-                exhibit.setPath(this.saveConfigDialog.FileName); // ... to set file's path
-            }
             XmlWriter exhibitWriter = XmlWriter.Create(exhibit.getPath(), this.xmlWriterSettings); // Create XmlWriter for file's path
             exhibitWriter.WriteStartDocument(); // Start writing the file
 
