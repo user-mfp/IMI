@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media.Media3D;
 using System.Xml;
+using System.Windows.Media.Imaging;
+using System;
 
 namespace IMI_Administration
 {
@@ -9,14 +11,10 @@ namespace IMI_Administration
         #region DECLARATIONS
         // Writer and reader
         private XmlWriterSettings xmlWriterSettings;
-
-        private string TMP_PATH;
-
         private string exhibitionFolder;
         
         // Exhibition
         private Exhibition TMP_EXHIBITION;
-        private GeometryHandler.Plane TMP_EXHIBITION_PLANE;
         private Exhibit TMP_EXHIBIT;
         #endregion
 
@@ -150,7 +148,7 @@ namespace IMI_Administration
 
         public Exhibit loadExhibit(string path)
         {
-            Dictionary<string, System.Drawing.Image> images = new Dictionary<string, System.Drawing.Image>(); // Prepare Dictionary for storage of coming images
+            Dictionary<string, BitmapImage> images = new Dictionary<string, BitmapImage>(); // Prepare Dictionary for storage of coming images
 
             XmlReader exhibitReader = XmlReader.Create(path); // Create XmlReader for file's path
             while (exhibitReader.Read())
@@ -202,7 +200,7 @@ namespace IMI_Administration
                             {
                                 if (exhibitReader.Name == "Path")
                                 {
-                                    KeyValuePair<string, System.Drawing.Image> image = loadImage(exhibitReader.Value);
+                                    KeyValuePair<string, BitmapImage> image = loadImage(exhibitReader.Value);
                                     images.Add(image.Key, image.Value);
                                 }
                             }
@@ -217,10 +215,10 @@ namespace IMI_Administration
             return this.TMP_EXHIBIT;
         }
 
-        public KeyValuePair<string, System.Drawing.Image> loadImage(string path)
+        public KeyValuePair<string, BitmapImage> loadImage(string path)
         {
-            System.Drawing.Image image = System.Drawing.Image.FromFile(path);
-            return new KeyValuePair<string, System.Drawing.Image>(path, image);
+            BitmapImage image = new BitmapImage(new Uri(path));
+            return new KeyValuePair<string, BitmapImage>(path, image);
         }
         #endregion
 
@@ -344,7 +342,7 @@ namespace IMI_Administration
                 //<Images>
                 exhibitWriter.WriteStartElement("Images");
 
-                foreach (KeyValuePair<string, System.Drawing.Image> image in exhibit.getImages())
+                foreach (KeyValuePair<string, BitmapImage> image in exhibit.getImages())
                 { 
                     //<Image>
                     exhibitWriter.WriteStartElement("Image");

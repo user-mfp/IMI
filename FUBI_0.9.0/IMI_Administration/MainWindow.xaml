@@ -23,5 +23,6 @@
 
         <TextBox Text="" Name="textBox1" FontSize="70" TextWrapping="Wrap" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox1_TextChanged"/>
         <TextBox Text="" Name="textBox2" FontSize="70" Height="116" Width="1200" Margin="10,262,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox2_TextChanged"/>
+        <Image Name="image1" Height="370" Width="370" Margin="840,134,0,0" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"/>
     </Grid>
 </Window>

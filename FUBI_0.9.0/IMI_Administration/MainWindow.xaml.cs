@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 using System.Collections.Generic;
 using Microsoft.Win32;
+using System.Windows.Media.Imaging;
 
 namespace IMI_Administration
 {
@@ -72,7 +73,7 @@ namespace IMI_Administration
             this.loadTextDialog.Title = "Textdatei laden";
             this.loadTextDialog.FileOk += new System.ComponentModel.CancelEventHandler(loadTextDialog_FileOk);
             this.loadImageDialog = new OpenFileDialog();
-            this.loadImageDialog.Filter = "Image-Files|*.jpg|*.png|*.bmp";
+            this.loadImageDialog.Filter = "Alle unterstützen Grafiken|*.jpg;*.jpeg;*.png|" + "JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|" + "Portable Network Graphic (*.png)|*.png";
             this.loadImageDialog.Title = "Bilddatei laden";
             this.loadImageDialog.FileOk += new System.ComponentModel.CancelEventHandler(loadImageDialog_FileOk);
             this.saveConfigDialog = new SaveFileDialog();
@@ -173,6 +174,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
         
         // ... show the outcome of definition and validation of an exhibit's position
@@ -203,6 +207,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
         
         // ... show dialogue for an exhibit's position's validation
@@ -234,6 +241,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
         
         // ... show dialogue for an exhibit's position's validation
@@ -265,6 +275,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
 
         // ... show dialogue for an new name of an exhibition oder exhibit
@@ -305,6 +318,9 @@ namespace IMI_Administration
 
             this.textBox2.Text = "";
             this.textBox2.Visibility = Visibility.Visible;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
 
         // ... show the outcome of definition and validation of an exhibition plane
@@ -335,6 +351,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
 
         // ... show dialogue for an exhibition plane's validation
@@ -366,6 +385,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
 
         // ... show dialogue for an exhibition plane's definition
@@ -397,6 +419,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
 
         // ... show the exhibition plane
@@ -428,6 +453,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
 
         // ... show the editing of an exhibit
@@ -459,7 +487,7 @@ namespace IMI_Administration
             this.comboBox1.Items.Add("neues Bild");
             if (this.TMP_EXHIBIT.getImages() != null) // The exhibit has images
             {
-                foreach (KeyValuePair<string, System.Drawing.Image> image in this.TMP_EXHIBIT.getImages())
+                foreach (KeyValuePair<string, BitmapImage> image in this.TMP_EXHIBIT.getImages())
                 {
                     int start = image.Key.LastIndexOf('\\') + 1;
                     int length = image.Key.LastIndexOf('.') - start;
@@ -503,6 +531,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
 
         // ... show an existing exhibit
@@ -533,6 +564,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
 
         // ... show the exhibition
@@ -572,6 +606,9 @@ namespace IMI_Administration
 
             this.button5.Content = "Schließen";
             this.button5.Visibility = Visibility.Visible;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
 
         // ... show the start screen
@@ -603,6 +640,9 @@ namespace IMI_Administration
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
         }
 
         private void updateButtons()
@@ -622,6 +662,11 @@ namespace IMI_Administration
         private void updateComboBoxes()
         { 
             
+        }
+
+        private void updateImage()
+        { 
+
         }
         #endregion
 
@@ -674,6 +719,16 @@ namespace IMI_Administration
                             this.contentButton2 = "Laden";
                             break;
                         default: // Existing image selected: "?. image"
+                            foreach (KeyValuePair<string, BitmapImage> image in this.TMP_EXHIBIT.getImages())
+                            {
+                                if (image.Key.Contains(this.comboBox1.SelectedItem.ToString()))
+                                {
+                                    this.image1.Source = image.Value;
+                                    this.image1.Visibility = Visibility.Visible;
+                                    break;
+                                }
+                            }
+
                             this.contentButton2 = "Löschen";
                             break;
                     }
@@ -821,9 +876,9 @@ namespace IMI_Administration
                             { }
                             break;
                         default: // Any other image selected
-                            KeyValuePair<string, System.Drawing.Image> img = new KeyValuePair<string,System.Drawing.Image>();
+                            KeyValuePair<string, BitmapImage> img = new KeyValuePair<string,BitmapImage>();
 
-                            foreach (KeyValuePair<string, System.Drawing.Image> image in this.TMP_EXHIBIT.getImages())
+                            foreach (KeyValuePair<string, BitmapImage> image in this.TMP_EXHIBIT.getImages())
                             {
                                 if (image.Key.Contains(this.comboBox1.SelectedItem.ToString()))
                                 {
@@ -833,6 +888,7 @@ namespace IMI_Administration
                             if (img.Key != null) // Image found
                             {
                                 this.TMP_EXHIBIT.removeImage(img);
+                                this.image1.Visibility = Visibility.Hidden;
                             }
                             else
                             {
