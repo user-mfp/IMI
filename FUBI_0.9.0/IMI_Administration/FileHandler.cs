@@ -1,11 +1,6 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Win32;
 using System.Windows.Media.Media3D;
-using System.Windows.Controls;
 using System.Xml;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Windows;
 
 namespace IMI_Administration
 {
