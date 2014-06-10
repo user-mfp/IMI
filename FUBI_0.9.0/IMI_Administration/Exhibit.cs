@@ -23,12 +23,12 @@ namespace IMI_Administration
         #endregion
 
         #region CONSTRUCTORS
-        public Exhibit()  // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE)
+        public Exhibit()  // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE OR DEFAULT-VALUES) ! ! !
         {
             this.position = new Point3D();
         }
 
-        public Exhibit(string name)  // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE)
+        public Exhibit(string name)  // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE OR DEFAULT-VALUES) ! ! !
         {
             this.name = name;
             this.position = new Point3D();

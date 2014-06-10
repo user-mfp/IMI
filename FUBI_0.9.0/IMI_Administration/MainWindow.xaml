@@ -17,9 +17,8 @@
         <Button Content="button5" Name="button5" FontSize="70" Height="Auto" Width="Auto" Margin="0,0,10,10" Padding="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="button5_Click" Grid.Column="1" />
 
         <!-- Boxes -->
-        <ComboBox Name="comboBox1" FontSize="70" Height="Auto" MinWidth="300" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox1_SelectionChanged">
-          
-        </ComboBox>
+        <ComboBox Name="comboBox1" FontSize="70" Height="Auto" MinWidth="400" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox1_SelectionChanged"/>
+        <ComboBox Name="comboBox2" FontSize="70" Height="Auto" MinWidth="400" Width="Auto" Margin="10,261,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox2_SelectionChanged"/>
 
         <TextBox Text="" Name="textBox1" FontSize="70" TextWrapping="Wrap" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox1_TextChanged"/>
         <TextBox Text="" Name="textBox2" FontSize="70" Height="116" Width="1200" Margin="10,262,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox2_TextChanged"/>

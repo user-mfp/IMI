@@ -16,7 +16,8 @@ namespace IMI_Administration
         // Exhibition
         private Exhibition exhibition;
         // Headlines determine the layout (visibility, labeling and functions)
-        private enum Headline {
+        private enum Headline 
+        {
             Start = 0,
             Exhibition, //1
             LoadExhibit, //2
@@ -30,9 +31,26 @@ namespace IMI_Administration
             ExhibitDef, //10
             ExhibitVal, //11
             ExhibitDone, //12
-            Settings //13
+            ExhibitionSettings, //13
+            ExhibitSettings //14
         };
         private Headline headline;
+        // Settings determine the propoerty to be edited (exhibition or exhibit)
+        private enum Setting
+        {
+            // Exhibition
+            UserHeadPosition = 0,
+            Threshold, //1
+            SelectionTime, //2
+            LockTime, //3
+            SlideTime, //4
+            EndWait, //5
+            // Exhibit
+            KernelSize, //6
+            KernelWeight, //7
+            Position //8
+        };
+        private Setting setting;
         // Updateable contents of widgets
         private string contentLabel1;
         private string contentLabel2;
@@ -42,6 +60,7 @@ namespace IMI_Administration
         private string contentButton4;
         private string contentButton5;
         private string contentTextBox1;
+        private string contentTextBox2;
         // FOR TEMPORARY USE ONLY!
         private string TMP_NAME;
         private string TMP_PATH;
@@ -140,37 +159,87 @@ namespace IMI_Administration
                     showExhibitDone();
                     break;
                 case 13: //Settings
-                    showSettings();
+                    showExhibitionSettings();
+                    break;
+                case 14: //Settings
+                    showExhibitSettings();
                     break;
             }
         }
         
         // ... show the exhibition's settings
-        private void showSettings()
+        private void showExhibitionSettings()
         {
             // Labels
-            this.label1.Content = "SETTINGS";
+            this.label1.Content = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
 
             // Buttons
-            this.button1.Content = "laden";
             this.button1.Visibility = Visibility.Hidden;
 
-            this.button2.Content = "neu";
             this.button2.Visibility = Visibility.Hidden;
 
             this.button3.Visibility = Visibility.Hidden;
 
-            this.button4.Content = "zurück";
-            this.button4.Visibility = Visibility.Visible;
+            this.button4.Visibility = Visibility.Hidden;
 
-            this.button5.Visibility = Visibility.Hidden;
+            this.button5.Content = this.contentButton5;
+            this.button5.Visibility = Visibility.Visible;
+
+            // ComboBoxes
+            this.comboBox1.Items.Clear();
+            this.comboBox1.Items.Add("Benutzerposition"); //UserHeadPosition
+            this.comboBox1.Items.Add("Genauigkeit"); // Threshold
+            this.comboBox1.Items.Add("Auswahlzeit"); // SelectionTime
+            this.comboBox1.Items.Add("Sperrdauer"); // LockTime
+            this.comboBox1.Items.Add("Dauer pro Bild"); // SlideTime
+            this.comboBox1.Items.Add("Abklingzeit"); // EndWait
+            this.comboBox1.Visibility = Visibility.Visible;
+
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
+            this.textBox1.Visibility = Visibility.Hidden;
+
+            this.textBox2.Visibility = Visibility.Hidden;
+
+            // Image
+            this.image1.Visibility = Visibility.Hidden;
+        }
+
+        // ... show an exhibit's settings
+        private void showExhibitSettings()
+        {
+            // Labels
+            this.label1.Content = this.contentLabel1;
+            this.label1.Visibility = Visibility.Visible;
+
+            this.label2.Visibility = Visibility.Hidden;
+
+            // Buttons
+            this.button1.Visibility = Visibility.Hidden;
+
+            this.button2.Visibility = Visibility.Hidden;
+
+            this.button3.Visibility = Visibility.Hidden;
+
+            this.button4.Visibility = Visibility.Hidden;
+
+            this.button5.Content = this.contentButton5;
+            this.button5.Visibility = Visibility.Visible;
 
             // Boxes
-            this.comboBox1.Visibility = Visibility.Hidden;
+            this.comboBox1.Items.Clear();
+            this.comboBox1.Items.Add("Position"); // Position
+            this.comboBox1.Items.Add("Radius"); // KernelSize
+            this.comboBox1.Items.Add("Gewicht"); // KernelWeight
+            this.comboBox1.Visibility = Visibility.Visible;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -201,9 +270,12 @@ namespace IMI_Administration
             this.button5.Content = "OK";
             this.button5.Visibility = Visibility.Visible;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -235,9 +307,12 @@ namespace IMI_Administration
             this.button5.Content = "OK";
             this.button5.Visibility = Visibility.Visible;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -269,9 +344,12 @@ namespace IMI_Administration
             this.button5.Content = "OK";
             this.button5.Visibility = Visibility.Visible;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -311,9 +389,12 @@ namespace IMI_Administration
             this.button5.Content = "OK";
             this.button5.Visibility = Visibility.Hidden;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Text = "";
@@ -345,9 +426,12 @@ namespace IMI_Administration
             this.button5.Content = "OK";
             this.button5.Visibility = Visibility.Visible;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -379,9 +463,12 @@ namespace IMI_Administration
             this.button5.Content = "OK";
             this.button5.Visibility = Visibility.Visible;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -413,9 +500,12 @@ namespace IMI_Administration
             this.button5.Content = "OK";
             this.button5.Visibility = Visibility.Visible;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -447,9 +537,12 @@ namespace IMI_Administration
 
             this.button5.Visibility = Visibility.Hidden;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -482,7 +575,7 @@ namespace IMI_Administration
             this.button5.Content = this.contentButton5;
             this.button5.Visibility = Visibility.Visible;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Items.Clear();
             this.comboBox1.Items.Add("neues Bild");
             if (this.TMP_EXHIBIT.getImages() != null) // The exhibit has images
@@ -497,6 +590,9 @@ namespace IMI_Administration
             }
             this.comboBox1.Visibility = Visibility.Visible;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Text = this.contentTextBox1;
             this.textBox1.Visibility = Visibility.Visible;
 
@@ -525,9 +621,12 @@ namespace IMI_Administration
 
             this.button5.Visibility = Visibility.Hidden;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -558,9 +657,12 @@ namespace IMI_Administration
 
             this.button5.Visibility = Visibility.Hidden;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -572,22 +674,6 @@ namespace IMI_Administration
         // ... show the exhibition
         private void showExhibition()
         {
-            // Boxes
-            this.comboBox1.Items.Clear();
-            this.comboBox1.Items.Add("neues Exponat");
-            if (this.exhibition.getExhibits().Count != 0) // There is and exhibit and it has exhibits in it
-            {
-                foreach (Exhibit exhibit in this.exhibition.getExhibits())
-                {
-                    this.comboBox1.Items.Add(exhibit.getName());
-                }
-            }
-            this.comboBox1.Visibility = Visibility.Visible;
-
-            this.textBox1.Visibility = Visibility.Hidden;
-
-            this.textBox2.Visibility = Visibility.Hidden;
-
             // Labels
             this.label1.Content = this.exhibition.getName().ToUpper() +"-AUSSTELLUNG";
             this.label1.Visibility = Visibility.Visible;
@@ -606,6 +692,25 @@ namespace IMI_Administration
 
             this.button5.Content = "Schließen";
             this.button5.Visibility = Visibility.Visible;
+
+            // ComboBoxes
+            this.comboBox1.Items.Clear();
+            this.comboBox1.Items.Add("neues Exponat");
+            if (this.exhibition.getExhibits().Count != 0) // There is and exhibit and it has exhibits in it
+            {
+                foreach (Exhibit exhibit in this.exhibition.getExhibits())
+                {
+                    this.comboBox1.Items.Add(exhibit.getName());
+                }
+            }
+            this.comboBox1.Visibility = Visibility.Visible;
+
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
+            this.textBox1.Visibility = Visibility.Hidden;
+
+            this.textBox2.Visibility = Visibility.Hidden;
 
             // Image
             this.image1.Visibility = Visibility.Hidden;
@@ -634,9 +739,12 @@ namespace IMI_Administration
             this.button5.Content = "Beenden";
             this.button5.Visibility = Visibility.Visible;
 
-            // Boxes
+            // ComboBoxes
             this.comboBox1.Visibility = Visibility.Hidden;
 
+            this.comboBox2.Visibility = Visibility.Hidden;
+
+            // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
             this.textBox2.Visibility = Visibility.Hidden;
@@ -647,16 +755,17 @@ namespace IMI_Administration
 
         private void updateButtons()
         {
-            this.button1.Content = contentButton1;
-            this.button2.Content = contentButton2;
-            this.button3.Content = contentButton3;
-            this.button4.Content = contentButton4;
-            this.button5.Content = contentButton5;
+            this.button1.Content = this.contentButton1;
+            this.button2.Content = this.contentButton2;
+            this.button3.Content = this.contentButton3;
+            this.button4.Content = this.contentButton4;
+            this.button5.Content = this.contentButton5;
         }
 
         private void updateTextBoxes()
-        { 
-        
+        {
+            this.textBox1.Text = this.contentTextBox1;
+            this.textBox2.Text = this.contentTextBox2;
         }
 
         private void updateComboBoxes()
@@ -664,9 +773,90 @@ namespace IMI_Administration
             
         }
 
-        private void updateImage()
-        { 
+        private void updateImage(BitmapImage image)
+        {
+            this.image1.Source = image;
+            this.image1.Visibility = Visibility.Visible;
+        }
 
+        private void showLowMedHigh()
+        {
+            // EMPTY INSTANCES ARE FOR DEFAULT USE ONLY ! ! !
+            Exhibition tmpExhbtn = new Exhibition(); 
+            Exhibit tmpExhbt = new Exhibit();
+
+            this.comboBox2.Items.Clear();
+            this.comboBox2.Items.Add("niedrig"); // Low
+            this.comboBox2.Items.Add("normal"); // Medium
+            this.comboBox2.Items.Add("hoch"); // High
+
+            switch ((int)this.setting)
+            { 
+                case 0: //UserHeadPosition
+                    break;
+                case 1: //Threshold
+                    if (this.exhibition.getThreshold() == (tmpExhbtn.getThreshold() * 1.5)) //150% default := Low
+                        this.comboBox2.SelectedIndex = 0;
+                    else if (this.exhibition.getThreshold() == tmpExhbtn.getThreshold()) //100% default := Medium
+                        this.comboBox2.SelectedIndex = 1;
+                    else if (this.exhibition.getThreshold() == (tmpExhbtn.getThreshold() * 0.5)) //50% default := High
+                        this.comboBox2.SelectedIndex = 2;
+                    break;
+                case 2: //SelectionTime
+                    if (this.exhibition.getSelectionTime() == (tmpExhbtn.getSelectionTime() * 0.5)) //50% default := Low
+                        this.comboBox2.SelectedIndex = 0;
+                    else if (this.exhibition.getSelectionTime() == tmpExhbtn.getSelectionTime()) //100% default := Medium
+                        this.comboBox2.SelectedIndex = 1;
+                    else if (this.exhibition.getSelectionTime() == (tmpExhbtn.getSelectionTime() * 1.5)) //150% default := High
+                        this.comboBox2.SelectedIndex = 2;
+                    break;
+                case 3: //LockTime
+                    if (this.exhibition.getLockTime() == (tmpExhbtn.getLockTime() * 0.5)) //50% default := Low
+                        this.comboBox2.SelectedIndex = 0;
+                    else if (this.exhibition.getLockTime() == tmpExhbtn.getLockTime()) //100% default := Medium
+                        this.comboBox2.SelectedIndex = 1;
+                    else if (this.exhibition.getLockTime() == (tmpExhbtn.getLockTime() * 1.5)) //150% default := High
+                        this.comboBox2.SelectedIndex = 2;
+                    break;
+                case 4: //SlideTime
+                    if (this.exhibition.getSlideTime() == (tmpExhbtn.getSlideTime() * 0.5)) //50% default := Low
+                        this.comboBox2.SelectedIndex = 0;
+                    else if (this.exhibition.getSlideTime() == tmpExhbtn.getSlideTime()) //100% default := Medium
+                        this.comboBox2.SelectedIndex = 1;
+                    else if (this.exhibition.getSlideTime() == (tmpExhbtn.getSlideTime() * 1.5)) //150% default := High
+                        this.comboBox2.SelectedIndex = 2;
+                    break;
+                case 5: //EndWait
+                    if (this.exhibition.getEndWait() == (tmpExhbtn.getEndWait() * 0.5)) //50% default := Low
+                        this.comboBox2.SelectedIndex = 0;
+                    else if (this.exhibition.getEndWait() == tmpExhbtn.getEndWait()) //100% default := Medium
+                        this.comboBox2.SelectedIndex = 1;
+                    else if (this.exhibition.getEndWait() == (tmpExhbtn.getEndWait() * 1.5)) //150% default := High
+                        this.comboBox2.SelectedIndex = 2;
+                    break;
+                case 6: //KernelSize
+                    if (this.TMP_EXHIBIT.getKernelSize() == (tmpExhbt.getKernelSize() * 0.5)) //50% default := Low
+                        this.comboBox2.SelectedIndex = 0;
+                    else if (this.TMP_EXHIBIT.getKernelSize() == tmpExhbt.getKernelSize()) //100% default := Medium
+                        this.comboBox2.SelectedIndex = 1;
+                    else if (this.TMP_EXHIBIT.getKernelSize() == (tmpExhbt.getKernelSize() * 1.5)) //150% default := High
+                        this.comboBox2.SelectedIndex = 2;
+                    break;
+                case 7: //KernelWeigth
+                    if (this.TMP_EXHIBIT.getKernelWeight() == (tmpExhbt.getKernelWeight() * 0.5)) //50% default := Low
+                        this.comboBox2.SelectedIndex = 0;
+                    else if (this.TMP_EXHIBIT.getKernelWeight() == tmpExhbt.getKernelWeight()) //100% default := Medium
+                        this.comboBox2.SelectedIndex = 1;
+                    else if (this.TMP_EXHIBIT.getKernelWeight() == (tmpExhbt.getKernelWeight() * 1.5)) //150% default := High
+                        this.comboBox2.SelectedIndex = 2;
+                    break;
+                case 8: //Position
+                    break;
+                default:
+                    break;
+            }            
+            this.comboBox2.Visibility = Visibility.Visible;
+            this.button2.Visibility = Visibility.Hidden;
         }
         #endregion
 
@@ -723,8 +913,7 @@ namespace IMI_Administration
                             {
                                 if (image.Key.Contains(this.comboBox1.SelectedItem.ToString()))
                                 {
-                                    this.image1.Source = image.Value;
-                                    this.image1.Visibility = Visibility.Visible;
+                                    this.updateImage(image.Value);
                                     break;
                                 }
                             }
@@ -750,7 +939,108 @@ namespace IMI_Administration
                     break;
                 case 12: //ExhibitDone: "hidden"
                     break;
-                case 13: //Settings:
+                case 13: //ExhibitionSettings:
+                    switch (this.comboBox1.SelectedIndex)
+                    {
+                        case 0: //UserHeadPosition
+                            this.comboBox2.Visibility = Visibility.Hidden;
+                            this.contentButton2 = "einstellen";
+                            this.button2.Visibility = Visibility.Visible;
+                            this.button3.Visibility = Visibility.Hidden;
+                            this.setting = Setting.UserHeadPosition;
+                            break;
+                        case 1: //Threshold
+                            this.setting = Setting.Threshold;
+                            this.showLowMedHigh();
+                            break;
+                        case 2: //SelectionTime
+                            this.setting = Setting.SelectionTime;
+                            this.showLowMedHigh();
+                            break;
+                        case 3: //LockTime
+                            this.setting = Setting.LockTime;
+                            this.showLowMedHigh();
+                            break;
+                        case 4: //SlideTime
+                            this.setting = Setting.SlideTime;
+                            this.showLowMedHigh();
+                            break;
+                        case 5: //EndWait
+                            this.setting = Setting.EndWait;
+                            this.showLowMedHigh();
+                            break;
+                        default:
+                            break;
+                    }
+                    updateButtons();
+                    break;
+                case 14: //ExhibitSettings:
+                    switch (this.comboBox1.SelectedIndex)
+                    {
+                        case 0: //Position
+                            this.contentButton2 = "ändern";
+                            this.button2.Visibility = Visibility.Visible;
+                            this.button3.Visibility = Visibility.Hidden;
+                            this.setting = Setting.Position;
+                            updateButtons();
+                            break;
+                        case 1: //KernelSize
+                            this.setting = Setting.KernelSize;
+                            this.showLowMedHigh();
+                            break;
+                        case 2: //KernelWeight
+                            this.setting = Setting.KernelWeight;
+                            this.showLowMedHigh();
+                            break;
+                        default:
+                            break;
+                    }
+                    updateButtons();
+                    break;
+            }
+        }
+
+        private void comboBox2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch ((int)this.headline)
+            {
+                default:
+                    break;
+                case 0: //Start: "hidden"
+                    break;
+                case 1: //Exhibition: "hidden"
+                    break;
+                case 2: //LoadExhibit: "hidden"
+                    break;
+                case 3: //NewExhibit: "hidden"
+                    break;
+                case 4: //EditExhibit: "hidden"
+                    break;
+                case 5: //ExhibitionPlane: "hidden"
+                    break;
+                case 6: //ExhibitionPlaneDef: "hidden"
+                    break;
+                case 7: //ExhibitionPlaneVal: "hidden"
+                    break;
+                case 8: //ExhibitionPlaneDone: "hidden"
+                    break;
+                case 9: //NewName: "hidden"
+                    break;
+                case 10: //ExhibitDef: "hidden"
+                    break;
+                case 11: //ExhibitVal: "hidden"
+                    break;
+                case 12: //ExhibitDone: "hidden"
+                    break;
+                case 13: //ExhibitionSettings                    
+                    //this.contentButton3 = "ändern";
+                    //this.button3.Visibility = Visibility.Visible;
+                    //updateButtons();
+                    break;
+                case 14: //ExhibitSettings                    
+                    //this.contentButton3 = "ändern";
+                    //this.button3.Visibility = Visibility.Visible;
+                    //updateButtons();
                     break;
             }
         }
@@ -970,13 +1260,21 @@ namespace IMI_Administration
                 case 0: //Start: "hidden"
                     break;
                 case 1: //Exhibition: "hidden"
+                    this.contentLabel1 = this.exhibition.getName() + " - EINSTELLUNGEN";
+                    this.contentButton5 = "OK";
+
+                    this.headline = Headline.ExhibitionSettings;
+                    updateLayout();
                     break;
                 case 2: //LoadExhibit: "hidden"
                     break;
                 case 3: //NewExhibit: "hidden"
                     break;
                 case 4: //EditExhibit: "open exhibit's properties"
-                    MessageBox.Show("Exponat-Einstellungen öffnen");
+                    this.contentLabel1 = this.TMP_EXHIBIT.getName() + " - EINSTELLUNGEN";
+
+                    this.headline = Headline.ExhibitSettings;
+                    updateLayout();
                     break;
                 case 5: //ExhibitionPlane: "back to the start"
                     MessageBox.Show("Zurück zum Start");
@@ -1009,10 +1307,9 @@ namespace IMI_Administration
                     break;
                 case 12: //ExhibitDone: "hidden"
                     break;
-                case 13: //Settings: "back to the exhibition"
-                    MessageBox.Show("Zurück zur Ausstellung");
-                    this.headline = Headline.Exhibition;
-                    updateLayout();
+                case 13: //ExhibitionSettings: "hidden"
+                    break;
+                case 14: //ExhibitSettings: "hidden"
                     break;
             }
         }
@@ -1118,7 +1415,13 @@ namespace IMI_Administration
                     this.headline = Headline.EditExhibit;
                     updateLayout();
                     break;
-                case 13: //Settings:
+                case 13: //ExhibitionSettings: "safe and go back to exhibition"
+                    this.headline = Headline.Exhibition;
+                    updateLayout();
+                    break;
+                case 14: //ExhibitSettings: "go to exhibit"
+                    this.headline = Headline.EditExhibit;
+                    updateLayout();
                     break;
             }
         }
@@ -1156,7 +1459,9 @@ namespace IMI_Administration
                     break;
                 case 12: //ExhibitDone: "hidden"
                     break;
-                case 13: //Settings: "hidden"
+                case 13: //ExhibitionSettings: "hidden"
+                    break;
+                case 14: //ExhibitSettings: "hidden"
                     break;
             }
         }
@@ -1201,7 +1506,9 @@ namespace IMI_Administration
                     break;
                 case 12: //ExhibitDone: "hidden"
                     break;
-                case 13: //Settings: "hidden"
+                case 13: //ExhibitionSettings: "hidden"
+                    break;
+                case 14: //ExhibitSettings: "hidden"
                     break;
             }
         }

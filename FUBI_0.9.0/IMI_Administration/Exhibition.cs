@@ -21,12 +21,12 @@ namespace IMI_Administration
         #endregion
 
         #region CONSTRUCTORS
-        public Exhibition() // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE)
+        public Exhibition() // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE OR DEFAUL-VALUES) ! ! !
         {
             this.exhibitionPlane = new GeometryHandler.Plane();
         }
 
-        public Exhibition(string name) // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE)
+        public Exhibition(string name) // ONLY FOR IMMEDIATE AND PROPER INSTANTIATION (LOADING FROM CONFIG-FILE OR DEFAULT-VALUES) ! ! !
         {
             this.name = name;
             this.exhibitionPlane = new GeometryHandler.Plane();
