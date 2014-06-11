@@ -4,6 +4,7 @@ using System.Windows.Media.Media3D;
 using System.Collections.Generic;
 using Microsoft.Win32;
 using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace IMI_Administration
 {
@@ -39,16 +40,17 @@ namespace IMI_Administration
         private enum Setting
         {
             // Exhibition
-            UserHeadPosition = 0,
-            Threshold, //1
-            SelectionTime, //2
-            LockTime, //3
-            SlideTime, //4
-            EndWait, //5
+            None = 0,
+            UserHeadPosition, //1
+            Threshold, //2
+            SelectionTime, //3
+            LockTime, //4
+            SlideTime, //5
+            EndWait, //6
             // Exhibit
-            KernelSize, //6
-            KernelWeight, //7
-            Position //8
+            KernelSize, //7
+            KernelWeight, //8
+            Position //9
         };
         private Setting setting;
         // Updateable contents of widgets
@@ -110,6 +112,7 @@ namespace IMI_Administration
             
             // Initialize layout
             this.headline = Headline.Start;
+            this.setting = Setting.None;
             updateLayout();
         }
 
@@ -119,7 +122,11 @@ namespace IMI_Administration
         {
             switch ((int)this.headline)
             { 
-                default: //0: Start
+                case 0: //Start
+                    this.contentLabel1 = "START";
+                    this.contentButton1 = "Ausstellung laden";
+                    this.contentButton2 = "Ausstellung erstellen";
+                    this.contentButton5 = "beenden";
                     showStart();
                     break;
                 case 1: //Exhibition
@@ -163,6 +170,8 @@ namespace IMI_Administration
                     break;
                 case 14: //Settings
                     showExhibitSettings();
+                    break;
+                default:
                     break;
             }
         }
@@ -252,7 +261,7 @@ namespace IMI_Administration
         private void showExhibitDone()
         {
             // Labels
-            this.label1.Content = this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
+            this.label1.Content = this.contentLabel1; //this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Content = "- Position erfolgreich bestimmt." + '\n' + "oder" + '\n' + "- Position nicht erfolgreich bestimmt.";
@@ -267,7 +276,7 @@ namespace IMI_Administration
 
             this.button4.Visibility = Visibility.Hidden;
 
-            this.button5.Content = "OK";
+            this.button5.Content = this.contentButton5;//"OK";
             this.button5.Visibility = Visibility.Visible;
 
             // ComboBoxes
@@ -288,10 +297,10 @@ namespace IMI_Administration
         private void showExhibitVal()
         {
             // Labels
-            this.label1.Content = this.TMP_NAME.ToUpper() + " - VALIDIERUNG";
+            this.label1.Content = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = "[Instruktionen]";
+            this.label2.Content = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -301,10 +310,10 @@ namespace IMI_Administration
 
             this.button3.Visibility = Visibility.Hidden;
 
-            this.button4.Content = "zurück";
+            this.button4.Content = this.contentButton4;
             this.button4.Visibility = Visibility.Visible;
 
-            this.button5.Content = "OK";
+            this.button5.Content = this.contentButton5;
             this.button5.Visibility = Visibility.Visible;
 
             // ComboBoxes
@@ -325,10 +334,10 @@ namespace IMI_Administration
         private void showExhibitDef()
         {
             // Labels
-            this.label1.Content = this.TMP_NAME.ToUpper() + " - DEFINITION";
+            this.label1.Content = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = "[Instruktionen]";
+            this.label2.Content = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -338,10 +347,10 @@ namespace IMI_Administration
 
             this.button3.Visibility = Visibility.Hidden;
 
-            this.button4.Content = "zurück";
+            this.button4.Content = this.contentButton4;
             this.button4.Visibility = Visibility.Visible;
 
-            this.button5.Content = "OK";
+            this.button5.Content = this.contentButton5;
             this.button5.Visibility = Visibility.Visible;
 
             // ComboBoxes
@@ -361,20 +370,11 @@ namespace IMI_Administration
         // ... show dialogue for an new name of an exhibition oder exhibit
         private void showNewName()
         {
-            if (this.exhibition == null) // New Exhibition
-            {
-                this.contentLabel1 = "Ausstellung";
-            }
-            else // New exhibit
-            {
-                this.contentLabel1 = "Exponat";
-            }
-
             // Labels
-            this.label1.Content = this.contentLabel1.ToUpper();
+            this.label1.Content = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = "Bitte " + this.contentLabel1 + "snamen eingeben";
+            this.label2.Content = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -386,7 +386,7 @@ namespace IMI_Administration
 
             this.button4.Visibility = Visibility.Hidden;
 
-            this.button5.Content = "OK";
+            this.button5.Content = this.contentButton5;
             this.button5.Visibility = Visibility.Hidden;
 
             // ComboBoxes
@@ -397,7 +397,7 @@ namespace IMI_Administration
             // TextBoxes
             this.textBox1.Visibility = Visibility.Hidden;
 
-            this.textBox2.Text = "";
+            this.textBox2.Text = this.contentTextBox2;
             this.textBox2.Visibility = Visibility.Visible;
 
             // Image
@@ -408,10 +408,10 @@ namespace IMI_Administration
         private void showExhibitionPlaneDone()
         {
             // Labels
-            this.label1.Content = "AUSSTELLUNGSEBENE - BESTIMMUNG";
+            this.label1.Content = this.contentLabel1;// "AUSSTELLUNGSEBENE - BESTIMMUNG";
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = "- Ebene erfolgreich bestimmt." + '\n' + "oder" + '\n' + "- Ebene nicht erfolgreich bestimmt.";
+            this.label2.Content = this.contentLabel2;// "- Ebene erfolgreich bestimmt." + '\n' + "oder" + '\n' + "- Ebene nicht erfolgreich bestimmt.";
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -423,7 +423,7 @@ namespace IMI_Administration
 
             this.button4.Visibility = Visibility.Hidden;
 
-            this.button5.Content = "OK";
+            this.button5.Content = this.contentButton5;// "OK";
             this.button5.Visibility = Visibility.Visible;
 
             // ComboBoxes
@@ -444,10 +444,10 @@ namespace IMI_Administration
         private void showExhibitionPlaneVal()
         {
             // Labels
-            this.label1.Content = "AUSSTELLUNGSEBENE - VALIDIERUNG";
+            this.label1.Content = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = "[Instruktionen]";
+            this.label2.Content = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -457,10 +457,10 @@ namespace IMI_Administration
 
             this.button3.Visibility = Visibility.Hidden;
 
-            this.button4.Content = "zurück";
+            this.button4.Content = this.contentButton4;
             this.button4.Visibility = Visibility.Visible;
 
-            this.button5.Content = "OK";
+            this.button5.Content = this.contentButton5;
             this.button5.Visibility = Visibility.Visible;
 
             // ComboBoxes
@@ -481,10 +481,10 @@ namespace IMI_Administration
         private void showExhibitionPlaneDef()
         {
             // Labels
-            this.label1.Content = "AUSSTELLUNGSEBENE - DEFINITION";
+            this.label1.Content = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = "[Instruktionen]";
+            this.label2.Content = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -494,10 +494,10 @@ namespace IMI_Administration
 
             this.button3.Visibility = Visibility.Hidden;
 
-            this.button4.Content = "zurück";
+            this.button4.Content = this.contentButton4;
             this.button4.Visibility = Visibility.Visible;
 
-            this.button5.Content = "OK";
+            this.button5.Content = this.contentButton5;
             this.button5.Visibility = Visibility.Visible;
 
             // ComboBoxes
@@ -518,21 +518,21 @@ namespace IMI_Administration
         private void showExhibitionPlane()
         {
             // Labels
-            this.label1.Content = "AUSSTELLUNGSEBENE";
+            this.label1.Content = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
 
             // Buttons
-            this.button1.Content = "LADEN";
+            this.button1.Content = this.contentButton1;
             this.button1.Visibility = Visibility.Visible;
 
-            this.button2.Content = "NEU";
+            this.button2.Content = this.contentButton2;
             this.button2.Visibility = Visibility.Visible;
 
             this.button3.Visibility = Visibility.Hidden;
 
-            this.button4.Content = "zurück";
+            this.button4.Content = this.contentButton4;
             this.button4.Visibility = Visibility.Visible;
 
             this.button5.Visibility = Visibility.Hidden;
@@ -555,7 +555,7 @@ namespace IMI_Administration
         private void showEditExhibit()
         {
             // Labels
-            this.label1.Content = this.contentLabel1 + " - BEARBEITEN";
+            this.label1.Content = this.contentLabel1;// +" - BEARBEITEN";
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
@@ -566,7 +566,7 @@ namespace IMI_Administration
             this.button2.Content = this.contentButton2;
             this.button2.Visibility = Visibility.Visible;
 
-            this.button3.Content = contentButton3;
+            this.button3.Content = this.contentButton3;
             this.button3.Visibility = Visibility.Visible;
 
             this.button4.Content = this.contentButton4;
@@ -645,10 +645,10 @@ namespace IMI_Administration
             this.label2.Visibility = Visibility.Hidden;
 
             // Buttons
-            this.button1.Content = "Bearbeiten";
+            this.button1.Content = this.contentButton1;// "bearbeiten";
             this.button1.Visibility = Visibility.Visible;
 
-            this.button2.Content = "Löschen";
+            this.button2.Content = this.contentButton2;// "löschen";
             this.button2.Visibility = Visibility.Visible;
 
             this.button3.Visibility = Visibility.Hidden;
@@ -675,7 +675,7 @@ namespace IMI_Administration
         private void showExhibition()
         {
             // Labels
-            this.label1.Content = this.exhibition.getName().ToUpper() +"-AUSSTELLUNG";
+            this.label1.Content = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
@@ -687,10 +687,10 @@ namespace IMI_Administration
 
             this.button3.Visibility = Visibility.Hidden;
 
-            this.button4.Content = "Einstellungen";
+            this.button4.Content = this.contentButton4;
             this.button4.Visibility = Visibility.Visible;
 
-            this.button5.Content = "Schließen";
+            this.button5.Content = this.contentButton5;
             this.button5.Visibility = Visibility.Visible;
 
             // ComboBoxes
@@ -720,23 +720,23 @@ namespace IMI_Administration
         private void showStart()
         {
             // Labels
-            this.label1.Content = "START";
+            this.label1.Content = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
 
             // Buttons
-            this.button1.Content = "Ausstellung laden";
+            this.button1.Content = this.contentButton1;
             this.button1.Visibility = Visibility.Visible;
 
-            this.button2.Content = "Neu erstellen";
+            this.button2.Content = this.contentButton2;
             this.button2.Visibility = Visibility.Visible;
 
             this.button3.Visibility = Visibility.Hidden;
 
             this.button4.Visibility = Visibility.Hidden;
 
-            this.button5.Content = "Beenden";
+            this.button5.Content = this.contentButton5;
             this.button5.Visibility = Visibility.Visible;
 
             // ComboBoxes
@@ -792,9 +792,11 @@ namespace IMI_Administration
 
             switch ((int)this.setting)
             { 
-                case 0: //UserHeadPosition
+                case 0: //None
                     break;
-                case 1: //Threshold
+                case 1: //UserHeadPosition
+                    break;
+                case 2: //Threshold
                     if (this.exhibition.getThreshold() == (tmpExhbtn.getThreshold() * 1.5)) //150% default := Low
                         this.comboBox2.SelectedIndex = 0;
                     else if (this.exhibition.getThreshold() == tmpExhbtn.getThreshold()) //100% default := Medium
@@ -802,7 +804,7 @@ namespace IMI_Administration
                     else if (this.exhibition.getThreshold() == (tmpExhbtn.getThreshold() * 0.5)) //50% default := High
                         this.comboBox2.SelectedIndex = 2;
                     break;
-                case 2: //SelectionTime
+                case 3: //SelectionTime
                     if (this.exhibition.getSelectionTime() == (tmpExhbtn.getSelectionTime() * 0.5)) //50% default := Low
                         this.comboBox2.SelectedIndex = 0;
                     else if (this.exhibition.getSelectionTime() == tmpExhbtn.getSelectionTime()) //100% default := Medium
@@ -810,7 +812,7 @@ namespace IMI_Administration
                     else if (this.exhibition.getSelectionTime() == (tmpExhbtn.getSelectionTime() * 1.5)) //150% default := High
                         this.comboBox2.SelectedIndex = 2;
                     break;
-                case 3: //LockTime
+                case 4: //LockTime
                     if (this.exhibition.getLockTime() == (tmpExhbtn.getLockTime() * 0.5)) //50% default := Low
                         this.comboBox2.SelectedIndex = 0;
                     else if (this.exhibition.getLockTime() == tmpExhbtn.getLockTime()) //100% default := Medium
@@ -818,7 +820,7 @@ namespace IMI_Administration
                     else if (this.exhibition.getLockTime() == (tmpExhbtn.getLockTime() * 1.5)) //150% default := High
                         this.comboBox2.SelectedIndex = 2;
                     break;
-                case 4: //SlideTime
+                case 5: //SlideTime
                     if (this.exhibition.getSlideTime() == (tmpExhbtn.getSlideTime() * 0.5)) //50% default := Low
                         this.comboBox2.SelectedIndex = 0;
                     else if (this.exhibition.getSlideTime() == tmpExhbtn.getSlideTime()) //100% default := Medium
@@ -826,7 +828,7 @@ namespace IMI_Administration
                     else if (this.exhibition.getSlideTime() == (tmpExhbtn.getSlideTime() * 1.5)) //150% default := High
                         this.comboBox2.SelectedIndex = 2;
                     break;
-                case 5: //EndWait
+                case 6: //EndWait
                     if (this.exhibition.getEndWait() == (tmpExhbtn.getEndWait() * 0.5)) //50% default := Low
                         this.comboBox2.SelectedIndex = 0;
                     else if (this.exhibition.getEndWait() == tmpExhbtn.getEndWait()) //100% default := Medium
@@ -834,7 +836,7 @@ namespace IMI_Administration
                     else if (this.exhibition.getEndWait() == (tmpExhbtn.getEndWait() * 1.5)) //150% default := High
                         this.comboBox2.SelectedIndex = 2;
                     break;
-                case 6: //KernelSize
+                case 7: //KernelSize
                     if (this.TMP_EXHIBIT.getKernelSize() == (tmpExhbt.getKernelSize() * 0.5)) //50% default := Low
                         this.comboBox2.SelectedIndex = 0;
                     else if (this.TMP_EXHIBIT.getKernelSize() == tmpExhbt.getKernelSize()) //100% default := Medium
@@ -842,7 +844,7 @@ namespace IMI_Administration
                     else if (this.TMP_EXHIBIT.getKernelSize() == (tmpExhbt.getKernelSize() * 1.5)) //150% default := High
                         this.comboBox2.SelectedIndex = 2;
                     break;
-                case 7: //KernelWeigth
+                case 8: //KernelWeigth
                     if (this.TMP_EXHIBIT.getKernelWeight() == (tmpExhbt.getKernelWeight() * 0.5)) //50% default := Low
                         this.comboBox2.SelectedIndex = 0;
                     else if (this.TMP_EXHIBIT.getKernelWeight() == tmpExhbt.getKernelWeight()) //100% default := Medium
@@ -850,7 +852,7 @@ namespace IMI_Administration
                     else if (this.TMP_EXHIBIT.getKernelWeight() == (tmpExhbt.getKernelWeight() * 1.5)) //150% default := High
                         this.comboBox2.SelectedIndex = 2;
                     break;
-                case 8: //Position
+                case 9: //Position
                     break;
                 default:
                     break;
@@ -878,15 +880,15 @@ namespace IMI_Administration
                             break;
                         case 0: // First item selected: "new exhibit"
                             this.contentLabel1 = "NEUES EXPONAT";
-                            this.contentButton1 = "Laden";
-                            this.contentButton2 = "Erstellen";
-
+                            this.contentButton1 = "laden";
+                            this.contentButton2 = "erstellen";
                             this.headline = Headline.NewExhibit;
                             updateLayout();
                             break;
                         default: // Existing item selected: "exhibit XY"
                             this.contentLabel1 = this.comboBox1.SelectedItem.ToString();
-
+                            this.contentButton1 = "bearbeiten";
+                            this.contentButton2 = "löschen";
                             this.headline = Headline.LoadExhibit;
                             updateLayout();
                             break;
@@ -906,7 +908,7 @@ namespace IMI_Administration
                             this.contentButton5 = "OK";
                             break;
                         case 0: // First item selected: "new image"
-                            this.contentButton2 = "Laden";
+                            this.contentButton2 = "laden";
                             break;
                         default: // Existing image selected: "?. image"
                             foreach (KeyValuePair<string, BitmapImage> image in this.TMP_EXHIBIT.getImages())
@@ -917,8 +919,7 @@ namespace IMI_Administration
                                     break;
                                 }
                             }
-
-                            this.contentButton2 = "Löschen";
+                            this.contentButton2 = "löschen";
                             break;
                     }
                     updateButtons();
@@ -1052,17 +1053,17 @@ namespace IMI_Administration
                 default:
                     break;
                 case 0: //Start: "load existing exhibition"
-                    this.loadConfigDialog.ShowDialog();
-                    if (this.TMP_PATH != null) // Temporary file path has been set
+                    if (this.loadConfigDialog.ShowDialog() == true) // Temporary file path has been set
                     {
                         this.exhibition = this.fileHandler.loadExhibition(this.TMP_PATH);
                         this.TMP_PATH = null;
 
+                        this.contentLabel1 = this.exhibition.getName().ToUpper();
+                        this.contentButton4 = "Einstellungen";
+                        this.contentButton5 = "schließen";
                         this.headline = Headline.Exhibition;
                         updateLayout();
                     }
-                    else // Temporary file path hat not been set
-                    { }
                     break;
                 case 1: //Exhibition: "hidden"
                     break;
@@ -1070,21 +1071,20 @@ namespace IMI_Administration
                     this.TMP_EXHIBIT = this.exhibition.getExhibit(this.TMP_EXHIBIT_INDEX);
                     this.TMP_EXHIBIT_INDEX = this.comboBox1.SelectedIndex - 1;
 
-                    this.contentLabel1 = this.TMP_EXHIBIT.getName();
+                    this.contentLabel1 = this.TMP_EXHIBIT.getName().ToUpper() + " - BEARBEITEN";
                     this.contentTextBox1 = this.TMP_EXHIBIT.getDescription();
                     this.headline = Headline.EditExhibit;
                     updateLayout();
                     break;
                 case 3: //NewExhibit: "load existing exhibit"
-                    this.loadConfigDialog.ShowDialog();
-                    if (this.TMP_PATH != null) // Temporary file path has been set
+                    if (this.loadConfigDialog.ShowDialog() == true) // Temporary file path has been set
                     {
                         this.TMP_EXHIBIT = this.fileHandler.loadExhibit(this.TMP_PATH);
                         this.TMP_PATH = null;
                         this.exhibition.addExhibit(this.TMP_EXHIBIT);
                         this.TMP_EXHIBIT_INDEX = this.exhibition.getExhibits().Count - 1;
 
-                        this.contentLabel1 = this.TMP_EXHIBIT.getName();
+                        this.contentLabel1 = this.TMP_EXHIBIT.getName().ToUpper() + " - BEARBEITEN";
                         this.contentTextBox1 = this.TMP_EXHIBIT.getDescription();
                         this.headline = Headline.EditExhibit;
                         updateLayout();
@@ -1095,18 +1095,18 @@ namespace IMI_Administration
                 case 4: //EditExhibit: "hidden"
                     break;
                 case 5: //ExhibitionPlane: "load exisiting definition of the exhibition plane"
-                    this.loadConfigDialog.ShowDialog();
-                    if (this.TMP_PATH != null) // Temporary file path has been set
+                    if (this.loadConfigDialog.ShowDialog() == true) // Temporary file path has been set
                     {
                         this.TMP_EXHIBITION_PLANE = this.fileHandler.loadExhibitionPlane(this.TMP_PATH);
                         this.TMP_PATH = null;
                         this.exhibition = new Exhibition(this.TMP_NAME, this.TMP_EXHIBITION_PLANE);
 
+                        this.contentLabel1 = this.exhibition.getName().ToUpper();
+                        this.contentButton4 = "Einstellungen";
+                        this.contentButton5 = "schließen";
                         this.headline = Headline.Exhibition;
                         updateLayout();
                     }
-                    else // Temporary file path hat not been set
-                    { }
                     break;
                 case 6: //ExhibitionPlaneDef: "hidden"
                     break;
@@ -1134,6 +1134,9 @@ namespace IMI_Administration
                 default:
                     break;
                 case 0: //Start: "define new exhibition"
+                    this.contentLabel1 = "AUSSTELLUNGSNAMEN BESTIMMEN";
+                    this.contentLabel2 = "Bitte Ausstellungsnamen eingeben.";
+                    this.contentButton5 = "OK";
                     this.headline = Headline.NewName;
                     updateLayout();
                     break;
@@ -1142,10 +1145,16 @@ namespace IMI_Administration
                 case 2: //LoadExhibit: "remove exhibit from exhibition's list of exhibits"
                     this.exhibition.removeExhibit(this.TMP_EXHIBIT_INDEX);
 
+                    this.contentLabel1 = this.exhibition.getName().ToUpper();
+                    this.contentButton4 = "Einstellungen";
+                    this.contentButton5 = "schließen";
                     this.headline = Headline.Exhibition;
                     updateLayout();
                     break;
                 case 3: //NewExhibit: "define new exhibit"
+                    this.contentLabel1 = "EXPONATNAMEN BESTIMMEN";
+                    this.contentLabel2 = "Bitte Exponatsnamen eingeben.";
+                    this.contentButton5 = "OK";
                     this.headline = Headline.NewName;
                     updateLayout();
                     break;
@@ -1155,8 +1164,7 @@ namespace IMI_Administration
                         case -1: // No item selected
                             break;
                         case 0: // "new image"
-                            this.loadImageDialog.ShowDialog();
-                            if (this.TMP_PATH != null)
+                            if (this.loadImageDialog.ShowDialog() == true)
                             {
                                 this.TMP_EXHIBIT.addImage(this.fileHandler.loadImage(this.TMP_PATH));
                                 this.TMP_PATH = null;
@@ -1184,13 +1192,11 @@ namespace IMI_Administration
                             {
                                 MessageBox.Show("Bild konnte nicht gelöscht werden.");
                             }
-
                             updateLayout();
                             break;
                     }
                     break;
                 case 5: //ExhibitionPlane: "define new exhibition plane"
-                    MessageBox.Show("Neue Ausstellungsebene definieren");
                     this.headline = Headline.ExhibitionPlaneDef;
                     updateLayout();
                     break;
@@ -1208,7 +1214,27 @@ namespace IMI_Administration
                     break;
                 case 12: //ExhibitDone: "hidden"
                     break;
-                case 13: //Settings:
+                case 13: //ExhibitionSettings:
+                    MessageBox.Show("Benutzerposition neu bestimmen");
+                    this.TMP_NAME = "Benutzer";
+
+                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSDEFINITION";
+                    this.contentLabel2 = "[Instruktionen]";
+                    this.contentButton4 = "abbrechen";
+                    this.contentButton5 = "OK";
+                    this.headline = Headline.ExhibitDef;
+                    updateLayout();
+                    break;
+                case 14: //ExhibitSettings:
+                    MessageBox.Show("Exponatposition neu bestimmen");
+                    this.TMP_NAME = this.TMP_EXHIBIT.getName();
+
+                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSDEFINITION";
+                    this.contentLabel2 = "[Instruktionen]";
+                    this.contentButton4 = "abbrechen";
+                    this.contentButton5 = "OK";
+                    this.headline = Headline.ExhibitDef;
+                    updateLayout();
                     break;
             }
         }
@@ -1228,7 +1254,12 @@ namespace IMI_Administration
                 case 3: //NewExhibit: "hidden"
                     break;
                 case 4: //EditExhibit: "load text from txt-file"
-                    MessageBox.Show("Text laden");
+                    if (this.loadTextDialog.ShowDialog() == true)
+                    {
+                        StreamReader streamReader = new StreamReader(this.loadTextDialog.FileName);
+                        this.contentTextBox1 = (streamReader.ReadToEnd());
+                    }
+                    updateLayout();
                     break;
                 case 5: //ExhibitionPlane:
                     break;
@@ -1246,7 +1277,40 @@ namespace IMI_Administration
                     break;
                 case 12: //ExhibitDone:
                     break;
-                case 13: //Settings:
+                case 13: //ExhibitionSettings: "change current value"
+                    switch ((int)this.setting)
+                    { 
+                        case 2: //Threshold
+
+                            break;
+                        case 3: //SelectionTime
+
+                            break;
+                        case 4: //LockTime
+
+                            break;
+                        case 5: //SlideTime
+
+                            break;
+                        case 6: //EndWait
+
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 14: //ExhibitSettings: "change current value"
+                    switch ((int)this.setting)
+                    {
+                        case 7: //KernelSize
+
+                            break;
+                        case 8: //KernelWeight
+
+                            break;
+                        default:
+                            break;
+                    }
                     break;
             }             
         }
@@ -1262,7 +1326,6 @@ namespace IMI_Administration
                 case 1: //Exhibition: "hidden"
                     this.contentLabel1 = this.exhibition.getName() + " - EINSTELLUNGEN";
                     this.contentButton5 = "OK";
-
                     this.headline = Headline.ExhibitionSettings;
                     updateLayout();
                     break;
@@ -1272,7 +1335,7 @@ namespace IMI_Administration
                     break;
                 case 4: //EditExhibit: "open exhibit's properties"
                     this.contentLabel1 = this.TMP_EXHIBIT.getName() + " - EINSTELLUNGEN";
-
+                    this.contentButton5 = "OK";
                     this.headline = Headline.ExhibitSettings;
                     updateLayout();
                     break;
@@ -1283,11 +1346,23 @@ namespace IMI_Administration
                     break;
                 case 6: //ExhibitionPlaneDef: "back to exhibition plane"
                     MessageBox.Show("Zurück zur Ausstellungsebene");
+                    
+                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENDEFINITION";
+                    this.contentLabel2 = "[Instruktionen]";
+                    this.contentButton1 = "laden";
+                    this.contentButton2 = "bestimmen";
+                    this.contentButton4 = "abbrechen";
                     this.headline = Headline.ExhibitionPlane;
                     updateLayout();
                     break;
                 case 7: //ExhibitionPlaneVal: "back to exhibition plane"
                     MessageBox.Show("Zurück zur Ausstellungsebene");
+
+                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENDEFINITION";
+                    this.contentLabel2 = "[Instruktionen]";
+                    this.contentButton1 = "laden";
+                    this.contentButton2 = "bestimmen";
+                    this.contentButton4 = "abbrechen";
                     this.headline = Headline.ExhibitionPlane;
                     updateLayout();
                     break;
@@ -1297,11 +1372,17 @@ namespace IMI_Administration
                     break;
                 case 10: //ExhibitDef: "back to the exhibition"
                     MessageBox.Show("Zurück zur Ausstellung");
+                    this.contentLabel1 = this.exhibition.getName().ToUpper();
+                    this.contentButton4 = "Einstellungen";
+                    this.contentButton5 = "schließen";
                     this.headline = Headline.Exhibition;
                     updateLayout();
                     break;
                 case 11: //ExhibitVal: "back to the exhibition"
                     MessageBox.Show("Zurück zur Ausstellung");
+                    this.contentLabel1 = this.exhibition.getName().ToUpper();
+                    this.contentButton4 = "Einstellungen";
+                    this.contentButton5 = "schließen";
                     this.headline = Headline.Exhibition;
                     updateLayout();
                     break;
@@ -1324,6 +1405,13 @@ namespace IMI_Administration
                     closeAllThreads();
                     break;
                 case 1: //Exhibition: "close the application"
+                    if (this.exhibition.getPath() == null)
+                    {
+                        if (this.saveConfigDialog.ShowDialog() == true)
+                        {
+                            this.exhibition.setPath(saveConfigDialog.FileName);
+                        }
+                    }
                     this.fileHandler.saveExhibition(this.exhibition);
                     closeAllThreads();
                     break;
@@ -1339,13 +1427,15 @@ namespace IMI_Administration
                         this.exhibition.setExhibit(this.TMP_EXHIBIT_INDEX, this.TMP_EXHIBIT);
                         this.fileHandler.saveExhibit(this.TMP_EXHIBIT);
 
+                        this.contentLabel1 = this.exhibition.getName().ToUpper();
+                        this.contentButton4 = "Einstellungen";
+                        this.contentButton5 = "schließen";
                         this.headline = Headline.Exhibition;
                         updateLayout();
                     }
                     else // New exhibit
-                    {
-                        this.saveConfigDialog.ShowDialog();
-                        if (this.TMP_PATH != null)
+                    {                        
+                        if (this.saveConfigDialog.ShowDialog() == true)
                         {
                             this.TMP_EXHIBIT.setPath(this.saveConfigDialog.FileName);
                             this.TMP_PATH = null;
@@ -1353,22 +1443,27 @@ namespace IMI_Administration
 
                             this.fileHandler.saveExhibit(this.TMP_EXHIBIT);
 
+                            this.contentLabel1 = this.exhibition.getName().ToUpper();
+                            this.contentButton4 = "Einstellungen";
+                            this.contentButton5 = "schließen";
                             this.headline = Headline.Exhibition;
                             updateLayout();
                         }
-                        else
-                        { }
                     }
                     break;
                 case 5: //ExhibitionPlane: "hidden"
                     break;
                 case 6: //ExhibitionPlaneDef: "start or abort definition of exhibition plane"
                     MessageBox.Show("Start oder Abbruch der Definition der Ausstellungsebene");
+                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENVALIDIERUNG";
+                    this.contentLabel2 = "[Instruktionen]";
                     this.headline = Headline.ExhibitionPlaneVal;
                     updateLayout();
                     break;
                 case 7: //ExhibitionPlaneVal: "abort validation of exhibition plane"
                     MessageBox.Show("Start oder Abbruch der Validierung der Ausstellungsebene");
+                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
+                    this.contentLabel2 = "- Ausstellungsebene erfolgreich bestimmt" + '\n' + "oder" + '\n' + "- Ausstellungsebene nicht erfolgreich bestimmt";;
                     this.headline = Headline.ExhibitionPlaneDone;
                     updateLayout();
                     break;
@@ -1378,6 +1473,11 @@ namespace IMI_Administration
                     //DUMMY-EXHIBITION
                     this.exhibition = new Exhibition(this.TMP_NAME, this.TMP_EXHIBITION_PLANE);
 
+                    MessageBox.Show("Bitte stellen Sie umgehend die Benutzerposition ein.");
+                    
+                    this.contentLabel1 = this.exhibition.getName().ToUpper();
+                    this.contentButton4 = "Einstellungen";
+                    this.contentButton5 = "schließen";
                     this.headline = Headline.Exhibition;
                     updateLayout();
                     break;
@@ -1385,37 +1485,78 @@ namespace IMI_Administration
                     if (this.exhibition == null) // New exhibition
                     {
                         this.TMP_NAME = this.textBox2.Text;
+
+                        this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENDEFINITION";
+                        this.contentLabel2 = "[Instruktionen]";
+                        this.contentButton1 = "laden";
+                        this.contentButton2 = "bestimmen";
+                        this.contentButton4 = "abbrechen";
                         this.headline = Headline.ExhibitionPlane;
                     }
                     else // New exhibit
                     {
                         this.TMP_NAME = this.textBox2.Text;
+
+                        this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSDEFINITION";
+                        this.contentLabel2 = "[Instruktionen]";
+                        this.contentButton4 = "abbrechen";
+                        this.contentButton5 = "OK";
                         this.headline = Headline.ExhibitDef;
                     }
                     updateLayout();
                     break;
                 case 10: //ExhibitDef: "start or abort definition of exhibit"
                     MessageBox.Show("Start oder Abbruch der Definition des Exponats");
+                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSVALIDIERUNG";
+                    this.contentLabel2 = "[Instruktionen]";
+                    this.contentButton4 = "abbrechen";
+                    this.contentButton5 = "OK";
                     this.headline = Headline.ExhibitVal;
                     updateLayout();
                     break;
                 case 11: //ExhibitVal: "abort validation of exhibit"
                     MessageBox.Show("Start oder Abbruch der Validierung des Exponats");
+                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
+                    this.contentLabel2 = "- Position des Exponats erfolgreich bestimmt" + '\n' + "oder" + '\n' + "- Position des Exponats nicht erfolgreich bestimmt";
+                    this.contentButton4 = "abbrechen";
+                    this.contentButton5 = "OK";
                     this.headline = Headline.ExhibitDone;
                     updateLayout();
                     break;
-                case 12: //ExhibitDone: "abort validation of exhibition plane"
-                    
-                    MessageBox.Show("Validierung des Exponats (nicht) erfolgreich");
-                    // DUMMY-POINT
-                    this.TMP_EXHIBIT = new Exhibit(this.TMP_NAME, new Point3D());
+                case 12: //ExhibitDone: "abort validation of exhibition plane"        
+                    if ((int)this.setting == 1) //ExhibitionSetting: UserHeadPosition
+                    {
+                        MessageBox.Show("Bestimmung der Benutzerposition (nicht) erfolgreich");
+                        this.exhibition.setUserHeadPosition(new Point3D(1, 1, 1));
 
-                    this.contentLabel1 = this.TMP_EXHIBIT.getName();
-                    this.contentTextBox1 = this.TMP_EXHIBIT.getDescription();
-                    this.headline = Headline.EditExhibit;
+                        this.contentLabel1 = this.exhibition.getName() + " - EINSTELLUNGEN";
+                        this.contentButton5 = "OK";
+                        this.headline = Headline.ExhibitionSettings;                   
+                    }
+                    else if ((int)this.setting == 9) //ExhibitSettings: Position
+                    {
+                        MessageBox.Show("Neubestimmung der Exponatposition (nicht) erfolgreich");
+                        this.TMP_EXHIBIT.setPosition(new Point3D(1, 1, 1));
+
+                        this.contentLabel1 = this.TMP_EXHIBIT.getName() + " - EINSTELLUNGEN";
+                        this.headline = Headline.ExhibitSettings;
+                    }
+                    else //((int)this.settings == 0) //New Exhibit: Settings.None
+                    {
+                        // DUMMY-POINT
+                        this.TMP_EXHIBIT = new Exhibit(this.TMP_NAME, new Point3D());
+
+                        this.contentLabel1 = this.TMP_EXHIBIT.getName();
+                        this.contentTextBox1 = this.TMP_EXHIBIT.getDescription();
+                        this.headline = Headline.EditExhibit;
+                    }
+                        this.setting = Setting.None;
                     updateLayout();
                     break;
                 case 13: //ExhibitionSettings: "safe and go back to exhibition"
+                    this.contentLabel1 = this.exhibition.getName().ToUpper();
+                    this.contentButton4 = "Einstellungen";
+                    this.contentButton5 = "schließen";
                     this.headline = Headline.Exhibition;
                     updateLayout();
                     break;

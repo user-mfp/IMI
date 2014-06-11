@@ -35,7 +35,6 @@ namespace IMI_Administration
         public Exhibition(string name, List<Point3D> plane)
         {
             this.name = name;
-            this.path = "";
             this.exhibitionPlane = new GeometryHandler.Plane(plane);
             this.exhibits = new List<Exhibit>();
         }
@@ -50,7 +49,6 @@ namespace IMI_Administration
         public Exhibition(string name, GeometryHandler.Plane plane)
         {
             this.name = name;
-            this.path = "";
             this.exhibitionPlane = plane;
             this.exhibits = new List<Exhibit>();
         }
@@ -66,7 +64,6 @@ namespace IMI_Administration
         public Exhibition(string name, List<Point3D> plane, List<Exhibit> exhibits)
         {
             this.name = name;
-            this.path = "";
             this.exhibitionPlane = new GeometryHandler.Plane(plane);
             this.exhibits = exhibits;
         }
@@ -82,7 +79,6 @@ namespace IMI_Administration
         public Exhibition(string name, GeometryHandler.Plane plane, List<Exhibit> exhibits)
         {
             this.name = name;
-            this.path = "";
             this.exhibitionPlane = plane;
             this.exhibits = exhibits;
         }

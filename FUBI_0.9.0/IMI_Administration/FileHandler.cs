@@ -225,11 +225,6 @@ namespace IMI_Administration
         #region SAVING
         public void saveExhibition(Exhibition exhibition)
         {
-            if (exhibition.getPath() == null) // No path yet
-            {
-                //this.saveConfigDialog.ShowDialog(); // Open dialog...
-                //exhibition.setPath(this.saveConfigDialog.FileName); // ... to get file's path
-            }
             this.exhibitionFolder = exhibition.getPath().Substring(0, (exhibition.getPath().LastIndexOf('.'))); // Find the exhibition's folder including the exhibition's name at the end
 
             XmlWriter exhibitionWriter = XmlWriter.Create(exhibition.getPath(), this.xmlWriterSettings); // Create XmlWriter for file's path
