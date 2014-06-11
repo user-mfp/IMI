@@ -14,10 +14,10 @@ namespace IMI_Administration
         private string path;
         private Point3D userHeadPosition; // User's head position
         private double threshold = 100.0; // Default radius := 100mm
-        private int selectionTime = 1000; // Default dwelltime for selection := 1s
-        private int lockTime = 3000; // Default time for locking an exhibit := 3s
-        private int slideTime = 5000; // Default time a slide is shown := 5s
-        private int endWait = 10000; // Default waiting before back to main view := 10s
+        private double selectionTime = 1000.0; // Default dwelltime for selection := 1s
+        private double lockTime = 3000.0; // Default time for locking an exhibit := 3s
+        private double slideTime = 5000.0; // Default time a slide is shown := 5s
+        private double endWait = 10000.0; // Default waiting before back to main view := 10s
         #endregion
 
         #region CONSTRUCTORS
@@ -113,22 +113,22 @@ namespace IMI_Administration
             return this.threshold;
         }
 
-        public int getSelectionTime()
+        public double getSelectionTime()
         {
             return this.selectionTime;
         }
 
-        public int getLockTime()
+        public double getLockTime()
         {
             return this.lockTime;
         }
 
-        public int getSlideTime()
+        public double getSlideTime()
         {
             return this.slideTime;
         }
 
-        public int getEndWait()
+        public double getEndWait()
         {
             return this.endWait;
         }
@@ -153,22 +153,22 @@ namespace IMI_Administration
             this.threshold = threshold;
         }
 
-        public void setSelectionTime(int selectionTime)
+        public void setSelectionTime(double selectionTime)
         {
             this.selectionTime = selectionTime;
         }
 
-        public void setLockTime(int lockTime)
+        public void setLockTime(double lockTime)
         {
             this.lockTime = lockTime;
         }
 
-        public void setSlideTime(int slideTime)
+        public void setSlideTime(double slideTime)
         {
             this.slideTime = slideTime;
         }
 
-        public void setEndWait(int endWait)
+        public void setEndWait(double endWait)
         {
             this.endWait = endWait;
         }

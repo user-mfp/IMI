@@ -13,11 +13,9 @@ namespace IMI_Administration
     /// </summary>
     public partial class MainWindow : Window
     {
-        #region DECLARATIONS
-        // Exhibition
-        private Exhibition exhibition;
+        #region ENUMS AND CONSTANTS
         // Headlines determine the layout (visibility, labeling and functions)
-        private enum Headline 
+        private enum Headline
         {
             Start = 0,
             Exhibition, //1
@@ -35,23 +33,34 @@ namespace IMI_Administration
             ExhibitionSettings, //13
             ExhibitSettings //14
         };
-        private Headline headline;
+
         // Settings determine the propoerty to be edited (exhibition or exhibit)
         private enum Setting
         {
             // Exhibition
             None = 0,
             UserHeadPosition, //1
-            Threshold, //2
-            SelectionTime, //3
-            LockTime, //4
-            SlideTime, //5
-            EndWait, //6
+            BackgroundImage, //2
+            Threshold, //3
+            SelectionTime, //4
+            LockTime, //5
+            SlideTime, //6
+            EndWait, //7
             // Exhibit
-            KernelSize, //7
-            KernelWeight, //8
-            Position //9
+            KernelSize, //8
+            KernelWeight, //9
+            Position //10
         };
+
+        // Canstants for setting attributes
+        private double HIGH = 1.5;
+        private double LOW = 0.5;
+        #endregion
+
+        #region DECLARATIONS
+        // Exhibition
+        private Exhibition exhibition;
+        private Headline headline;
         private Setting setting;
         // Updateable contents of widgets
         private string contentLabel1;
@@ -200,6 +209,7 @@ namespace IMI_Administration
             // ComboBoxes
             this.comboBox1.Items.Clear();
             this.comboBox1.Items.Add("Benutzerposition"); //UserHeadPosition
+            this.comboBox1.Items.Add("Hintergrundbild");
             this.comboBox1.Items.Add("Genauigkeit"); // Threshold
             this.comboBox1.Items.Add("Auswahlzeit"); // SelectionTime
             this.comboBox1.Items.Add("Sperrdauer"); // LockTime
@@ -769,8 +779,7 @@ namespace IMI_Administration
         }
 
         private void updateComboBoxes()
-        { 
-            
+        {
         }
 
         private void updateImage(BitmapImage image)
@@ -782,8 +791,8 @@ namespace IMI_Administration
         private void showLowMedHigh()
         {
             // EMPTY INSTANCES ARE FOR DEFAULT USE ONLY ! ! !
-            Exhibition tmpExhbtn = new Exhibition(); 
-            Exhibit tmpExhbt = new Exhibit();
+            Exhibition DEFAULT_EXHIBITION = new Exhibition(); 
+            Exhibit DEFAULT_EXHIBIT = new Exhibit();
 
             this.comboBox2.Items.Clear();
             this.comboBox2.Items.Add("niedrig"); // Low
@@ -796,63 +805,30 @@ namespace IMI_Administration
                     break;
                 case 1: //UserHeadPosition
                     break;
-                case 2: //Threshold
-                    if (this.exhibition.getThreshold() == (tmpExhbtn.getThreshold() * 1.5)) //150% default := Low
-                        this.comboBox2.SelectedIndex = 0;
-                    else if (this.exhibition.getThreshold() == tmpExhbtn.getThreshold()) //100% default := Medium
-                        this.comboBox2.SelectedIndex = 1;
-                    else if (this.exhibition.getThreshold() == (tmpExhbtn.getThreshold() * 0.5)) //50% default := High
-                        this.comboBox2.SelectedIndex = 2;
+                case 2: //BackgroundImage
                     break;
-                case 3: //SelectionTime
-                    if (this.exhibition.getSelectionTime() == (tmpExhbtn.getSelectionTime() * 0.5)) //50% default := Low
-                        this.comboBox2.SelectedIndex = 0;
-                    else if (this.exhibition.getSelectionTime() == tmpExhbtn.getSelectionTime()) //100% default := Medium
-                        this.comboBox2.SelectedIndex = 1;
-                    else if (this.exhibition.getSelectionTime() == (tmpExhbtn.getSelectionTime() * 1.5)) //150% default := High
-                        this.comboBox2.SelectedIndex = 2;
+                case 3: //Threshold
+                    this.comboBox2.SelectedIndex = detLessIsMore(DEFAULT_EXHIBITION.getThreshold(), this.exhibition.getThreshold());
                     break;
-                case 4: //LockTime
-                    if (this.exhibition.getLockTime() == (tmpExhbtn.getLockTime() * 0.5)) //50% default := Low
-                        this.comboBox2.SelectedIndex = 0;
-                    else if (this.exhibition.getLockTime() == tmpExhbtn.getLockTime()) //100% default := Medium
-                        this.comboBox2.SelectedIndex = 1;
-                    else if (this.exhibition.getLockTime() == (tmpExhbtn.getLockTime() * 1.5)) //150% default := High
-                        this.comboBox2.SelectedIndex = 2;
+                case 4: //SelectionTime
+                    this.comboBox2.SelectedIndex = detLessIsLess(DEFAULT_EXHIBITION.getSelectionTime(), this.exhibition.getSelectionTime());
                     break;
-                case 5: //SlideTime
-                    if (this.exhibition.getSlideTime() == (tmpExhbtn.getSlideTime() * 0.5)) //50% default := Low
-                        this.comboBox2.SelectedIndex = 0;
-                    else if (this.exhibition.getSlideTime() == tmpExhbtn.getSlideTime()) //100% default := Medium
-                        this.comboBox2.SelectedIndex = 1;
-                    else if (this.exhibition.getSlideTime() == (tmpExhbtn.getSlideTime() * 1.5)) //150% default := High
-                        this.comboBox2.SelectedIndex = 2;
+                case 5: //LockTime
+                    this.comboBox2.SelectedIndex = detLessIsLess(DEFAULT_EXHIBITION.getLockTime(), this.exhibition.getLockTime());
                     break;
-                case 6: //EndWait
-                    if (this.exhibition.getEndWait() == (tmpExhbtn.getEndWait() * 0.5)) //50% default := Low
-                        this.comboBox2.SelectedIndex = 0;
-                    else if (this.exhibition.getEndWait() == tmpExhbtn.getEndWait()) //100% default := Medium
-                        this.comboBox2.SelectedIndex = 1;
-                    else if (this.exhibition.getEndWait() == (tmpExhbtn.getEndWait() * 1.5)) //150% default := High
-                        this.comboBox2.SelectedIndex = 2;
+                case 6: //SlideTime
+                    this.comboBox2.SelectedIndex = detLessIsLess(DEFAULT_EXHIBITION.getSlideTime(), this.exhibition.getSlideTime());
                     break;
-                case 7: //KernelSize
-                    if (this.TMP_EXHIBIT.getKernelSize() == (tmpExhbt.getKernelSize() * 0.5)) //50% default := Low
-                        this.comboBox2.SelectedIndex = 0;
-                    else if (this.TMP_EXHIBIT.getKernelSize() == tmpExhbt.getKernelSize()) //100% default := Medium
-                        this.comboBox2.SelectedIndex = 1;
-                    else if (this.TMP_EXHIBIT.getKernelSize() == (tmpExhbt.getKernelSize() * 1.5)) //150% default := High
-                        this.comboBox2.SelectedIndex = 2;
+                case 7: //EndWait
+                    this.comboBox2.SelectedIndex = detLessIsLess(DEFAULT_EXHIBITION.getEndWait(), this.exhibition.getEndWait());
                     break;
-                case 8: //KernelWeigth
-                    if (this.TMP_EXHIBIT.getKernelWeight() == (tmpExhbt.getKernelWeight() * 0.5)) //50% default := Low
-                        this.comboBox2.SelectedIndex = 0;
-                    else if (this.TMP_EXHIBIT.getKernelWeight() == tmpExhbt.getKernelWeight()) //100% default := Medium
-                        this.comboBox2.SelectedIndex = 1;
-                    else if (this.TMP_EXHIBIT.getKernelWeight() == (tmpExhbt.getKernelWeight() * 1.5)) //150% default := High
-                        this.comboBox2.SelectedIndex = 2;
+                case 8: //KernelSize
+                    this.comboBox2.SelectedIndex = detLessIsLess(DEFAULT_EXHIBIT.getKernelSize(), this.TMP_EXHIBIT.getKernelSize());
                     break;
-                case 9: //Position
+                case 9: //KernelWeigth
+                    this.comboBox2.SelectedIndex = detLessIsLess(DEFAULT_EXHIBIT.getKernelWeight(), this.TMP_EXHIBIT.getKernelWeight());
+                    break;
+                case 10: //Position
                     break;
                 default:
                     break;
@@ -950,23 +926,30 @@ namespace IMI_Administration
                             this.button3.Visibility = Visibility.Hidden;
                             this.setting = Setting.UserHeadPosition;
                             break;
-                        case 1: //Threshold
+                        case 1: //BackgroundImage
+                            this.comboBox2.Visibility = Visibility.Hidden;
+                            this.contentButton2 = "laden";
+                            this.button2.Visibility = Visibility.Visible;
+                            this.button3.Visibility = Visibility.Hidden;
+                            this.setting = Setting.BackgroundImage;
+                            break;
+                        case 2: //Threshold
                             this.setting = Setting.Threshold;
                             this.showLowMedHigh();
                             break;
-                        case 2: //SelectionTime
+                        case 3: //SelectionTime
                             this.setting = Setting.SelectionTime;
                             this.showLowMedHigh();
                             break;
-                        case 3: //LockTime
+                        case 4: //LockTime
                             this.setting = Setting.LockTime;
                             this.showLowMedHigh();
                             break;
-                        case 4: //SlideTime
+                        case 5: //SlideTime
                             this.setting = Setting.SlideTime;
                             this.showLowMedHigh();
                             break;
-                        case 5: //EndWait
+                        case 6: //EndWait
                             this.setting = Setting.EndWait;
                             this.showLowMedHigh();
                             break;
@@ -1033,15 +1016,13 @@ namespace IMI_Administration
                     break;
                 case 12: //ExhibitDone: "hidden"
                     break;
-                case 13: //ExhibitionSettings                    
-                    //this.contentButton3 = "ändern";
-                    //this.button3.Visibility = Visibility.Visible;
-                    //updateButtons();
+                case 13: //ExhibitionSettings
+                    this.contentButton3 = "ändern";
+                    this.button3.Visibility = Visibility.Visible;
                     break;
-                case 14: //ExhibitSettings                    
-                    //this.contentButton3 = "ändern";
-                    //this.button3.Visibility = Visibility.Visible;
-                    //updateButtons();
+                case 14: //ExhibitSettings     
+                    this.contentButton3 = "ändern";
+                    this.button3.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -1215,14 +1196,21 @@ namespace IMI_Administration
                 case 12: //ExhibitDone: "hidden"
                     break;
                 case 13: //ExhibitionSettings:
-                    MessageBox.Show("Benutzerposition neu bestimmen");
-                    this.TMP_NAME = "Benutzer";
+                    if (this.setting == Setting.UserHeadPosition)
+                    {
+                        MessageBox.Show("Benutzerposition neu bestimmen");
+                        this.TMP_NAME = "Benutzer";
 
-                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSDEFINITION";
-                    this.contentLabel2 = "[Instruktionen]";
-                    this.contentButton4 = "abbrechen";
-                    this.contentButton5 = "OK";
-                    this.headline = Headline.ExhibitDef;
+                        this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSDEFINITION";
+                        this.contentLabel2 = "[Instruktionen]";
+                        this.contentButton4 = "abbrechen";
+                        this.contentButton5 = "OK";
+                        this.headline = Headline.ExhibitDef;
+                    }
+                    else if (this.setting == Setting.BackgroundImage)
+                    {
+                        MessageBox.Show("Hintergrundbild laden");
+                    }
                     updateLayout();
                     break;
                 case 14: //ExhibitSettings:
@@ -1277,40 +1265,11 @@ namespace IMI_Administration
                     break;
                 case 12: //ExhibitDone:
                     break;
-                case 13: //ExhibitionSettings: "change current value"
-                    switch ((int)this.setting)
-                    { 
-                        case 2: //Threshold
-
-                            break;
-                        case 3: //SelectionTime
-
-                            break;
-                        case 4: //LockTime
-
-                            break;
-                        case 5: //SlideTime
-
-                            break;
-                        case 6: //EndWait
-
-                            break;
-                        default:
-                            break;
-                    }
+                case 13: //ExhibitionSettings: "hidden"
+                    setAttribute();
                     break;
-                case 14: //ExhibitSettings: "change current value"
-                    switch ((int)this.setting)
-                    {
-                        case 7: //KernelSize
-
-                            break;
-                        case 8: //KernelWeight
-
-                            break;
-                        default:
-                            break;
-                    }
+                case 14: //ExhibitSettings: "hidden"
+                    setAttribute();
                     break;
             }             
         }
@@ -1533,7 +1492,7 @@ namespace IMI_Administration
                         this.contentButton5 = "OK";
                         this.headline = Headline.ExhibitionSettings;                   
                     }
-                    else if ((int)this.setting == 9) //ExhibitSettings: Position
+                    else if ((int)this.setting == 10) //ExhibitSettings: Position
                     {
                         MessageBox.Show("Neubestimmung der Exponatposition (nicht) erfolgreich");
                         this.TMP_EXHIBIT.setPosition(new Point3D(1, 1, 1));
@@ -1554,6 +1513,11 @@ namespace IMI_Administration
                     updateLayout();
                     break;
                 case 13: //ExhibitionSettings: "safe and go back to exhibition"
+                    if (this.exhibition.getPath() != null) // Config-file already exists
+                    {
+                        this.fileHandler.saveExhibition(this.exhibition);
+                    }
+
                     this.contentLabel1 = this.exhibition.getName().ToUpper();
                     this.contentButton4 = "Einstellungen";
                     this.contentButton5 = "schließen";
@@ -1561,6 +1525,11 @@ namespace IMI_Administration
                     updateLayout();
                     break;
                 case 14: //ExhibitSettings: "go to exhibit"
+                    if (this.TMP_EXHIBIT.getPath() != null) // Config-file already exists
+                    {
+                        this.fileHandler.saveExhibit(this.TMP_EXHIBIT);
+                    } 
+
                     this.headline = Headline.EditExhibit;
                     updateLayout();
                     break;
@@ -1690,7 +1659,124 @@ namespace IMI_Administration
             updateLayout();
         }
         #endregion
-        
+
+        #region ATTRIBUTES
+        // Less is less applies for times
+        private int detLessIsLess(double defaultValue, double value)
+        { 
+            if (value == (defaultValue * this.LOW)) // 50% of default value
+                return 0;
+            else if (value == defaultValue)
+                return 1;
+            else if (value == (defaultValue * this.HIGH)) // 150% of default value
+                return 2;
+            else // Any other value
+                return -1;
+        }
+
+        private int detLessIsLess(int defaultValue, int value)
+        {
+            if (value == (defaultValue * this.LOW)) // 50% of default value
+                return 0;
+            else if (value == defaultValue)
+                return 1;
+            else if (value == (defaultValue * this.HIGH)) // 150% of default value
+                return 2;
+            else // Any other value
+                return -1;
+        }
+
+        // Less is more applies for thresholds
+        private int detLessIsMore(double defaultValue, double value)
+        {
+            if (value == (defaultValue * this.HIGH)) // 150% of default value
+                return 0;
+            else if (value == defaultValue)
+                return 1;
+            else if (value == (defaultValue * this.LOW)) // 50% of default value
+                return 2;
+            else // Any other value
+                return -1;
+        }
+
+        private int detLessIsMore(int defaultValue, int value)
+        {
+            if (value == (defaultValue * this.HIGH)) // 150% of default value
+                return 0;
+            else if (value == defaultValue)
+                return 1;
+            else if (value == (defaultValue * this.LOW)) // 50% of default value
+                return 2;
+            else // Any other value
+                return -1;
+        }
+
+        private void setAttribute()
+        {
+            // EMPTY INSTANCES ARE FOR DEFAULT USE ONLY ! ! !
+            Exhibition DEFAULT_EXHIBITION = new Exhibition();
+            Exhibit DEFAULT_EXHIBIT = new Exhibit();
+            
+            double factor = 1.0;
+            if (this.comboBox2.SelectedIndex == 0) //Low
+            {
+                factor = this.LOW;
+            }
+            else if (this.comboBox2.SelectedIndex == 2) //High
+            {
+                factor = this.HIGH;
+            }
+
+            switch ((int)this.setting)
+            {
+                case 3: //Threshold
+                    if (factor != 1.0)
+                        this.exhibition.setThreshold(DEFAULT_EXHIBITION.getThreshold() * ((this.LOW + this.HIGH) - factor));
+                    else
+                        this.exhibition.setThreshold(DEFAULT_EXHIBITION.getThreshold());
+                    break;
+                case 4: //SelectionTime
+                    if (factor != 1.0)
+                        this.exhibition.setSelectionTime(DEFAULT_EXHIBITION.getSelectionTime() * factor);
+                    else
+                        this.exhibition.setSelectionTime(DEFAULT_EXHIBITION.getSelectionTime());
+                    break;
+                case 5: //LockTime
+                    if (factor != 1.0)
+                        this.exhibition.setLockTime(DEFAULT_EXHIBITION.getLockTime() * factor);
+                    else
+                        this.exhibition.setLockTime(DEFAULT_EXHIBITION.getLockTime());
+                    break;
+                case 6: //SlideTime
+                    if (factor != 1.0)
+                        this.exhibition.setSlideTime(DEFAULT_EXHIBITION.getSlideTime() * factor);
+                    else
+                        this.exhibition.setSlideTime(DEFAULT_EXHIBITION.getSlideTime());
+                    break;
+                case 7: //EndWait
+                    if (factor != 1.0)
+                        this.exhibition.setEndWait(DEFAULT_EXHIBITION.getEndWait() * factor);
+                    else
+                        this.exhibition.setEndWait(DEFAULT_EXHIBITION.getEndWait());
+                    break;
+                case 8: //KernelSize
+                    if (factor != 1.0)
+                        this.TMP_EXHIBIT.setKernelSize(DEFAULT_EXHIBIT.getKernelSize() * factor);
+                    else
+                        this.TMP_EXHIBIT.setKernelSize(DEFAULT_EXHIBIT.getKernelSize());
+                    break;
+                case 9: //KernelWeight
+                    if (factor != 1.0)
+                        this.TMP_EXHIBIT.setKernelWeight(DEFAULT_EXHIBIT.getKernelWeight() * factor);
+                    else
+                        this.TMP_EXHIBIT.setKernelWeight(DEFAULT_EXHIBIT.getKernelWeight());
+                    break;
+                default:
+                    break;
+            }
+        }
+        #endregion
+
         private void closeAllThreads()
         {
             this.Close();
