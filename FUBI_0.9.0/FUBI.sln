@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fubi_CS_Wrapper", "Fubi_CS_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApplication3", "Samples\WpfApplication3\WpfApplication3.csproj", "{AF2818D2-08F7-4AE5-A077-E9043638E89A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IMI_Administration", "IMI_Administration\IMI_Administration.csproj", "{852DF5AA-0CCB-4776-8667-986A9E8BEF83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IMI_Administration", "Samples\IMI_Administration\IMI_Administration.csproj", "{852DF5AA-0CCB-4776-8667-986A9E8BEF83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

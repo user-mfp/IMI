@@ -114,7 +114,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Fubi_CS_Wrapper\Fubi_CS_Wrapper.csproj">
+    <ProjectReference Include="..\..\Fubi_CS_Wrapper\Fubi_CS_Wrapper.csproj">
       <Project>{E681F26D-1EAB-41C1-BCF9-10F199DD1805}</Project>
       <Name>Fubi_CS_Wrapper</Name>
     </ProjectReference>

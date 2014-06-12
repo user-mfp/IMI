@@ -1,16 +1,16 @@
-﻿using System.Windows;
+﻿using Microsoft.Win32;
+using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
-using System.Collections.Generic;
-using Microsoft.Win32;
 using System.Windows.Media.Imaging;
-using System.IO;
+using System.Windows.Threading;
+using System.Threading;
+using System.Collections.Generic;
+using FubiNET;
 
 namespace IMI_Administration
 {
-    /// <summary>
-    /// Interaktionslogik für MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         #region ENUMS AND CONSTANTS
@@ -62,7 +62,12 @@ namespace IMI_Administration
         private Exhibition exhibition;
         private Headline headline;
         private Setting setting;
-        // Updateable contents of widgets
+        private string TMP_NAME; // FOR TEMPORARY USE ONLY ! ! !
+        private string TMP_PATH; // FOR TEMPORARY USE ONLY ! ! !
+        private Exhibit TMP_EXHIBIT; // FOR TEMPORARY USE ONLY ! ! !
+        private int TMP_EXHIBIT_INDEX; // FOR TEMPORARY USE ONLY ! ! !
+        private GeometryHandler.Plane TMP_EXHIBITION_PLANE; // FOR TEMPORARY USE ONLY ! ! !
+        // Layout
         private string contentLabel1;
         private string contentLabel2;
         private string contentButton1;
@@ -72,12 +77,6 @@ namespace IMI_Administration
         private string contentButton5;
         private string contentTextBox1;
         private string contentTextBox2;
-        // FOR TEMPORARY USE ONLY!
-        private string TMP_NAME;
-        private string TMP_PATH;
-        private Exhibit TMP_EXHIBIT;
-        private int TMP_EXHIBIT_INDEX;
-        private GeometryHandler.Plane TMP_EXHIBITION_PLANE;
         // Dialogs
         private OpenFileDialog loadConfigDialog;
         private OpenFileDialog loadTextDialog;
@@ -87,13 +86,76 @@ namespace IMI_Administration
         // Handler
         private GeometryHandler geometryHandler;
         private FileHandler fileHandler;
+        // Tracking
+        private delegate void NoArgDelegate();
+        private List<Point3D> jointsToTrack;
+        // Tracking-thread
+        private bool tracking;
+        private Thread trackThread;
+        // Calibration
+        //Calibrator calibrator; // Declare calibrator
+        private List<Point3D> calibrationPoints = new List<Point3D>();
+        private List<Point3D> mismatchPoints = new List<Point3D>();
+        private int calibrationSamples = 3; // Number of samples
+        private int calibrationSampleVectors = 10; // Vectors per sample 
+        private int calibrationSampleBreak = 4000; // Time between samples in ms
+        // Calibration-thread
+        private bool calibrating;
+        private Thread calibrationThread;
         #endregion
 
+        #region INITIALIZATIONS
         public MainWindow()
         {
             InitializeComponent();
 
+            // Initialize tracking
+            initJoints();
+            this.tracking = false; // Turn off tracking
+            this.calibrating = false; // Turn off any calibration
+            
             // Initialize dialogs
+            initDialogs();
+
+            // Initialize handlers
+            this.geometryHandler = new GeometryHandler();
+            this.fileHandler = new FileHandler();
+            
+            // Initialize layout
+            this.headline = Headline.Start;
+            this.setting = Setting.None;
+            updateLayout();
+        }
+        
+        private void initJoints()
+        {
+            this.jointsToTrack = new List<Point3D>();
+            this.jointsToTrack.Add(new Point3D()); // RIGHT_ELBOW
+            this.jointsToTrack.Add(new Point3D()); // RIGHT_HAND
+            this.jointsToTrack.Add(new Point3D()); // LEFT_ELBOW
+            this.jointsToTrack.Add(new Point3D()); // LEFT_HAND
+            this.jointsToTrack.Add(new Point3D()); // HEAD
+        }
+
+        private void initFubi()
+        {
+            FubiUtils.SensorType sensorType = FubiUtils.SensorType.OPENNI2;
+            FubiUtils.StreamOptions sOpt1 = new FubiUtils.StreamOptions(640, 480, 30);
+            FubiUtils.StreamOptions sOpt2 = new FubiUtils.StreamOptions(640, 480);
+            FubiUtils.StreamOptions sOpt3 = new FubiUtils.StreamOptions(-1, -1, -1);
+            FubiUtils.StreamOptions sOpt4 = new FubiUtils.StreamOptions(-1, -1, -1);
+            FubiUtils.SkeletonProfile sProf = FubiUtils.SkeletonProfile.ALL;
+            FubiUtils.FilterOptions fOpt = new FubiUtils.FilterOptions();
+            FubiUtils.SensorOptions sOpts = new FubiUtils.SensorOptions(sOpt1, sOpt2, sOpt3, sensorType, sProf);
+
+            if (!Fubi.init(sOpts, fOpt))
+            {
+                Fubi.init(new FubiUtils.SensorOptions(sOpt1, sOpt2, sOpt4, sensorType, sProf), fOpt);
+            }
+        }
+
+        private void initDialogs()
+        {
             this.loadConfigDialog = new OpenFileDialog();
             this.loadConfigDialog.Filter = "Config-Files|*.xml";
             this.loadConfigDialog.Title = "Konfigurationsdatei laden";
@@ -114,17 +176,148 @@ namespace IMI_Administration
             this.saveTextDialog.Filter = "Text-Files|*.txt";
             this.saveTextDialog.Title = "Textdatei speichern";
             this.saveTextDialog.FileOk += new System.ComponentModel.CancelEventHandler(saveTextDialog_FileOk);
+        }
+        #endregion
+        
+        #region RUNTIME
+        private void track()
+        {
+            // Initializing tracking
+            DispatcherOperation currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(this.initFubi), null);
+            while (currentOP.Status != DispatcherOperationStatus.Completed && currentOP.Status != DispatcherOperationStatus.Aborted)
+            {
+                Thread.Sleep(100); // Wait for init to finish
+            }
 
-            // Initialize handlers
-            this.geometryHandler = new GeometryHandler();
-            this.fileHandler = new FileHandler();
-            
-            // Initialize layout
-            this.headline = Headline.Start;
-            this.setting = Setting.None;
-            updateLayout();
+            // Tracking
+            while (tracking)
+            {
+                Fubi.updateSensor();
+
+                currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(this.updateFubi), null);
+                //Thread.Sleep(29); // Time it should at least take to get new data
+                while (currentOP.Status != DispatcherOperationStatus.Completed && currentOP.Status != DispatcherOperationStatus.Aborted)
+                {
+                    Thread.Sleep(2); // If the update unexpectedly takes longer
+                }
+            }
+
+            // Handling tracking-data
+            currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(this.releaseFubi), null);
+            while (currentOP.Status != DispatcherOperationStatus.Completed && currentOP.Status != DispatcherOperationStatus.Aborted)
+            {
+                Thread.Sleep(100); // Wait for release to finish
+            }
         }
 
+        private void updateFubi()
+        {
+            //TODO
+            //- update Layout
+            if (Fubi.getClosestUserID() != 0)
+                this.contentLabel2 = "Tracke Nutzer Nr." + Fubi.getClosestUserID() + " um " + System.DateTime.Now.ToString("HH.mm.ss") + "Uhr.";
+            else
+                this.contentLabel2 = System.DateTime.Now.ToString("HH.mm.ss");
+            updateLabels();
+        }
+
+        private void updateJoint(FubiUtils.SkeletonJoint joint, float x, float y, float z)
+        {
+            int pointIndex = -1;
+            Point3D point = new Point3D();
+            switch (joint)
+            {
+                case FubiUtils.SkeletonJoint.RIGHT_ELBOW:
+                    pointIndex = 0;
+                    break;
+                case FubiUtils.SkeletonJoint.RIGHT_HAND:
+                    pointIndex = 1;
+                    break;
+                case FubiUtils.SkeletonJoint.LEFT_ELBOW:
+                    pointIndex = 2;
+                    break;
+                case FubiUtils.SkeletonJoint.LEFT_HAND:
+                    pointIndex = 3;
+                    break;
+                case FubiUtils.SkeletonJoint.HEAD:
+                    pointIndex = 4;
+                    break;
+                default:
+                    break;
+            }
+
+            if (pointIndex != -1)
+            {
+                point = this.jointsToTrack[pointIndex];
+                point.X = x;
+                point.Y = y;
+                point.Z = z;
+                this.jointsToTrack[pointIndex] = point;
+            }
+        }
+
+        private void releaseFubi()
+        {
+            Fubi.release();
+        }
+        #endregion
+
+        #region THREADS
+        private void startTracking()
+        {
+            // Starting the tracking-thread properly
+            this.trackThread = new Thread(track);
+            this.tracking = true;
+            this.trackThread.Start();
+        }
+
+        private void startPlaneDefinition()
+        {
+            // Starting a calibration-thread porperly
+            this.calibrationThread = new Thread(track);
+            this.calibrating = true;
+            this.calibrationThread.Start();
+        }
+
+        private void startPlaneValidation()
+        {
+            // Starting a calibration-thread porperly
+            this.calibrationThread = new Thread(track);
+            this.calibrating = true;
+            this.calibrationThread.Start();
+        }
+
+        private void startPositionDefinition()
+        {
+            // Starting a calibration-thread porperly
+            this.calibrationThread = new Thread(track);
+            this.calibrating = true;
+            this.calibrationThread.Start();
+        }
+
+        private void startPositionValidation()
+        {
+            // Starting a calibration-thread porperly
+            this.calibrationThread = new Thread(track);
+            this.calibrating = true;
+            this.calibrationThread.Start();
+        }
+
+        private void stopTracking()
+        {
+            // Stopping the tracking-thread properly
+            this.trackThread.Abort();
+            this.tracking = false;
+        }
+
+        private void stopCalibration()
+        {
+            // Stopping any calibration-thread porperly
+            this.calibrationThread.Abort();
+            this.calibrating = false;
+        }
+        #endregion
+        
         #region LAYOUT
         // Update layout to...
         private void updateLayout()
@@ -761,6 +954,12 @@ namespace IMI_Administration
 
             // Image
             this.image1.Visibility = Visibility.Hidden;
+        }
+
+        private void updateLabels()
+        {
+            this.label1.Content = this.contentLabel1;
+            this.label2.Content = this.contentLabel2;
         }
 
         private void updateButtons()
@@ -1475,22 +1674,22 @@ namespace IMI_Administration
                     updateLayout();
                     break;
                 case 10: //ExhibitDef: "start or abort definition of exhibit"
-                    MessageBox.Show("Start oder Abbruch der Definition des Exponats");
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSVALIDIERUNG";
                     this.contentLabel2 = "[Instruktionen]";
                     this.contentButton4 = "abbrechen";
                     this.contentButton5 = "OK";
                     this.headline = Headline.ExhibitVal;
                     updateLayout();
+                    startTracking();
                     break;
                 case 11: //ExhibitVal: "abort validation of exhibit"
-                    MessageBox.Show("Start oder Abbruch der Validierung des Exponats");
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
                     this.contentLabel2 = "- Position des Exponats erfolgreich bestimmt" + '\n' + "oder" + '\n' + "- Position des Exponats nicht erfolgreich bestimmt";
                     this.contentButton4 = "abbrechen";
                     this.contentButton5 = "OK";
                     this.headline = Headline.ExhibitDone;
                     updateLayout();
+                    stopTracking();
                     break;
                 case 12: //ExhibitDone: "abort validation of exhibition plane"        
                     if ((int)this.setting == 1) //ExhibitionSetting: UserHeadPosition
@@ -1789,6 +1988,15 @@ namespace IMI_Administration
 
         private void closeAllThreads()
         {
+
+            if (calibrating)
+            {
+                stopCalibration();
+            }
+            if (tracking)
+            {
+                stopTracking();
+            }
             this.Close();
         }
     }

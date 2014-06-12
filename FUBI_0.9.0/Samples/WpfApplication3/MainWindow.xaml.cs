@@ -48,7 +48,6 @@ namespace WpfApplication3
         private int calibrationSamples = 3; // Number of samples
         private int calibrationSampleVectors = 10; // Vectors per sample 
         private int calibrationSampleBreak = 4000; // Time between samples in ms
-        private List<Point3D> CHECK = new List<Point3D>(); 
         private GeometryHandler.Plane exhibitionSetExhibitionPlane;
 
 
