@@ -89,6 +89,9 @@ namespace IMI_Administration
         // Tracking
         private delegate void NoArgDelegate();
         private List<Point3D> jointsToTrack;
+        private double timestamp; // DO NOT USE ! ! !
+        private float confidence; // DO NOT USE ! ! !
+        private uint USER_ID = 1; // DO NOT TOUCH ! ! !
         // Tracking-thread
         private bool tracking;
         private Thread trackThread;
@@ -214,45 +217,64 @@ namespace IMI_Administration
         {
             //TODO
             //- update Layout
+
             if (Fubi.getClosestUserID() != 0)
-                this.contentLabel2 = "Tracke Nutzer Nr." + Fubi.getClosestUserID() + " um " + System.DateTime.Now.ToString("HH.mm.ss") + "Uhr.";
+            {
+                updateJoints();
+                if (this.jointsToTrack[4].Z != 0)
+                    this.contentLabel2 = "Tracke Nutzer Nr." + Fubi.getClosestUserID() + " mit Abstand " + this.jointsToTrack[4].Z + "mm.";
+                else
+                    this.contentLabel2 = "Tracke Nutzer Nr." + Fubi.getClosestUserID() + " um " + System.DateTime.Now.ToString("HH.mm.ss") + "Uhr.";
+            }
             else
                 this.contentLabel2 = System.DateTime.Now.ToString("HH.mm.ss");
             updateLabels();
         }
 
+        private void updateJoints()
+        {
+            float x, y, z;
+                        
+            // Right arm
+            Fubi.getCurrentSkeletonJointPosition(this.USER_ID, FubiUtils.SkeletonJoint.RIGHT_ELBOW, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.RIGHT_ELBOW, x, y, z);
+            Fubi.getCurrentSkeletonJointPosition(this.USER_ID, FubiUtils.SkeletonJoint.RIGHT_HAND, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.RIGHT_HAND, x, y, z);
+            
+            // Left arm
+            Fubi.getCurrentSkeletonJointPosition(this.USER_ID, FubiUtils.SkeletonJoint.LEFT_ELBOW, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.LEFT_ELBOW, x, y, z);
+            Fubi.getCurrentSkeletonJointPosition(this.USER_ID, FubiUtils.SkeletonJoint.LEFT_HAND, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.LEFT_HAND, x, y, z);
+
+            // Head
+            Fubi.getCurrentSkeletonJointPosition(this.USER_ID, FubiUtils.SkeletonJoint.HEAD, out x, out y, out z, out this.confidence, out this.timestamp); // this.USER_ID, FubiUtils.SkeletonJoint.HEAD, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.HEAD, x, y, z);            
+        }
+
         private void updateJoint(FubiUtils.SkeletonJoint joint, float x, float y, float z)
         {
-            int pointIndex = -1;
-            Point3D point = new Point3D();
+            Point3D point = new Point3D(x, y, z);
+
             switch (joint)
             {
                 case FubiUtils.SkeletonJoint.RIGHT_ELBOW:
-                    pointIndex = 0;
+                    this.jointsToTrack[0] = point;
                     break;
                 case FubiUtils.SkeletonJoint.RIGHT_HAND:
-                    pointIndex = 1;
+                    this.jointsToTrack[1] = point;
                     break;
                 case FubiUtils.SkeletonJoint.LEFT_ELBOW:
-                    pointIndex = 2;
+                    this.jointsToTrack[2] = point;
                     break;
                 case FubiUtils.SkeletonJoint.LEFT_HAND:
-                    pointIndex = 3;
+                    this.jointsToTrack[3] = point;
                     break;
                 case FubiUtils.SkeletonJoint.HEAD:
-                    pointIndex = 4;
+                    this.jointsToTrack[4] = point;
                     break;
                 default:
                     break;
-            }
-
-            if (pointIndex != -1)
-            {
-                point = this.jointsToTrack[pointIndex];
-                point.X = x;
-                point.Y = y;
-                point.Z = z;
-                this.jointsToTrack[pointIndex] = point;
             }
         }
 
