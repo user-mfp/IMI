@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media.Media3D;
+using System.Windows.Media.Imaging;
 
 namespace IMI_Administration
 {
@@ -12,6 +13,7 @@ namespace IMI_Administration
         // Attributes
         private string name;
         private string path;
+        private KeyValuePair<string, BitmapImage> backgroundImage;
         private Point3D userHeadPosition; // User's head position
         private double threshold = 100.0; // Default radius := 100mm
         private double selectionTime = 1000.0; // Default dwelltime for selection := 1s
@@ -103,6 +105,11 @@ namespace IMI_Administration
             return this.path;
         }
 
+        public KeyValuePair<string, BitmapImage> getBackgroundImage()
+        {
+            return this.backgroundImage;
+        }
+
         public Point3D getUserHeadPosition()
         {
             return this.userHeadPosition;
@@ -141,6 +148,11 @@ namespace IMI_Administration
         public void setPath(string path)
         {
             this.path = path;
+        }
+
+        public void setBackgroundImage(KeyValuePair<string, BitmapImage> backgroundImage)
+        {
+            this.backgroundImage = backgroundImage;
         }
 
         public void setUserHeadPosition(Point3D userHeadPosition)

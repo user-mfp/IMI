@@ -920,6 +920,7 @@ namespace IMI_Administration
                     switch (this.comboBox1.SelectedIndex)
                     {
                         case 0: //UserHeadPosition
+                            this.image1.Visibility = Visibility.Hidden;
                             this.comboBox2.Visibility = Visibility.Hidden;
                             this.contentButton2 = "einstellen";
                             this.button2.Visibility = Visibility.Visible;
@@ -927,6 +928,7 @@ namespace IMI_Administration
                             this.setting = Setting.UserHeadPosition;
                             break;
                         case 1: //BackgroundImage
+                            updateImage(this.exhibition.getBackgroundImage().Value);
                             this.comboBox2.Visibility = Visibility.Hidden;
                             this.contentButton2 = "laden";
                             this.button2.Visibility = Visibility.Visible;
@@ -934,22 +936,27 @@ namespace IMI_Administration
                             this.setting = Setting.BackgroundImage;
                             break;
                         case 2: //Threshold
+                            this.image1.Visibility = Visibility.Hidden;
                             this.setting = Setting.Threshold;
                             this.showLowMedHigh();
                             break;
                         case 3: //SelectionTime
+                            this.image1.Visibility = Visibility.Hidden;
                             this.setting = Setting.SelectionTime;
                             this.showLowMedHigh();
                             break;
                         case 4: //LockTime
+                            this.image1.Visibility = Visibility.Hidden;
                             this.setting = Setting.LockTime;
                             this.showLowMedHigh();
                             break;
                         case 5: //SlideTime
+                            this.image1.Visibility = Visibility.Hidden;
                             this.setting = Setting.SlideTime;
                             this.showLowMedHigh();
                             break;
                         case 6: //EndWait
+                            this.image1.Visibility = Visibility.Hidden;
                             this.setting = Setting.EndWait;
                             this.showLowMedHigh();
                             break;
@@ -1209,7 +1216,10 @@ namespace IMI_Administration
                     }
                     else if (this.setting == Setting.BackgroundImage)
                     {
-                        MessageBox.Show("Hintergrundbild laden");
+                        if (this.loadImageDialog.ShowDialog() == true)
+                        {
+                            this.exhibition.setBackgroundImage(this.fileHandler.loadImage(this.loadImageDialog.FileName));
+                        }
                     }
                     updateLayout();
                     break;
