@@ -14,7 +14,7 @@ namespace IMI_Administration
         private string name;
         private string path;
         private KeyValuePair<string, BitmapImage> backgroundImage;
-        private Point3D userHeadPosition; // User's head position
+        private Point3D userPosition; // User's head position
         private double threshold = 100.0; // Default radius := 100mm
         private double selectionTime = 1000.0; // Default dwelltime for selection := 1s
         private double lockTime = 3000.0; // Default time for locking an exhibit := 3s
@@ -110,9 +110,9 @@ namespace IMI_Administration
             return this.backgroundImage;
         }
 
-        public Point3D getUserHeadPosition()
+        public Point3D getUserPosition()
         {
-            return this.userHeadPosition;
+            return this.userPosition;
         }
 
         public double getThreshold()
@@ -155,9 +155,9 @@ namespace IMI_Administration
             this.backgroundImage = backgroundImage;
         }
 
-        public void setUserHeadPosition(Point3D userHeadPosition)
+        public void setUserPosition(Point3D userPosition)
         {
-            this.userHeadPosition = userHeadPosition;
+            this.userPosition = userPosition;
         }
 
         public void setThreshold(double threshold)

@@ -71,6 +71,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CalibrationHandler.cs" />
+    <Compile Include="DataLogger.cs" />
     <Compile Include="GeometryHandler.cs" />
     <Compile Include="StatisticsHandler.cs" />
     <Page Include="MainWindow.xaml">

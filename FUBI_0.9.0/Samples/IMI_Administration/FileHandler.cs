@@ -65,8 +65,8 @@ namespace IMI_Administration
                                     case "BackgroundImage":
                                         this.TMP_EXHIBITION.setBackgroundImage(loadImage(exhibitionReader.Value));
                                         break;
-                                    case "UserHeadPosition":
-                                        this.TMP_EXHIBITION.setUserHeadPosition(Point3D.Parse(exhibitionReader.Value));
+                                    case "UserPosition":
+                                        this.TMP_EXHIBITION.setUserPosition(Point3D.Parse(exhibitionReader.Value));
                                         break;
                                     case "Threshold":
                                         this.TMP_EXHIBITION.setThreshold(double.Parse(exhibitionReader.Value));
@@ -239,7 +239,7 @@ namespace IMI_Administration
             exhibitionWriter.WriteAttributeString("Path", exhibition.getPath());
             if (exhibition.getBackgroundImage().Key != null)
                 exhibitionWriter.WriteAttributeString("BackgroundImage", exhibition.getBackgroundImage().Key);            
-            exhibitionWriter.WriteAttributeString("UserHeadPosition", exhibition.getUserHeadPosition().ToString().Replace(',', '.').Replace(';', ' '));
+            exhibitionWriter.WriteAttributeString("UserPosition", exhibition.getUserPosition().ToString().Replace(',', '.').Replace(';', ' '));
             exhibitionWriter.WriteAttributeString("Threshold", exhibition.getThreshold().ToString().Replace(',', '.'));
             exhibitionWriter.WriteAttributeString("SelectionTime", exhibition.getSelectionTime().ToString());
             exhibitionWriter.WriteAttributeString("LockTime", exhibition.getLockTime().ToString());

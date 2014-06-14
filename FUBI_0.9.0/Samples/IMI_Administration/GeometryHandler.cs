@@ -256,6 +256,12 @@ namespace IMI_Administration
             return vector;
         }
 
+        public string getDirection(Vector v)
+        {
+            string direction = ((int)v.Direction.X).ToString() + "; " + ((int)v.Direction.Y).ToString() + "; " + ((int)v.Direction.Z).ToString();
+            return direction;
+        }
+
         public string getString(Point3D p)
         {
             string point = (p.X).ToString() + '\t' + (p.Y).ToString() + '\t' + (p.Z).ToString();
