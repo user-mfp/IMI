@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Windows.Media.Media3D;
+using System;
 
 namespace IMI_Administration
 {
@@ -12,7 +10,8 @@ namespace IMI_Administration
         private DataLogger dataLogger;
         private GeometryHandler geometryHandler;
 
-        int samplesPerPosition; // Number of samples taken per position pointed from 
+        int samplesPerPosition; // Number of samples taken per position pointed from
+        double threshold = 100; // Default := 100mm
         #endregion
 
         #region CONSTRUCTOR
@@ -22,9 +21,29 @@ namespace IMI_Administration
             this.geometryHandler = new GeometryHandler();
             this.samplesPerPosition = samplingVectors; 
         }
+
+        public CalibrationHandler(int samplingVectors, double threshold)
+        {
+            this.dataLogger = new DataLogger(@"C:\Users\Haßleben\Desktop\IMI-DATA\Debug\"); // TODO: Initialize properly!
+            this.geometryHandler = new GeometryHandler();
+            this.samplesPerPosition = samplingVectors;
+            this.threshold = threshold;
+        }
         #endregion 
 
-        #region DEFINITIONS
+        #region THRESHOLD
+        public double getThreshold()
+        {
+            return this.threshold;
+        }
+
+        public void setThreshold(double threshold)
+        {
+            this.threshold = threshold;
+        }
+        #endregion
+
+        #region DEFINITION
         public List<Point3D> definePlane(List<GeometryHandler.Vector> samples, int positions, int samplesPerPosition, int mode) // Get all sampled vectors, pointing and aiming; mode: 0 = only pointing-samples, 1 = only aiming-samples, 2 = both samples
         {
             initLogger();
@@ -82,7 +101,7 @@ namespace IMI_Administration
                     setFootPoints(ref aimFootPoints, aimAvgVectors, 3); // 3 corners
                     //setProjPoints(ref aimProjPoints, aimAvgVectors, 3);
 
-                    combinePoints = this.geometryHandler.getCenters(pointFootPoints, aimFootPoints);
+                    combinePoints = this.geometryHandler.classifyCombined(pointFootPoints, aimFootPoints); //getCenters(pointFootPoints, aimFootPoints);
 
                     this.logVectors(pointAvgVectors, 1); // Index := 1
                     this.logVectors(aimAvgVectors, 2); // Index := 2
@@ -185,37 +204,84 @@ namespace IMI_Administration
 
             vectors = tmp;
         }
-
-        private void setCorners(out List<Point3D> corners, List<Point3D> points)
-        {
-            int positions = points.Count / 3; // positions = 2; 3; 4;...
-
-            // TODO:
-            // - Something useful
-
-            corners = points;
-        }
-
-        public void definePointOnPlane(GeometryHandler.Plane plane, GeometryHandler.Vector vector)
-        {
-            
-        }
-
-        public void defineBoundingBox(List<Point3D> points)
-        { 
         
+        public Point3D definePointOnPlane(GeometryHandler.Plane plane, GeometryHandler.Vector vector)
+        {
+            Point3D starts = new Point3D(vector.Start.X - plane.Start.X, vector.Start.Y - plane.Start.Y, vector.Start.Z - plane.Start.Z);
+            Matrix3D matrix = new Matrix3D();
+            matrix.M11 = vector.Start.X - vector.End.X;
+            matrix.M12 = plane.End1.X - plane.Start.X;
+            matrix.M13 = plane.End2.X - plane.Start.X;
+            //matrix.M14 = 1.0;
+            matrix.M21 = vector.Start.Y - vector.End.Y;
+            matrix.M22 = plane.End1.Y - plane.Start.Y;
+            matrix.M23 = plane.End2.Y - plane.Start.Y;
+            //matrix.M24 = 1.0;
+            matrix.M31 = vector.Start.Z - vector.End.Z;
+            matrix.M32 = plane.End1.Z - plane.Start.Z;
+            matrix.M33 = plane.End2.Z - plane.Start.Z;
+            //matrix.M34 = 1.0;
+            //matrix.OffsetX = 1.0;
+            //matrix.OffsetY = 1.0;
+            //matrix.OffsetZ = 1.0;
+            //matrix.Invert();
+
+            Point3D point =  matrix.Transform(starts);
+                        
+            return point;
         }
         #endregion
 
-        #region EVALUATIONS
+        #region VALIDATION
         public bool validatePlane(List<Point3D> corners1, List<Point3D> corners2)
         {
-            return false;
+            int sum = 0;
+
+            for (int i = 0; i != corners1.Count; ++i)
+            {
+                sum += validatePoint(corners1[i], corners2[i]);
+            }
+
+            if (sum > 7) // 8 or 9 axis' values within threshold
+                return true;
+            else
+                return false;
         }
 
-        private bool validatePoint(Point3D point1, Point3D point2)
+        public bool validatePlane(GeometryHandler.Plane plane1, GeometryHandler.Plane plane2)
         {
-            return false;
+            int sum = withinThreshold(plane1.Start, plane2.Start) + withinThreshold(plane1.End1, plane2.End1) + withinThreshold(plane1.End2, plane2.End2);
+
+            if (sum > 7) // 8 or 9 axis' values within threshold
+                return true;
+            else
+                return false;
+        }
+
+        public int validatePoint(Point3D point1, Point3D point2)
+        {
+            return withinThreshold(point1, point2);
+        }
+
+        private int withinThreshold(Point3D point1, Point3D point2)
+        {
+            int passes = 0;
+            Point3D avg = this.geometryHandler.getCenter(point1, point2);
+
+            if (Math.Abs(Math.Abs(point1.X) - Math.Abs(avg.X)) < this.threshold && Math.Abs(Math.Abs(point2.X) - Math.Abs(avg.X)) < this.threshold)
+            {
+                ++passes;
+            }
+            if (Math.Abs(Math.Abs(point1.Y) - Math.Abs(avg.Y)) < this.threshold && Math.Abs(Math.Abs(point2.Y) - Math.Abs(avg.Y)) < this.threshold)
+            {
+                ++passes;
+            }
+            if (Math.Abs(Math.Abs(point1.Z) - Math.Abs(avg.Z)) < this.threshold && Math.Abs(Math.Abs(point2.Z) - Math.Abs(avg.Z)) < this.threshold)
+            {
+                ++passes;
+            }
+
+            return passes;
         }
         #endregion
 

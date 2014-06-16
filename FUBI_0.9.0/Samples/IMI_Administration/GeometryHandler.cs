@@ -57,6 +57,17 @@ namespace IMI_Administration
                 this.Direction.Y = end.Y - start.Y;
                 this.Direction.Z = end.Z - start.Z;
             }
+
+            public Point3D getTarget(double lambda)
+            {
+                Point3D target = new Point3D();
+
+                target.X = Start.X + (lambda * Direction.X);
+                target.Y = Start.Y + (lambda * Direction.Y);
+                target.Z = Start.Z + (lambda * Direction.Z);
+
+                return target;
+            }
         }
         #endregion
         
@@ -100,6 +111,35 @@ namespace IMI_Administration
 
         #region DECLARATIONS AND INITIALIZATIONS
         private StatisticsHandler statisticsHandler = new StatisticsHandler();
+        // Calibration and Validation
+        private double threshold = 100.0; //Default := 100.0mm
+        private double classWeight = 0.7;
+        private List<Point3D> pointingPts;
+        private List<Point3D> aimingPts;
+        private List<Point3D> classification = new List<Point3D>(); // Biased (classified) axis
+        private List<Point3D> combinedPts = new List<Point3D>(); // Biased (classified) axis
+        #endregion
+
+        #region GET AND SET
+        private double getThreshold()
+        {
+            return this.threshold;
+        }
+
+        private double getClassWeight()
+        {
+            return this.classWeight;
+        }
+
+        private void setThreshold(double threshold)
+        {
+            this.threshold = threshold;
+        }
+
+        private void setClassWeight(double classWeight)
+        {
+            this.classWeight = classWeight;
+        }
         #endregion
 
         #region INTERSECTIONS
@@ -194,49 +234,6 @@ namespace IMI_Administration
 
             return intersection;
         }
-
-        // Returns, whether given vector intersects with given bounding box or not
-        public bool intersectVectorBoundingBox(Point3D point, Vector3D vector, List<Point3D> corners)
-        {
-            // DO STUFF HERE
-
-            return false;
-        }
-
-        /* OLD INTERSECTION FOOT
-        // Returns the two closest points or intersection of two vectors
-        public List<Point3D> vectorsIntersectFoot(Vector vectorA, Vector vectorB)
-        {
-            List<Point3D> feet = new List<Point3D>();
-            vectorA.Direction.Normalize();
-            vectorB.Direction.Normalize();
-            Vector3D projection = new Vector3D((vectorB.Start.X - vectorA.Start.X), (vectorB.Start.Y - vectorA.Start.Y), (vectorB.Start.Z - vectorA.Start.Z));
-            double unitDirection = Vector3D.DotProduct(vectorA.Direction, vectorB.Direction);
-            
-            if (unitDirection != 1) // Vectors are not parallel
-            {
-                double separationProjectionA = Vector3D.DotProduct(projection, vectorA.Direction);
-                double separationProjectionB = Vector3D.DotProduct(projection, vectorB.Direction);
-
-                double lamdaA = ((separationProjectionA - unitDirection) * separationProjectionB) / ((1 - unitDirection) * unitDirection);
-                double lamdaB = ((separationProjectionB - unitDirection) * separationProjectionA) / (unitDirection * (unitDirection - 1));
-
-                Point3D footA = Point3D.Add(vectorA.Start, Vector3D.Multiply(lamdaA, vectorA.Direction));
-                Point3D footB = Point3D.Add(vectorB.Start, Vector3D.Multiply(lamdaB, vectorB.Direction));
-
-                if (footA != footB) // there is no intersection
-                {
-                    feet.Add(footA);
-                    feet.Add(footB);
-                }
-                else
-                    feet.Add(footA);
-                
-                return feet;
-            }
-            else
-                return feet;
-        }*/
         #endregion
 
         #region ROUTINES
@@ -247,6 +244,12 @@ namespace IMI_Administration
                 return false;
             else
                 return true;
+        }
+
+        public string getString(Point3D p)
+        {
+            string point = (p.X).ToString() + '\t' + (p.Y).ToString() + '\t' + (p.Z).ToString();
+            return point;
         }
 
         // Returns a vector's properties as string (Start, End, Direction)
@@ -260,12 +263,6 @@ namespace IMI_Administration
         {
             string direction = ((int)v.Direction.X).ToString() + "; " + ((int)v.Direction.Y).ToString() + "; " + ((int)v.Direction.Z).ToString();
             return direction;
-        }
-
-        public string getString(Point3D p)
-        {
-            string point = (p.X).ToString() + '\t' + (p.Y).ToString() + '\t' + (p.Z).ToString();
-            return point;
         }
 
         public double maxAxis(Vector v)
@@ -358,6 +355,181 @@ namespace IMI_Administration
         public void makePlane(Point3D start, Point3D end1, Point3D end2)
         {
 
+        }
+
+        private int withinThreshold(Point3D a, Point3D b)
+        {
+            int passes = 0;
+            Point3D avg = new Point3D();
+            Point3D tmp = new Point3D();
+
+            avg.X = (a.X + b.X) / 2;
+            avg.Y = (a.Y + b.Y) / 2;
+            avg.Z = (a.Z + b.Z) / 2;
+
+            if (Math.Abs(Math.Abs(a.X) - Math.Abs(avg.X)) < this.threshold && Math.Abs(Math.Abs(b.X) - Math.Abs(avg.X)) < this.threshold)
+            {
+                tmp.X = 1;
+                ++passes;
+            }
+            if (Math.Abs(Math.Abs(a.Y) - Math.Abs(avg.Y)) < this.threshold && Math.Abs(Math.Abs(b.Y) - Math.Abs(avg.Y)) < this.threshold)
+            {
+                tmp.Y = 1;
+                ++passes;
+            }
+            if (Math.Abs(Math.Abs(a.Z) - Math.Abs(avg.Z)) < this.threshold && Math.Abs(Math.Abs(a.Z) - Math.Abs(avg.Z)) < this.threshold)
+            {
+                tmp.Z = 1;
+                ++passes;
+            }
+
+            /*if (this.passes.ContainsKey(tmp))
+            {
+                ++this.passes[tmp];
+            }*/
+            return passes;
+        }
+        #endregion
+
+        #region WEIGHING
+        public List<Point3D> classifyCombined(List<Point3D> pointing, List<Point3D> aiming)
+        {
+            this.pointingPts = pointing;
+            this.aimingPts = aiming;
+            Point3D tmp = new Point3D();
+
+            this.classification.Clear();
+            for (int i = 0; i != this.aimingPts.Count; ++i)
+            {
+                tmp = classifyPoints(this.pointingPts[i], this.aimingPts[i]); // Check IF a classification is necessary and possible
+                this.classification.Add(tmp); // Add result of classification for respective pair of points
+            }
+
+            return this.combinedPts;
+        }
+
+        private Point3D classifyPoints(Point3D pointing, Point3D aiming)
+        {
+            Point3D tmp = new Point3D();
+
+            tmp.X = classifyBig(pointing.X, aiming.X);
+            tmp.Y = classifyBig(pointing.Y, aiming.Y);
+            tmp.Z = classifyBig(pointing.Z, aiming.Z);
+            
+            return tmp;
+        }
+        
+        private double classifySmall(double pointing, double aiming)
+        {
+            double bias = smallerValue(pointing, aiming);
+            double diff = Math.Abs(Math.Abs(pointing) - Math.Abs(aiming));
+
+            if (bias == pointing && diff > this.threshold) // Poiting IS bias-value AND difference is above than current threshold
+            {
+                return 1.0;
+            }
+            else if (bias == aiming && diff > this.threshold) // Aiming IS bias-value AND difference is above than threschold
+            {
+                return 2.0;
+            }
+            else // Neither is a bias-value, BUT difference is within threshold
+            {
+                return 0.0;
+            }
+        }
+
+        private double classifyBig(double pointing, double aiming)
+        {
+            double bias = biggerValue(pointing, aiming);
+            double diff = Math.Abs(Math.Abs(pointing) - Math.Abs(aiming));
+
+            if (bias == pointing && diff > this.threshold) // Poiting IS bias-value AND difference is above than current threshold
+            {
+                return 1.0;
+            }
+            else if (bias == aiming && diff > this.threshold) // Aiming IS bias-value AND difference is above than threschold
+            {
+                return 2.0;
+            }
+            else // Neither is a bias-value, BUT difference is within threshold
+            {
+                return 0.0;
+            }
+        }
+
+        private double smallerValue(double lhs, double rhs)
+        {
+            double orient = Math.Min(Math.Abs(lhs), Math.Abs(rhs));
+
+            if (orient == Math.Abs(lhs))
+                return lhs;
+            else
+                return rhs;
+        }
+
+        private double biggerValue(double lhs, double rhs)
+        {
+            double orient = Math.Max(Math.Abs(lhs), Math.Abs(rhs));
+
+            if (orient == Math.Abs(lhs))
+                return lhs;
+            else
+                return rhs;
+        }
+
+        private void weighCombined()
+        {
+            Point3D tmp = new Point3D();
+
+            this.combinedPts.Clear();
+            for (int i = 0; i != this.classification.Count; ++i)
+            {
+                tmp = weighPoints(this.pointingPts[i], this.aimingPts[i], this.classification[i]);
+                this.combinedPts.Add(tmp);
+            }
+        }
+
+        private Point3D weighPoints(Point3D pointing, Point3D aiming, Point3D classification)
+        {
+            Point3D tmp = new Point3D();
+
+            tmp.X = weighAxisValue(pointing.X, aiming.X, classification.X);
+            tmp.Y = weighAxisValue(pointing.Y, aiming.Y, classification.Y);
+            tmp.Z = weighAxisValue(pointing.Z, aiming.Z, classification.Z);
+
+            return tmp;
+        }
+
+        private double weighAxisValue(double pointing, double aiming, double classification)
+        {
+            double weightedAxis;
+            /*
+            if ([statement]) // Automatic classification enabled
+            {
+                setClassWeight(pointing, aiming); // Calculate weight for each pointing- / aiming-pair
+            }
+            */
+            if (classification == 1) // Biased toward pointing
+            {
+                weightedAxis = (pointing * this.classWeight) + (aiming * (1 - this.classWeight));
+            }
+            else if (classification == 2) // Biased toward aiming
+            {
+                weightedAxis = (aiming * this.classWeight) + (pointing * (1 - this.classWeight));
+            }
+            else // No bias := average
+            {
+                weightedAxis = (pointing + aiming) / 2;
+            }
+            
+            return weightedAxis;
+        }
+
+        private void setClassWeight(double pointing, double aiming) // For dynamic weighing of axis' values
+        {
+            double diff = Math.Abs(Math.Abs(pointing) - Math.Abs(aiming));
+
+            this.classWeight = Math.Min(0.9, (Math.Max(0.6, (1 - (this.threshold / diff))))); // Min-,Max-Function: classWeight is always bewteen 0.6 and 0.9
         }
         #endregion
     }

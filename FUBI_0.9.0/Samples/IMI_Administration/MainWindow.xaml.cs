@@ -3,13 +3,13 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Threading;
 using System.Collections.Generic;
 using FubiNET;
-using System.Windows.Media;
 
 namespace IMI_Administration
 {
@@ -75,6 +75,9 @@ namespace IMI_Administration
         private Exhibit TMP_EXHIBIT; // FOR TEMPORARY USE ONLY ! ! !
         private int TMP_EXHIBIT_INDEX; // FOR TEMPORARY USE ONLY ! ! !
         private GeometryHandler.Plane TMP_EXHIBITION_PLANE; // FOR TEMPORARY USE ONLY ! ! !
+        private GeometryHandler.Plane TMP_EXHIBITION_PLANE_2; // FOR TEMPORARY USE ONLY ! ! !
+        private Point3D TMP_POSITION; // FOR TEMPORARY USE ONLY ! ! !
+        private Point3D TMP_POSITION_2; // FOR TEMPORARY USE ONLY ! ! !
         // Layout
         private string contentLabel1;
         private string contentLabel2;
@@ -117,7 +120,7 @@ namespace IMI_Administration
         public MainWindow()
         {
             InitializeComponent();
-
+            
             // Initialize tracking
             initJoints();
             this.tracking = false; // Turn off tracking
@@ -1698,7 +1701,7 @@ namespace IMI_Administration
                 case Headline.ExhibitionPlaneVal: //"abort validation of exhibition plane"
                     if (!this.calibrating)
                     {
-                        this.startPlaneValidation();
+                        this.startPlaneDefinition();
                     }
                     else
                     {
@@ -1707,9 +1710,6 @@ namespace IMI_Administration
                     break;
                 case Headline.ExhibitionPlaneDone: //"abort validation of exhibition plane"
                     stopTracking();
-                    //DUMMY-PLANE
-                    this.TMP_EXHIBITION_PLANE = new GeometryHandler.Plane(new Point3D(), new Point3D(), new Point3D());
-                    //DUMMY-EXHIBITION
                     this.exhibition = new Exhibition(this.TMP_NAME, this.TMP_EXHIBITION_PLANE);
 
                     MessageBox.Show("Bitte stellen Sie umgehend die Benutzerposition ein.");
@@ -2041,30 +2041,42 @@ namespace IMI_Administration
         {
             this.calibrationHandler = new CalibrationHandler(this.SAMPLING_VECTORS); // Initiate calibrator
             List<Point3D> corners = this.calibrationHandler.definePlane(sampleVectors(this.SAMPLING_POINTS, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2), this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2); // Calibration-points
-            //this.TMP_EXHIBITION_PLANE = new GeometryHandler.Plane(corners);
-
+            
             switch (this.headline)
             {
-                case  Headline.ExhibitionPlaneDef:
+                case Headline.ExhibitionPlaneDef: 
+                    this.TMP_EXHIBITION_PLANE = new GeometryHandler.Plane(corners);
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENVALIDIERUNG";
                     this.contentLabel2 = corners.Count.ToString() + " Eckpunkte definiert";
                     this.contentLabel2 += '\n' + "[Validierungsinstruktionen]";
-                    this.contentButton4 = "abbrechen";
+                    this.contentButton4 = "zurück";
                     this.contentButton5 = "Start";
                     this.headline = Headline.ExhibitionPlaneVal;
             
                     stopCalibration();
                     break;
                 case Headline.ExhibitionPlaneVal:
+                    this.TMP_EXHIBITION_PLANE_2 = new GeometryHandler.Plane(corners);
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
-                    this.contentLabel2 = corners.Count.ToString() + " Eckpunkte validiert";
-                    this.contentLabel2 += '\n' + "oder";
-                    this.contentLabel2 += corners.Count.ToString() + "Eckpunkte nicht validiert";
-                    this.contentButton5 = "OK";
-                    this.headline = Headline.ExhibitionPlaneVal;
+                    if (this.calibrationHandler.validatePlane(this.TMP_EXHIBITION_PLANE, this.TMP_EXHIBITION_PLANE_2))
+                    {
+                        this.contentLabel2 = corners.Count.ToString() + " Eckpunkte validiert";
+                        this.contentButton5 = "OK";
+                        this.headline = Headline.ExhibitionPlaneDone;
 
-                    stopCalibration();
-                    stopTracking();
+                        stopCalibration();
+                        stopTracking();
+                    }
+                    else
+                    {
+                        this.contentLabel2 = corners.Count.ToString() + " Eckpunkte nicht validiert" + '\n' + "Erneut definieren?";
+                        this.contentButton4 = "zurück";
+                        this.contentButton5 = "OK";
+                        this.headline = Headline.ExhibitionPlaneDef;
+
+                        stopCalibration();
+                    }
+
                     break;
                 default:
                     MessageBox.Show("definePlane()-Problem!");
@@ -2074,15 +2086,15 @@ namespace IMI_Administration
 
         private void definePosition()
         {
-            this.calibrationHandler = new CalibrationHandler(this.SAMPLING_VECTORS); // Initiate calibrator
-            Point3D position = new Point3D();
-            this.calibrationHandler.definePointOnPlane(new GeometryHandler.Plane(), new GeometryHandler.Vector()) ;//(sampleVectors(1, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2), this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2); // Calibration-points
+            this.calibrationHandler = new CalibrationHandler(this.SAMPLING_VECTORS, this.exhibition.getThreshold()); // Initiate calibrator
+            Point3D position = this.calibrationHandler.definePointOnPlane(this.exhibition.getExhibitionPlane(), sampleVectors(1, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2)[0]); // Calibration-points
 
             switch (this.setting)
             { 
                 case Setting.None: // Defining of validating exhibit's position
                     if (this.headline == Headline.ExhibitDef)
-                    {
+                    { 
+                        this.TMP_POSITION = position;
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSVALIDIERUNG";
                         this.contentLabel2 = position.ToString() + " Position definiert";
                         this.contentLabel2 += '\n' + "[Validierungsinstruktionen]";
@@ -2094,14 +2106,27 @@ namespace IMI_Administration
                     }
                     else if (this.headline == Headline.ExhibitVal)
                     {
+                        this.TMP_POSITION_2 = position;
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
-                        this.contentLabel2 = "- Position des Exponats erfolgreich bestimmt" + '\n' + "oder" + '\n' + "- Position des Exponats nicht erfolgreich bestimmt";
-                        this.contentButton4 = "abbrechen";
-                        this.contentButton5 = "OK";
-                        this.headline = Headline.ExhibitDone;
+                        if (this.calibrationHandler.validatePoint(this.TMP_POSITION, this.TMP_POSITION_2) == 3) // All three axis are within threshold
+                        {
+                            this.contentLabel2 = position.ToString() + " Eckpunkte validiert";
+                            this.contentButton4 = "abbrechen";
+                            this.contentButton5 = "OK";
+                            this.headline = Headline.ExhibitDone;
 
-                        stopCalibration();
-                        stopTracking();
+                            stopCalibration();
+                            stopTracking();
+                        }
+                        else
+                        {
+                            this.contentLabel2 = position.ToString() + " Eckpunkte nicht validiert";
+                            this.contentButton4 = "abbrechen";
+                            this.contentButton5 = "OK";
+                            this.headline = Headline.ExhibitDef;
+
+                            stopTracking();
+                        }
                     }
                     else
                     {
@@ -2150,9 +2175,6 @@ namespace IMI_Administration
 
         private void validatePlane()
         {
-            stopCalibration();
-            stopTracking();
-         
             this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
             this.contentLabel2 = "- Ausstellungsebene erfolgreich bestimmt" + '\n' + "oder" + '\n' + "- Ausstellungsebene nicht erfolgreich bestimmt"; ;
             this.headline = Headline.ExhibitionPlaneDone;
@@ -2180,13 +2202,13 @@ namespace IMI_Administration
             {
                 // Position to go to
                 this.contentLabel2 = "Position " + (position + 1); // Change to position #
-                Thread.Sleep(1000);//this.SAMPLING_BREAK);
+                Thread.Sleep(this.SAMPLING_BREAK);
 
                 for (int point = 0; point != points; ++point) // For each position
                 {
                     // Corner to point at
                     this.contentLabel2 = "Ecke " + (point + 1); // Point to corner #
-                    Thread.Sleep(1000);//this.SAMPLING_BREAK);
+                    Thread.Sleep(this.SAMPLING_BREAK);
 
                     for (int sample = 0; sample != samplesPerPosition; ++sample)
                     {
