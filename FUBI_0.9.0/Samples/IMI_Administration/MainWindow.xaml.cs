@@ -195,7 +195,7 @@ namespace IMI_Administration
         private void track()
         {
             // Initializing tracking
-            DispatcherOperation currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(this.initFubi), null);
+            DispatcherOperation currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(initFubi), null);
             while (currentOP.Status != DispatcherOperationStatus.Completed && currentOP.Status != DispatcherOperationStatus.Aborted)
             {
                 Thread.Sleep(100); // Wait for init to finish
@@ -206,7 +206,7 @@ namespace IMI_Administration
             {
                 Fubi.updateSensor();
 
-                currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(this.updateFubi), null);
+                currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(updateFubi), null);
                 //Thread.Sleep(29); // Time it should at least take to get new data
                 while (currentOP.Status != DispatcherOperationStatus.Completed && currentOP.Status != DispatcherOperationStatus.Aborted)
                 {
@@ -215,7 +215,7 @@ namespace IMI_Administration
             }
 
             // Handling tracking-data
-            currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(this.releaseFubi), null);
+            currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(releaseFubi), null);
             while (currentOP.Status != DispatcherOperationStatus.Completed && currentOP.Status != DispatcherOperationStatus.Aborted)
             {
                 Thread.Sleep(100); // Wait for release to finish
@@ -338,14 +338,6 @@ namespace IMI_Administration
             this.calibrationThread.Start();
         }
 
-        private void startPlaneValidation()
-        {
-            // Starting a calibration-thread porperly
-            this.calibrationThread = new Thread(validatePlane);
-            this.calibrating = true;
-            this.calibrationThread.Start();
-        }
-
         private void startPositionDefinition()
         {
             // Starting a calibration-thread porperly
@@ -354,17 +346,8 @@ namespace IMI_Administration
             this.calibrationThread.Start();
         }
 
-        private void startPositionValidation()
-        {
-            // Starting a calibration-thread porperly
-            this.calibrationThread = new Thread(validatePosition);
-            this.calibrating = true;
-            this.calibrationThread.Start();
-        }
-
         private void stopTracking()
         {
-            this.label1.Background = Brushes.LimeGreen;
             // Stopping the tracking-thread properly
             this.trackThread.Abort();
             this.tracking = false;
@@ -1691,7 +1674,7 @@ namespace IMI_Administration
                 case Headline.ExhibitionPlaneDef: //"start or abort definition of exhibition plane"
                     if (!this.calibrating)
                     {
-                        this.startPlaneDefinition();
+                        startPlaneDefinition();
                     }
                     else
                     {
@@ -1701,7 +1684,7 @@ namespace IMI_Administration
                 case Headline.ExhibitionPlaneVal: //"abort validation of exhibition plane"
                     if (!this.calibrating)
                     {
-                        this.startPlaneDefinition();
+                        startPlaneDefinition();
                     }
                     else
                     {
@@ -1747,10 +1730,24 @@ namespace IMI_Administration
                     updateLayout();
                     break;
                 case Headline.ExhibitDef: //"start or abort definition of exhibit"
-                    startPositionDefinition();
+                    if (!this.calibrating)
+                    {
+                        startPositionDefinition();
+                    }
+                    else
+                    {
+                        stopCalibration();
+                    }                    
                     break;
                 case Headline.ExhibitVal: //"abort validation of exhibit"
-                    startPositionValidation();
+                    if (!this.calibrating)
+                    {
+                        startPositionDefinition();
+                    }
+                    else
+                    {
+                        stopCalibration();
+                    }                    
                     break;
                 case Headline.ExhibitDone: //"abort validation of exhibition plane"        
                     if ((int)this.setting == 1) //ExhibitionSetting: UserPosition
@@ -2040,7 +2037,8 @@ namespace IMI_Administration
         private void definePlane()
         {
             this.calibrationHandler = new CalibrationHandler(this.SAMPLING_VECTORS); // Initiate calibrator
-            List<Point3D> corners = this.calibrationHandler.definePlane(sampleVectors(this.SAMPLING_POINTS, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2), this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2); // Calibration-points
+            List<GeometryHandler.Vector> vectors = sampleVectors(this.SAMPLING_POINTS, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2); // Sampled vectors
+            List<Point3D> corners = this.calibrationHandler.definePlane(vectors, this.SAMPLING_POSITIONS, 2); // Calibration-points
             
             switch (this.headline)
             {
@@ -2087,7 +2085,8 @@ namespace IMI_Administration
         private void definePosition()
         {
             this.calibrationHandler = new CalibrationHandler(this.SAMPLING_VECTORS, this.exhibition.getThreshold()); // Initiate calibrator
-            Point3D position = this.calibrationHandler.definePointOnPlane(this.exhibition.getExhibitionPlane(), sampleVectors(1, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2)[0]); // Calibration-points
+            List<GeometryHandler.Vector> vectors = sampleVectors(1, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2); // Sampled vectors
+            Point3D position = this.calibrationHandler.definePosition(this.exhibition.getExhibitionPlane(), vectors, this.SAMPLING_POSITIONS, 2); // Calibration-points
 
             switch (this.setting)
             { 
@@ -2120,12 +2119,15 @@ namespace IMI_Administration
                         }
                         else
                         {
-                            this.contentLabel2 = position.ToString() + " Eckpunkte nicht validiert";
+                            this.contentLabel2 = "Eckpunkte nicht validiert!" + '\n';
+                            this.contentLabel2 += '\n' + "deltaX: " + Math.Abs(Math.Abs(this.TMP_POSITION.X) - Math.Abs(this.TMP_POSITION_2.X)).ToString();
+                            this.contentLabel2 += '\n' + "deltaY: " + Math.Abs(Math.Abs(this.TMP_POSITION.Y) - Math.Abs(this.TMP_POSITION_2.Z)).ToString();
+                            this.contentLabel2 += '\n' + "deltaZ: " + Math.Abs(Math.Abs(this.TMP_POSITION.Z) - Math.Abs(this.TMP_POSITION_2.Z)).ToString();
                             this.contentButton4 = "abbrechen";
                             this.contentButton5 = "OK";
                             this.headline = Headline.ExhibitDef;
 
-                            stopTracking();
+                            stopCalibration();
                         }
                     }
                     else
@@ -2165,10 +2167,6 @@ namespace IMI_Administration
                     }
                     break;
                 default:
-                    MessageBox.Show("define Position-Problem!");
-                    
-                    stopCalibration();
-                    stopTracking();
                     break;
             }
         }
@@ -2201,13 +2199,20 @@ namespace IMI_Administration
             for (int position = 0; position != positions; ++position) // For each corner
             {
                 // Position to go to
-                this.contentLabel2 = "Position " + (position + 1); // Change to position #
+                this.contentLabel2 = "Begeben Sie sich auf die " + (position + 1) + ". von " + positions + " Position."; // Change to position #
                 Thread.Sleep(this.SAMPLING_BREAK);
 
                 for (int point = 0; point != points; ++point) // For each position
                 {
-                    // Corner to point at
-                    this.contentLabel2 = "Ecke " + (point + 1); // Point to corner #
+                    // Position to point at
+                    if (points == 1) // Define position
+                    {
+                        this.contentLabel2 = "Zeigen Sie auf das Exponat."; // Point to corner #
+                    }
+                    else
+                    {
+                        this.contentLabel2 = " Zeigen Sie auf die " + (point + 1) + ". Ecke."; // Point to corner #
+                    }
                     Thread.Sleep(this.SAMPLING_BREAK);
 
                     for (int sample = 0; sample != samplesPerPosition; ++sample)

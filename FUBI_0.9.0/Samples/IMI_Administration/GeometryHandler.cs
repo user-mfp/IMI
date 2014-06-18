@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
+using XNA = Microsoft.Xna.Framework;
 
 namespace IMI_Administration
 {
@@ -108,7 +109,7 @@ namespace IMI_Administration
             }
         }
         #endregion
-
+        
         #region DECLARATIONS AND INITIALIZATIONS
         private StatisticsHandler statisticsHandler = new StatisticsHandler();
         // Calibration and Validation
@@ -142,63 +143,7 @@ namespace IMI_Administration
         }
         #endregion
 
-        #region INTERSECTIONS
-        public List<Point3D> vectorsIntersectProj(Vector vectorA, Vector vectorB)
-        {
-            Point3D xy = vectorsIntersectProjXY(vectorA, vectorB); // xy.Z = 0
-            Point3D yz = vectorsIntersectProjYZ(vectorA, vectorB); // yz.X = 0
-            Point3D xz = vectorsIntersectProjXZ(vectorA, vectorB); // xz.Y = 0
-            List<Point3D> testPoints = new List<Point3D>();
-
-            testPoints.Add(xy);
-            testPoints.Add(yz);
-            testPoints.Add(xz);
-
-            return testPoints;
-        }
-
-        public Point3D vectorsIntersectProjXY(Vector vectorA, Vector vectorB)
-        {
-            Vector3D a1 = new Vector3D(vectorA.Start.X, vectorA.Start.Y, 1);
-            Vector3D a2 = new Vector3D(vectorA.End.X, vectorA.End.Y, 1);
-            Vector3D a = Vector3D.CrossProduct(a1, a2);
-            Vector3D b1 = new Vector3D(vectorB.Start.X, vectorB.Start.Y, 1);
-            Vector3D b2 = new Vector3D(vectorB.End.X, vectorB.End.Y, 1);
-            Vector3D b = Vector3D.CrossProduct(b1, b2);
-            Vector3D i = Vector3D.CrossProduct(a, b);
-
-            Point3D xy = new Point3D(i.X / i.Z, i.Y / i.Z, 0);
-            return xy;
-        }
-
-        public Point3D vectorsIntersectProjYZ(Vector vectorA, Vector vectorB)
-        {
-            Vector3D a1 = new Vector3D(1, vectorA.Start.Y, vectorA.Start.Z);
-            Vector3D a2 = new Vector3D(1, vectorA.End.Y, vectorA.End.Z);
-            Vector3D a = Vector3D.CrossProduct(a1, a2);
-            Vector3D b1 = new Vector3D(1, vectorB.Start.Y, vectorB.Start.Z);
-            Vector3D b2 = new Vector3D(1, vectorB.End.Y, vectorB.End.Z);
-            Vector3D b = Vector3D.CrossProduct(b1, b2);
-            Vector3D i = Vector3D.CrossProduct(a, b);
-
-            Point3D yz = new Point3D(0, i.Y / i.X, i.Z / i.X);
-            return yz;
-        }
-
-        public Point3D vectorsIntersectProjXZ(Vector vectorA, Vector vectorB)
-        {
-            Vector3D a1 = new Vector3D(vectorA.Start.X, 1, vectorA.Start.Z);
-            Vector3D a2 = new Vector3D(vectorA.End.X, 1, vectorA.End.Z);
-            Vector3D a = Vector3D.CrossProduct(a1, a2);
-            Vector3D b1 = new Vector3D(vectorB.Start.X, 1, vectorB.Start.Z);
-            Vector3D b2 = new Vector3D(vectorB.End.X, 1, vectorB.End.Z);
-            Vector3D b = Vector3D.CrossProduct(b1, b2);
-            Vector3D i = Vector3D.CrossProduct(a, b);
-
-            Point3D xz = new Point3D(i.X / i.Y, 0, i.Z / i.Y);
-            return xz;
-        }
-        
+        #region INTERSECTIONS        
         public List<Point3D> vectorsIntersectFoot(Vector vectorA, Vector vectorB)
         {
             List<Point3D> feet = new List<Point3D>();
@@ -226,11 +171,19 @@ namespace IMI_Administration
         }
 
         // Returns the intersection of given vector and given plane
-        public Point3D intersectVectorPlane(Point3D point, Vector3D vector, List<Point3D> corners)
+        public Point3D intersectVectorPlane(Plane p, Vector v)
         {
-            Point3D intersection = new Point3D();
+            XNA.Vector3 vec0 = new XNA.Vector3((float)v.Start.X, (float)v.Start.Y, (float)v.Start.Z);
+            XNA.Vector3 vec1 = new XNA.Vector3((float)p.Start.X, (float)p.Start.Y, (float)p.Start.Z);
+            XNA.Vector3 vec2 = new XNA.Vector3((float)p.End1.X, (float)p.End1.Y, (float)p.End1.Z);
+            XNA.Vector3 vec3 = new XNA.Vector3((float)p.End2.X, (float)p.End2.Y, (float)p.End2.Z);
+            XNA.Vector3 vec5 = new XNA.Vector3((float)v.Direction.X, (float)v.Direction.Y, (float)v.Direction.Z);
+            XNA.Ray ray = new XNA.Ray(vec0, vec5);
+            XNA.Plane plane = new XNA.Plane(vec1, vec2, vec3);
 
-            // DO STUFF HERE
+            double s = (double)XNA.Vector3.Dot(plane.Normal, (vec1 - vec0)) / XNA.Vector3.Dot(plane.Normal, vec5);
+            
+            Point3D intersection = v.Start + (s * v.Direction);
 
             return intersection;
         }
@@ -405,6 +358,8 @@ namespace IMI_Administration
                 this.classification.Add(tmp); // Add result of classification for respective pair of points
             }
 
+            weighCombined();
+
             return this.combinedPts;
         }
 
@@ -503,12 +458,8 @@ namespace IMI_Administration
         private double weighAxisValue(double pointing, double aiming, double classification)
         {
             double weightedAxis;
-            /*
-            if ([statement]) // Automatic classification enabled
-            {
-                setClassWeight(pointing, aiming); // Calculate weight for each pointing- / aiming-pair
-            }
-            */
+            setClassWeight(pointing, aiming); // Automatic weighing
+
             if (classification == 1) // Biased toward pointing
             {
                 weightedAxis = (pointing * this.classWeight) + (aiming * (1 - this.classWeight));
@@ -529,7 +480,7 @@ namespace IMI_Administration
         {
             double diff = Math.Abs(Math.Abs(pointing) - Math.Abs(aiming));
 
-            this.classWeight = Math.Min(0.9, (Math.Max(0.6, (1 - (this.threshold / diff))))); // Min-,Max-Function: classWeight is always bewteen 0.6 and 0.9
+            this.classWeight = Math.Min(0.95, (Math.Max(0.7, (1 - (this.threshold / diff))))); // Min-,Max-Function: classWeight is always bewteen 0.6 and 0.9
         }
         #endregion
     }
