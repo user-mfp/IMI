@@ -63,6 +63,8 @@ namespace IMI_Administration
         private int SAMPLING_POINTS = 3; // Number of points
         private int SAMPLING_VECTORS = 10; // Vectors per sample
         private int SAMPLING_POSITIONS = 3; // Number of positions
+        private string INSTRUCTIONS_EXHIBITION_PLANE = "Zeigen Sie von drei Positionen aus, welche ca. 1m auseinander liegen, auf drei Eckpunkte der Ausstellungsebene." + '\n' + '\n' + "Befolgen Sie dazu bitte die, an dieser Stelle erscheinenden, Anweisungen.";
+        private string INSTRUCTIONS_EXHIBIT = "Zeigen Sie von drei Positionen aus, welche ca. 1m auseinander liegen, auf das Exponat." + '\n' + '\n' + "Befolgen Sie dazu bitte die, an dieser Stelle erscheinenden, Anweisungen.";
         #endregion
 
         #region DECLARATIONS
@@ -229,24 +231,67 @@ namespace IMI_Administration
                 updateJoints();
             }
             else
-                this.contentLabel2 = System.DateTime.Now.ToString("HH.mm.ss");
+            {
+                //this.contentLabel2 = System.DateTime.Now.ToString("HH.mm.ss");
+            }
             
-            // Updatin the Layout
+            // Updating the Layout
             switch (this.headline)
             {
                 case Headline.ExhibitionPlaneDef:
-                    if (Fubi.getClosestUserID() != 0 && this.button5.Visibility == Visibility.Hidden) // There is a user
+                    if (Fubi.getClosestUserID() != 0) // There is a user
                     {
-                        this.button5.Visibility = Visibility.Visible;
+                        if (this.calibrating)
+                        {
+                            this.button5.Visibility = Visibility.Hidden;
+                        }
+                        else
+                        {
+                            this.button5.Visibility = Visibility.Visible;
+                            this.contentButton5 = "Start";
+                        }
                     }
-
-                    if (!this.calibrating) // Definition has not started: "Start"
+                    break;
+                case Headline.ExhibitionPlaneVal:
+                    if (Fubi.getClosestUserID() != 0) // There is a user
                     {
-                        this.contentButton5 = "Start";
+                        if (this.calibrating)
+                        {
+                            this.button5.Visibility = Visibility.Hidden;
+                        }
+                        else
+                        {
+                            this.button5.Visibility = Visibility.Visible;
+                            this.contentButton5 = "Start";
+                        }
                     }
-                    else // Definition in progress: "Abort"
+                    break;
+                case Headline.ExhibitDef:
+                    if (Fubi.getClosestUserID() != 0) // There is a user
                     {
-                        this.contentButton5 = "Abbruch";
+                        if (this.calibrating)
+                        {
+                            this.button5.Visibility = Visibility.Hidden;
+                        }
+                        else
+                        {
+                            this.button5.Visibility = Visibility.Visible;
+                            this.contentButton5 = "Start";
+                        }
+                    }
+                    break;
+                case Headline.ExhibitVal:
+                    if (Fubi.getClosestUserID() != 0) // There is a user
+                    {
+                        if (this.calibrating)
+                        {
+                            this.button5.Visibility = Visibility.Hidden;
+                        }
+                        else
+                        {
+                            this.button5.Visibility = Visibility.Visible;
+                            this.contentButton5 = "Start";
+                        }
                     }
                     break;
                 default:
@@ -261,20 +306,20 @@ namespace IMI_Administration
             float x, y, z;
                         
             // Right arm
-            Fubi.getCurrentSkeletonJointPosition(this.USER_ID, FubiUtils.SkeletonJoint.RIGHT_ELBOW, out x, out y, out z, out confidence, out timestamp);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID(), FubiUtils.SkeletonJoint.RIGHT_ELBOW, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.RIGHT_ELBOW, x, y, z);
-            Fubi.getCurrentSkeletonJointPosition(this.USER_ID, FubiUtils.SkeletonJoint.RIGHT_HAND, out x, out y, out z, out confidence, out timestamp);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID(), FubiUtils.SkeletonJoint.RIGHT_HAND, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.RIGHT_HAND, x, y, z);
             
             // Left arm
-            Fubi.getCurrentSkeletonJointPosition(this.USER_ID, FubiUtils.SkeletonJoint.LEFT_ELBOW, out x, out y, out z, out confidence, out timestamp);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID(), FubiUtils.SkeletonJoint.LEFT_ELBOW, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.LEFT_ELBOW, x, y, z);
-            Fubi.getCurrentSkeletonJointPosition(this.USER_ID, FubiUtils.SkeletonJoint.LEFT_HAND, out x, out y, out z, out confidence, out timestamp);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID(), FubiUtils.SkeletonJoint.LEFT_HAND, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.LEFT_HAND, x, y, z);
 
-            // Head
-            Fubi.getCurrentSkeletonJointPosition(this.USER_ID, FubiUtils.SkeletonJoint.HEAD, out x, out y, out z, out this.confidence, out this.timestamp); // this.USER_ID, FubiUtils.SkeletonJoint.HEAD, out x, out y, out z, out confidence, out timestamp);
-            updateJoint(FubiUtils.SkeletonJoint.HEAD, x, y, z);            
+            // Nose (head)
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID(), FubiUtils.SkeletonJoint.FACE_NOSE, out x, out y, out z, out this.confidence, out this.timestamp); // this.USER_ID, FubiUtils.SkeletonJoint.HEAD, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.FACE_NOSE, x, y, z);            
         }
 
         private void updateJoint(FubiUtils.SkeletonJoint joint, float x, float y, float z)
@@ -295,7 +340,7 @@ namespace IMI_Administration
                 case FubiUtils.SkeletonJoint.LEFT_HAND:
                     this.jointsToTrack[3] = point;
                     break;
-                case FubiUtils.SkeletonJoint.HEAD:
+                case FubiUtils.SkeletonJoint.FACE_NOSE:
                     this.jointsToTrack[4] = point;
                     break;
                 default:
@@ -312,7 +357,6 @@ namespace IMI_Administration
         #region THREADS
         private void startTracking()
         {
-            this.label1.Background = Brushes.Coral;
             // Starting the tracking-thread properly
             this.trackThread = new Thread(track);
             this.tracking = true;
@@ -426,7 +470,7 @@ namespace IMI_Administration
         private void showExhibitionSettings()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
@@ -469,7 +513,7 @@ namespace IMI_Administration
         private void showExhibitSettings()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
@@ -508,10 +552,10 @@ namespace IMI_Administration
         private void showExhibitDone()
         {
             // Labels
-            this.label1.Content = this.contentLabel1; //this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
+            this.textBlock1.Text = this.contentLabel1; //this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = "- Position erfolgreich bestimmt." + '\n' + "oder" + '\n' + "- Position nicht erfolgreich bestimmt.";
+            this.textBlock2.Text = "- Position erfolgreich bestimmt." + '\n' + "oder" + '\n' + "- Position nicht erfolgreich bestimmt.";
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -544,10 +588,10 @@ namespace IMI_Administration
         private void showExhibitVal()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = this.contentLabel2;
+            this.textBlock2.Text = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -581,10 +625,10 @@ namespace IMI_Administration
         private void showExhibitDef()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = this.contentLabel2;
+            this.textBlock2.Text = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -618,10 +662,10 @@ namespace IMI_Administration
         private void showNewName()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = this.contentLabel2;
+            this.textBlock2.Text = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -655,10 +699,10 @@ namespace IMI_Administration
         private void showExhibitionPlaneDone()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;// "AUSSTELLUNGSEBENE - BESTIMMUNG";
+            this.textBlock1.Text = this.contentLabel1;// "AUSSTELLUNGSEBENE - BESTIMMUNG";
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = this.contentLabel2;// "- Ebene erfolgreich bestimmt." + '\n' + "oder" + '\n' + "- Ebene nicht erfolgreich bestimmt.";
+            this.textBlock2.Text = this.contentLabel2;// "- Ebene erfolgreich bestimmt." + '\n' + "oder" + '\n' + "- Ebene nicht erfolgreich bestimmt.";
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -691,10 +735,10 @@ namespace IMI_Administration
         private void showExhibitionPlaneVal()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = this.contentLabel2;
+            this.textBlock2.Text = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -728,10 +772,10 @@ namespace IMI_Administration
         private void showExhibitionPlaneDef()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
-            this.label2.Content = this.contentLabel2;
+            this.textBlock2.Text = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Buttons
@@ -765,7 +809,7 @@ namespace IMI_Administration
         private void showExhibitionPlane()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
@@ -802,7 +846,7 @@ namespace IMI_Administration
         private void showEditExhibit()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;// +" - BEARBEITEN";
+            this.textBlock1.Text = this.contentLabel1;// +" - BEARBEITEN";
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
@@ -850,7 +894,7 @@ namespace IMI_Administration
         private void showNewExhibit()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
@@ -886,7 +930,7 @@ namespace IMI_Administration
         private void showLoadExhibit()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
@@ -922,7 +966,7 @@ namespace IMI_Administration
         private void showExhibition()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
@@ -967,7 +1011,7 @@ namespace IMI_Administration
         private void showStart()
         {
             // Labels
-            this.label1.Content = this.contentLabel1;
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
 
             this.label2.Visibility = Visibility.Hidden;
@@ -1002,8 +1046,8 @@ namespace IMI_Administration
 
         private void updateLabels()
         {
-            this.label1.Content = this.contentLabel1;
-            this.label2.Content = this.contentLabel2;
+            this.textBlock1.Text = this.contentLabel1;
+            this.textBlock2.Text = this.contentLabel2;
         }
 
         private void updateButtons()
@@ -1430,7 +1474,7 @@ namespace IMI_Administration
                 case Headline.ExhibitionPlane:// "define new exhibition plane"
                     startTracking();
 
-                    this.contentLabel2 = "Tracking gestartet" + '\n' + "[Definitionsinstruktionen]";
+                    this.contentLabel2 = this.INSTRUCTIONS_EXHIBITION_PLANE;
                     this.headline = Headline.ExhibitionPlaneDef;
                     updateLayout();
                     break;
@@ -1451,13 +1495,12 @@ namespace IMI_Administration
                 case Headline.ExhibitionSettings:
                     if (this.setting == Setting.UserPosition)
                     {
-                        MessageBox.Show("Benutzerposition neu bestimmen");
                         this.TMP_NAME = "Benutzer";
 
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSDEFINITION";
-                        this.contentLabel2 = "[Instruktionen]";
-                        this.contentButton4 = "abbrechen";
-                        this.contentButton5 = "OK";
+                        this.contentLabel2 = "Bitte stellen Sie sich auf die zukünftige Benutzerposition.";
+                        this.contentButton4 = "zurück";
+                        this.contentButton5 = "Start";
                         this.headline = Headline.ExhibitDef;
                     }
                     else if (this.setting == Setting.BackgroundImage)
@@ -1470,12 +1513,11 @@ namespace IMI_Administration
                     updateLayout();
                     break;
                 case Headline.ExhibitSettings:
-                    MessageBox.Show("Exponatposition neu bestimmen");
                     this.TMP_NAME = this.TMP_EXHIBIT.getName();
 
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSDEFINITION";
-                    this.contentLabel2 = "[Instruktionen]";
-                    this.contentButton4 = "abbrechen";
+                    this.contentLabel2 = this.INSTRUCTIONS_EXHIBIT;
+                    this.contentButton4 = "zurück";
                     this.contentButton5 = "OK";
                     this.headline = Headline.ExhibitDef;
                     updateLayout();
@@ -1558,27 +1600,51 @@ namespace IMI_Administration
                     this.headline = Headline.Start;
                     updateLayout();
                     break;
-                case Headline.ExhibitionPlaneDef: //"back to exhibition plane"
-                    stopTracking();
-                    
-                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
-                    this.contentLabel2 = "[Instruktionen zur Ebenenbestimmung]";
-                    this.contentButton1 = "laden";
-                    this.contentButton2 = "bestimmen";
-                    this.contentButton4 = "abbrechen";
-                    this.headline = Headline.ExhibitionPlane;
-                    updateLayout();
-                    break;
-                case Headline.ExhibitionPlaneVal: //"back to exhibition plane"
-                    stopTracking();
+                case Headline.ExhibitionPlaneDef: //"abort calibration or go back to exhibition plane"
+                    if (this.calibrating)
+                    {
+                        stopCalibration();
 
-                    this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
-                    this.contentLabel2 = "[Instruktionen zur Ebenenbestimmung]";
-                    this.contentButton1 = "laden";
-                    this.contentButton2 = "bestimmen";
-                    this.contentButton4 = "abbrechen";
-                    this.headline = Headline.ExhibitionPlane;
-                    updateLayout();
+                        this.contentLabel2 = this.INSTRUCTIONS_EXHIBITION_PLANE;
+                        this.contentButton4 = "zurück";
+                        this.button5.Visibility = Visibility.Visible;
+                        updateLayout();
+                    }
+                    else
+                    {
+                        stopTracking();
+
+                        this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
+                        this.contentLabel2 = this.INSTRUCTIONS_EXHIBITION_PLANE;
+                        this.contentButton1 = "laden";
+                        this.contentButton2 = "bestimmen";
+                        this.contentButton4 = "abbrechen";
+                        this.headline = Headline.ExhibitionPlane;
+                        updateLayout();
+                    }
+                    break;
+                case Headline.ExhibitionPlaneVal: //"abort validation or go back to exhibition plane"
+                    if (this.calibrating)
+                    {
+                        stopCalibration();
+
+                        this.contentLabel2 = this.INSTRUCTIONS_EXHIBITION_PLANE;
+                        this.contentButton4 = "zurück";
+                        this.button5.Visibility = Visibility.Visible;
+                        updateLayout();
+                    }
+                    else
+                    {
+                        stopTracking();
+
+                        this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
+                        this.contentLabel2 = this.INSTRUCTIONS_EXHIBITION_PLANE;
+                        this.contentButton1 = "laden";
+                        this.contentButton2 = "bestimmen";
+                        this.contentButton4 = "abbrechen";
+                        this.headline = Headline.ExhibitionPlane;
+                        updateLayout();
+                    }
                     break;
                 case Headline.ExhibitionPlaneDone: //"hidden"
                     break;
@@ -1671,24 +1737,24 @@ namespace IMI_Administration
                     break;
                 case Headline.ExhibitionPlane: //"hidden"
                     break;
-                case Headline.ExhibitionPlaneDef: //"start or abort definition of exhibition plane"
+                case Headline.ExhibitionPlaneDef: //"start definition of exhibition plane"
                     if (!this.calibrating)
                     {
                         startPlaneDefinition();
-                    }
-                    else
-                    {
-                        stopCalibration();
+
+                        this.contentButton4 = "Abbruch";
+                        this.button5.Visibility = Visibility.Hidden;
+                        updateButtons();
                     }
                     break;
-                case Headline.ExhibitionPlaneVal: //"abort validation of exhibition plane"
+                case Headline.ExhibitionPlaneVal: //"start validation of exhibition plane"
                     if (!this.calibrating)
                     {
                         startPlaneDefinition();
-                    }
-                    else
-                    {
-                        stopCalibration();
+
+                        this.contentButton4 = "Abbruch";
+                        this.button5.Visibility = Visibility.Hidden;
+                        updateButtons();
                     }
                     break;
                 case Headline.ExhibitionPlaneDone: //"abort validation of exhibition plane"
@@ -1709,10 +1775,10 @@ namespace IMI_Administration
                         this.TMP_NAME = this.textBox2.Text;
 
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
-                        this.contentLabel2 = "[Instruktionen zur Ebenenbestimmung]";
+                        this.contentLabel2 = this.INSTRUCTIONS_EXHIBITION_PLANE;
                         this.contentButton1 = "laden";
                         this.contentButton2 = "bestimmen";
-                        this.contentButton4 = "abbrechen";
+                        this.contentButton4 = "zurück";
                         this.headline = Headline.ExhibitionPlane;
                     }
                     else // New exhibit
@@ -1722,8 +1788,8 @@ namespace IMI_Administration
                         this.TMP_NAME = this.textBox2.Text;
 
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
-                        this.contentLabel2 = "[Instruktionen zur Positionsbestimmung]";
-                        this.contentButton4 = "abbrechen";
+                        this.contentLabel2 = this.INSTRUCTIONS_EXHIBIT;
+                        this.contentButton4 = "zurück";
                         this.contentButton5 = "OK";
                         this.headline = Headline.ExhibitDef;
                     }
@@ -1733,21 +1799,21 @@ namespace IMI_Administration
                     if (!this.calibrating)
                     {
                         startPositionDefinition();
-                    }
-                    else
-                    {
-                        stopCalibration();
-                    }                    
+
+                        this.contentButton4 = "Abbruch";
+                        this.button5.Visibility = Visibility.Hidden;
+                        updateButtons();
+                    }                   
                     break;
                 case Headline.ExhibitVal: //"abort validation of exhibit"
                     if (!this.calibrating)
                     {
                         startPositionDefinition();
-                    }
-                    else
-                    {
-                        stopCalibration();
-                    }                    
+
+                        this.contentButton4 = "Abbruch";
+                        this.button5.Visibility = Visibility.Hidden;
+                        updateButtons();
+                    }                      
                     break;
                 case Headline.ExhibitDone: //"abort validation of exhibition plane"        
                     if ((int)this.setting == 1) //ExhibitionSetting: UserPosition
@@ -2044,9 +2110,9 @@ namespace IMI_Administration
             {
                 case Headline.ExhibitionPlaneDef: 
                     this.TMP_EXHIBITION_PLANE = new GeometryHandler.Plane(corners);
+
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENVALIDIERUNG";
-                    this.contentLabel2 = corners.Count.ToString() + " Eckpunkte definiert";
-                    this.contentLabel2 += '\n' + "[Validierungsinstruktionen]";
+                    this.contentLabel2 = this.INSTRUCTIONS_EXHIBITION_PLANE;
                     this.contentButton4 = "zurück";
                     this.contentButton5 = "Start";
                     this.headline = Headline.ExhibitionPlaneVal;
@@ -2055,10 +2121,14 @@ namespace IMI_Administration
                     break;
                 case Headline.ExhibitionPlaneVal:
                     this.TMP_EXHIBITION_PLANE_2 = new GeometryHandler.Plane(corners);
+
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
                     if (this.calibrationHandler.validatePlane(this.TMP_EXHIBITION_PLANE, this.TMP_EXHIBITION_PLANE_2))
                     {
-                        this.contentLabel2 = corners.Count.ToString() + " Eckpunkte validiert";
+                        this.exhibition.setExhibitionPlane(this.calibrationHandler.makePlane(this.TMP_EXHIBITION_PLANE, this.TMP_EXHIBITION_PLANE_2));
+
+                        this.contentLabel2 = "Eckpunkte erfolgreich validiert.";
+                        this.contentButton4 = "zurück";
                         this.contentButton5 = "OK";
                         this.headline = Headline.ExhibitionPlaneDone;
 
@@ -2067,7 +2137,7 @@ namespace IMI_Administration
                     }
                     else
                     {
-                        this.contentLabel2 = corners.Count.ToString() + " Eckpunkte nicht validiert" + '\n' + "Erneut definieren?";
+                        this.contentLabel2 = "Eckpunkte konnten nicht validiert werden." + '\n' + '\n' + "Erneut definieren?";
                         this.contentButton4 = "zurück";
                         this.contentButton5 = "OK";
                         this.headline = Headline.ExhibitionPlaneDef;
@@ -2095,9 +2165,8 @@ namespace IMI_Administration
                     { 
                         this.TMP_POSITION = position;
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSVALIDIERUNG";
-                        this.contentLabel2 = position.ToString() + " Position definiert";
-                        this.contentLabel2 += '\n' + "[Validierungsinstruktionen]";
-                        this.contentButton4 = "abbrechen";
+                        this.contentLabel2 = this.INSTRUCTIONS_EXHIBIT;
+                        this.contentButton4 = "zurück";
                         this.contentButton5 = "Start";
                         this.headline = Headline.ExhibitVal;
 
@@ -2109,8 +2178,8 @@ namespace IMI_Administration
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
                         if (this.calibrationHandler.validatePoint(this.TMP_POSITION, this.TMP_POSITION_2) == 3) // All three axis are within threshold
                         {
-                            this.contentLabel2 = position.ToString() + " Eckpunkte validiert";
-                            this.contentButton4 = "abbrechen";
+                            this.contentLabel2 = "Position erfolgreich validiert.";
+                            this.contentButton4 = "zurück";
                             this.contentButton5 = "OK";
                             this.headline = Headline.ExhibitDone;
 
@@ -2119,11 +2188,8 @@ namespace IMI_Administration
                         }
                         else
                         {
-                            this.contentLabel2 = "Eckpunkte nicht validiert!" + '\n';
-                            this.contentLabel2 += '\n' + "deltaX: " + Math.Abs(Math.Abs(this.TMP_POSITION.X) - Math.Abs(this.TMP_POSITION_2.X)).ToString();
-                            this.contentLabel2 += '\n' + "deltaY: " + Math.Abs(Math.Abs(this.TMP_POSITION.Y) - Math.Abs(this.TMP_POSITION_2.Z)).ToString();
-                            this.contentLabel2 += '\n' + "deltaZ: " + Math.Abs(Math.Abs(this.TMP_POSITION.Z) - Math.Abs(this.TMP_POSITION_2.Z)).ToString();
-                            this.contentButton4 = "abbrechen";
+                            this.contentLabel2 = "Position konnte nicht validiert werden." + '\n' + '\n' + "Erneut definieren?";
+                            this.contentButton4 = "zurück";
                             this.contentButton5 = "OK";
                             this.headline = Headline.ExhibitDef;
 
@@ -2142,9 +2208,8 @@ namespace IMI_Administration
                     if (this.headline == Headline.ExhibitDef)
                     {
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSVALIDIERUNG";
-                        this.contentLabel2 = position.ToString() + "Positionen definiert";
-                        this.contentLabel2 += '\n' + "[Validierungsinstruktionen]";
-                        this.contentButton4 = "abbrechen";
+                        this.contentLabel2 = this.INSTRUCTIONS_EXHIBIT;
+                        this.contentButton4 = "zurück";
                         this.contentButton5 = "Start";
                         this.headline = Headline.ExhibitVal;
 
@@ -2169,25 +2234,6 @@ namespace IMI_Administration
                 default:
                     break;
             }
-        }
-
-        private void validatePlane()
-        {
-            this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
-            this.contentLabel2 = "- Ausstellungsebene erfolgreich bestimmt" + '\n' + "oder" + '\n' + "- Ausstellungsebene nicht erfolgreich bestimmt"; ;
-            this.headline = Headline.ExhibitionPlaneDone;
-            updateLayout();        
-        }
-
-        private void validatePosition()
-        {
-            stopCalibration();
-            stopTracking();
-
-            this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
-            this.contentLabel2 = "- Position erfolgreich bestimmt" + '\n' + "oder" + '\n' + "- Position nicht erfolgreich bestimmt"; ;
-            this.headline = Headline.ExhibitDone;
-            updateLayout();
         }
 
         private List<GeometryHandler.Vector> sampleVectors(int points, int positions, int samplesPerPosition, int returnMode) // Amounts of points to define, positions to point from (at least 2!), samples per position and return mode: 0 = only pointing-samples, 1 = only aiming-samples, 2 = both samples
@@ -2220,7 +2266,7 @@ namespace IMI_Administration
                         allVectors = takeSample(); // Take poining- and aiming sample simultaniously
                         pointingVectors.Add(allVectors[0]); // Add pointing-vector to pointing-vectors
                         aimingVectors.Add(allVectors[1]); // Add aiming-vector to aiming-vectors
-                        this.contentLabel2 = "Sample #" + sample.ToString();
+                        this.contentLabel2 = "M e s s u n g";
                         Thread.Sleep(1000 / samplesPerPosition); // Sampling at [samples] per second
                     }
                 }

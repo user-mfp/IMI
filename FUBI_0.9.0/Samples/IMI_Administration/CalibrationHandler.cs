@@ -310,6 +310,13 @@ namespace IMI_Administration
 
             return passes;
         }
+
+        public GeometryHandler.Plane makePlane(GeometryHandler.Plane plane1, GeometryHandler.Plane plane2)
+        {
+            GeometryHandler.Plane plane = new GeometryHandler.Plane(geometryHandler.getCenter(plane1.Start, plane2.Start), geometryHandler.getCenter(plane1.End1, plane2.End1), geometryHandler.getCenter(plane1.End2, plane2.End2));
+
+            return plane;
+        }
         #endregion
 
         #region DATA-LOGGING
