@@ -224,9 +224,21 @@ namespace IMI_Administration
             }
         }
         
+        private bool trackableUser(uint userID)
+        {
+            if (Fubi.isUserInScene(Fubi.getClosestUserID()) && Fubi.isUserTracked(Fubi.getClosestUserID()))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         private void updateFubi()
         {
-            if (Fubi.getClosestUserID() != 0)
+            if (trackableUser(Fubi.getClosestUserID())) // There is a trackable user
             {
                 updateJoints();
             }
@@ -239,7 +251,7 @@ namespace IMI_Administration
             switch (this.headline)
             {
                 case Headline.ExhibitionPlaneDef:
-                    if (Fubi.getClosestUserID() != 0) // There is a user
+                    if (trackableUser(Fubi.getClosestUserID())) // There is a trackable user
                     {
                         if (this.calibrating)
                         {
@@ -248,12 +260,15 @@ namespace IMI_Administration
                         else
                         {
                             this.button5.Visibility = Visibility.Visible;
-                            this.contentButton5 = "Start";
                         }
+                    }
+                    else
+                    {
+                        this.button5.Visibility = Visibility.Hidden;
                     }
                     break;
                 case Headline.ExhibitionPlaneVal:
-                    if (Fubi.getClosestUserID() != 0) // There is a user
+                    if (trackableUser(Fubi.getClosestUserID())) // There is a trackable user
                     {
                         if (this.calibrating)
                         {
@@ -262,12 +277,15 @@ namespace IMI_Administration
                         else
                         {
                             this.button5.Visibility = Visibility.Visible;
-                            this.contentButton5 = "Start";
                         }
+                    }
+                    else
+                    {
+                        this.button5.Visibility = Visibility.Hidden;
                     }
                     break;
                 case Headline.ExhibitDef:
-                    if (Fubi.getClosestUserID() != 0) // There is a user
+                    if (trackableUser(Fubi.getClosestUserID())) // There is a trackable user
                     {
                         if (this.calibrating)
                         {
@@ -276,12 +294,15 @@ namespace IMI_Administration
                         else
                         {
                             this.button5.Visibility = Visibility.Visible;
-                            this.contentButton5 = "Start";
                         }
+                    }
+                    else
+                    {
+                        this.button5.Visibility = Visibility.Hidden;
                     }
                     break;
                 case Headline.ExhibitVal:
-                    if (Fubi.getClosestUserID() != 0) // There is a user
+                    if (trackableUser(Fubi.getClosestUserID())) // There is a trackable user
                     {
                         if (this.calibrating)
                         {
@@ -290,8 +311,17 @@ namespace IMI_Administration
                         else
                         {
                             this.button5.Visibility = Visibility.Visible;
-                            this.contentButton5 = "Start";
                         }
+                    }
+                    else
+                    {
+                        this.button5.Visibility = Visibility.Hidden;
+                    }
+                    break;
+                case Headline.ExhibitDone:
+                    if (!this.calibrating)
+                    {
+                        this.button5.Visibility = Visibility.Visible;
                     }
                     break;
                 default:
@@ -390,18 +420,26 @@ namespace IMI_Administration
             this.calibrationThread.Start();
         }
 
+        private void startUserPositionDefinition()
+        {
+            // Starting the calibrationthread properly
+            this.calibrationThread = new Thread(defineUserPosition);
+            this.calibrating = true;
+            this.calibrationThread.Start();
+        }
+
         private void stopTracking()
         {
             // Stopping the tracking-thread properly
-            this.trackThread.Abort();
             this.tracking = false;
+            this.trackThread.Abort();
         }
 
         private void stopCalibration()
         {
             // Stopping any calibration-thread porperly
-            this.calibrationThread.Abort();
             this.calibrating = false;
+            this.calibrationThread.Abort();
             updateLayout();
         }
         #endregion
@@ -490,7 +528,7 @@ namespace IMI_Administration
             // ComboBoxes
             this.comboBox1.Items.Clear();
             this.comboBox1.Items.Add("Benutzerposition"); //UserPosition
-            this.comboBox1.Items.Add("Hintergrundbild");
+            this.comboBox1.Items.Add("Hintergrundbild"); 
             this.comboBox1.Items.Add("Genauigkeit"); // Threshold
             this.comboBox1.Items.Add("Auswahlzeit"); // SelectionTime
             this.comboBox1.Items.Add("Sperrdauer"); // LockTime
@@ -1495,6 +1533,8 @@ namespace IMI_Administration
                 case Headline.ExhibitionSettings:
                     if (this.setting == Setting.UserPosition)
                     {
+                        startTracking();
+
                         this.TMP_NAME = "Benutzer";
 
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSDEFINITION";
@@ -1513,6 +1553,8 @@ namespace IMI_Administration
                     updateLayout();
                     break;
                 case Headline.ExhibitSettings:
+                    startTracking();
+
                     this.TMP_NAME = this.TMP_EXHIBIT.getName();
 
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSDEFINITION";
@@ -1563,10 +1605,10 @@ namespace IMI_Administration
                     break;
                 case Headline.ExhibitDone: //"hidden"
                     break;
-                case Headline.ExhibitionSettings: //"hidden"
+                case Headline.ExhibitionSettings: //"Set current attribute"
                     setAttribute();
                     break;
-                case Headline.ExhibitSettings: //"hidden"
+                case Headline.ExhibitSettings: //"Set current attribute"
                     setAttribute();
                     break;
                 default:
@@ -1651,22 +1693,44 @@ namespace IMI_Administration
                 case Headline.NewName: //"hidden"
                     break;
                 case Headline.ExhibitDef: //"back to the exhibition"
-                    stopTracking();
+                    if (this.calibrating)
+                    {
+                        stopCalibration();
 
-                    this.contentLabel1 = this.exhibition.getName().ToUpper();
-                    this.contentButton4 = "Einstellungen";
-                    this.contentButton5 = "schließen";
-                    this.headline = Headline.Exhibition;
-                    updateLayout();
+                        this.contentLabel2 = this.INSTRUCTIONS_EXHIBIT;
+                        this.contentButton4 = "zurück";
+                        this.button5.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        stopTracking();
+
+                        this.contentLabel1 = this.exhibition.getName().ToUpper();
+                        this.contentButton4 = "Einstellungen";
+                        this.contentButton5 = "schließen";
+                        this.headline = Headline.Exhibition;
+                        updateLayout();
+                    }
                     break;
                 case Headline.ExhibitVal: //"back to the exhibition"
-                    stopTracking();
+                    if (this.calibrating)
+                    {
+                        stopCalibration();
 
-                    this.contentLabel1 = this.exhibition.getName().ToUpper();
-                    this.contentButton4 = "Einstellungen";
-                    this.contentButton5 = "schließen";
-                    this.headline = Headline.Exhibition;
-                    updateLayout();
+                        this.contentLabel2 = this.INSTRUCTIONS_EXHIBIT;
+                        this.contentButton4 = "zurück";
+                        this.button5.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        stopTracking();
+
+                        this.contentLabel1 = this.exhibition.getName().ToUpper();
+                        this.contentButton4 = "Einstellungen";
+                        this.contentButton5 = "schließen";
+                        this.headline = Headline.Exhibition;
+                        updateLayout();
+                    }
                     break;
                 case Headline.ExhibitDone: //"hidden"
                     break;
@@ -1743,6 +1807,7 @@ namespace IMI_Administration
                         startPlaneDefinition();
 
                         this.contentButton4 = "Abbruch";
+                        this.contentButton5 = "Start";
                         this.button5.Visibility = Visibility.Hidden;
                         updateButtons();
                     }
@@ -1779,6 +1844,7 @@ namespace IMI_Administration
                         this.contentButton1 = "laden";
                         this.contentButton2 = "bestimmen";
                         this.contentButton4 = "zurück";
+                        this.contentButton5 = "OK";
                         this.headline = Headline.ExhibitionPlane;
                     }
                     else // New exhibit
@@ -1790,30 +1856,47 @@ namespace IMI_Administration
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
                         this.contentLabel2 = this.INSTRUCTIONS_EXHIBIT;
                         this.contentButton4 = "zurück";
-                        this.contentButton5 = "OK";
+                        this.contentButton5 = "Start";
                         this.headline = Headline.ExhibitDef;
                     }
                     updateLayout();
                     break;
-                case Headline.ExhibitDef: //"start or abort definition of exhibit"
-                    if (!this.calibrating)
+                case Headline.ExhibitDef: //"start definition of an exhibit or the user position"
+                    if (!this.calibrating && this.setting == Setting.None)
                     {
                         startPositionDefinition();
 
                         this.contentButton4 = "Abbruch";
                         this.button5.Visibility = Visibility.Hidden;
                         updateButtons();
-                    }                   
+                    }
+                    else if (!this.calibrating && this.setting == Setting.UserPosition)
+                    {
+                        startUserPositionDefinition();
+
+                        this.contentButton4 = "Abbruch";
+                        this.button5.Visibility = Visibility.Hidden;
+                        updateButtons();
+                    }
                     break;
-                case Headline.ExhibitVal: //"abort validation of exhibit"
-                    if (!this.calibrating)
+                case Headline.ExhibitVal: //"start validation of an exhibit or accept user position"
+                    if (!this.calibrating && this.setting == Setting.None) // Validation
                     {
                         startPositionDefinition();
 
                         this.contentButton4 = "Abbruch";
                         this.button5.Visibility = Visibility.Hidden;
                         updateButtons();
-                    }                      
+                    }
+                    else // Acceptance of user position
+                    {
+                        stopTracking();
+
+                        this.contentLabel1 = this.exhibition.getName() + " - EINSTELLUNGEN";
+                        this.contentButton5 = "OK";
+                        this.headline = Headline.ExhibitionSettings;
+                        updateLayout();
+                    }
                     break;
                 case Headline.ExhibitDone: //"abort validation of exhibition plane"        
                     if ((int)this.setting == 1) //ExhibitionSetting: UserPosition
@@ -1835,14 +1918,15 @@ namespace IMI_Administration
                     }
                     else //((int)this.settings == 0) //New Exhibit: Settings.None
                     {
-                        // DUMMY-POINT
-                        this.TMP_EXHIBIT = new Exhibit(this.TMP_NAME, new Point3D());
+                        Point3D position = this.geometryHandler.getCenter(this.TMP_POSITION, this.TMP_POSITION_2);
+                        this.TMP_EXHIBIT = new Exhibit(this.TMP_NAME, position);
 
                         this.contentLabel1 = this.TMP_EXHIBIT.getName();
                         this.contentTextBox1 = this.TMP_EXHIBIT.getDescription();
                         this.headline = Headline.EditExhibit;
                     }
-                        this.setting = Setting.None;
+
+                    this.setting = Setting.None;
                     updateLayout();
                     break;
                 case Headline.ExhibitionSettings: //"safe and go back to exhibition"
@@ -1855,6 +1939,7 @@ namespace IMI_Administration
                     this.contentButton4 = "Einstellungen";
                     this.contentButton5 = "schließen";
                     this.headline = Headline.Exhibition;
+                    this.setting = Setting.None;
                     updateLayout();
                     break;
                 case Headline.ExhibitSettings: //"go to exhibit"
@@ -1864,6 +1949,7 @@ namespace IMI_Administration
                     } 
 
                     this.headline = Headline.EditExhibit;
+                    this.setting = Setting.None;
                     updateLayout();
                     break;
             }
@@ -2125,7 +2211,7 @@ namespace IMI_Administration
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
                     if (this.calibrationHandler.validatePlane(this.TMP_EXHIBITION_PLANE, this.TMP_EXHIBITION_PLANE_2))
                     {
-                        this.exhibition.setExhibitionPlane(this.calibrationHandler.makePlane(this.TMP_EXHIBITION_PLANE, this.TMP_EXHIBITION_PLANE_2));
+                        this.exhibition.setExhibitionPlane(this.TMP_EXHIBITION_PLANE);//this.calibrationHandler.makePlane(this.TMP_EXHIBITION_PLANE, this.TMP_EXHIBITION_PLANE_2));
 
                         this.contentLabel2 = "Eckpunkte erfolgreich validiert.";
                         this.contentButton4 = "zurück";
@@ -2236,11 +2322,23 @@ namespace IMI_Administration
             }
         }
 
+        private void defineUserPosition()
+        {
+            this.exhibition.setUserPosition(sampleUserPosition());
+
+            this.contentLabel2 = "Benutzerposition erfolgreich bestimmt."; // "User position defined successfully."
+            this.contentButton5 = "OK";
+            this.headline = Headline.ExhibitVal;
+            
+            stopCalibration();
+        }
+
         private List<GeometryHandler.Vector> sampleVectors(int points, int positions, int samplesPerPosition, int returnMode) // Amounts of points to define, positions to point from (at least 2!), samples per position and return mode: 0 = only pointing-samples, 1 = only aiming-samples, 2 = both samples
         {
             List<GeometryHandler.Vector> allVectors = new List<GeometryHandler.Vector>();
             List<GeometryHandler.Vector> pointingVectors = new List<GeometryHandler.Vector>();
             List<GeometryHandler.Vector> aimingVectors = new List<GeometryHandler.Vector>();
+            int samplingInterval = 1000 / samplesPerPosition; // 100ms break between samples
 
             for (int position = 0; position != positions; ++position) // For each corner
             {
@@ -2263,11 +2361,11 @@ namespace IMI_Administration
 
                     for (int sample = 0; sample != samplesPerPosition; ++sample)
                     {
+                        this.contentLabel2 = "Messung: Nicht bewegen!"; // "Measurment: Do not move!"
                         allVectors = takeSample(); // Take poining- and aiming sample simultaniously
                         pointingVectors.Add(allVectors[0]); // Add pointing-vector to pointing-vectors
                         aimingVectors.Add(allVectors[1]); // Add aiming-vector to aiming-vectors
-                        this.contentLabel2 = "M e s s u n g";
-                        Thread.Sleep(1000 / samplesPerPosition); // Sampling at [samples] per second
+                        Thread.Sleep(samplingInterval); // Wait for [samplingInterval]ms
                     }
                 }
             }
@@ -2294,6 +2392,27 @@ namespace IMI_Administration
             }
         }
 
+        private Point3D sampleUserPosition()
+        {
+            List<Point3D> userPositions = new List<Point3D>();
+            Point3D userPosition = new Point3D();
+            int samplingInterval = 2500 / this.SAMPLING_VECTORS; // 250ms break between samples
+
+            this.contentLabel2 = "Bitte begeben Sie sich auf die Benutzerposition."; // Move to user position
+            Thread.Sleep(this.SAMPLING_BREAK);
+
+            for (int sample = 0; sample != this.SAMPLING_VECTORS; ++sample)
+            {
+                this.contentLabel2 = "Messung: Hin und her bewegen!"; // "Measurement: Move about!"
+                userPositions.Add(takeUserHipSample()); // Add hip position
+                Thread.Sleep(samplingInterval); // Wait for [samplingInterval]ms
+            }
+
+            userPosition = this.geometryHandler.getCenter(userPositions);
+
+            return userPosition;
+        }
+
         private List<GeometryHandler.Vector> takeSample()
         {
             List<GeometryHandler.Vector> vectors = new List<GeometryHandler.Vector>();
@@ -2308,10 +2427,18 @@ namespace IMI_Administration
         {
             GeometryHandler.Vector vector = new GeometryHandler.Vector();
 
-            while (!this.geometryHandler.vectorOK(vector))
+            if (trackableUser(Fubi.getClosestUserID()))
             {
-                vector.reset(jointsToTrack[0], jointsToTrack[1]); // (RIGHT_ELBOW, RIGHT_HAND)
+                while (!this.geometryHandler.vectorOK(vector))
+                {
+                    vector.reset(jointsToTrack[0], jointsToTrack[1]); // (RIGHT_ELBOW, RIGHT_HAND)
+                }
             }
+            else
+            {
+                Thread.Sleep(10); // Wait for 10ms
+            }
+
             return vector;
         }
 
@@ -2319,11 +2446,43 @@ namespace IMI_Administration
         {
             GeometryHandler.Vector vector = new GeometryHandler.Vector();
 
-            while (!this.geometryHandler.vectorOK(vector))
+            if (trackableUser(Fubi.getClosestUserID()))
             {
-                vector.reset(jointsToTrack[4], jointsToTrack[1]); // (HEAD, RIGHT_HAND)
+                while (!this.geometryHandler.vectorOK(vector))
+                {
+                    vector.reset(jointsToTrack[4], jointsToTrack[1]); // (HEAD, RIGHT_HAND)
+                }
             }
+            else
+            {
+                Thread.Sleep(10); // Wait for 10ms
+            }
+
             return vector;
+        }
+
+        private Point3D takeUserHipSample()
+        {
+            float x, y, z;
+            Point3D hipLeft = new Point3D();
+            Point3D hipRight = new Point3D();
+
+            if (trackableUser(Fubi.getClosestUserID()))
+            {
+                // Track left hip
+                Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID(), FubiUtils.SkeletonJoint.LEFT_HIP, out x, out y, out z, out confidence, out timestamp);
+                hipLeft = new Point3D((double)x, (double)y, (double)z);
+                // Track right hip
+                Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID(), FubiUtils.SkeletonJoint.RIGHT_HIP, out x, out y, out z, out confidence, out timestamp);
+                hipRight = new Point3D((double)x, (double)y, (double)z);
+            }
+            else
+            {
+                Thread.Sleep(10); // Wait for 10ms
+            }
+
+            // Return center of the hip
+            return this.geometryHandler.getCenter(hipLeft, hipRight);
         }
         #endregion
 
