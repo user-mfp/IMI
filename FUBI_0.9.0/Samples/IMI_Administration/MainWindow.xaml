@@ -8,7 +8,7 @@
         <Label Name="label1" FontSize="70" Height="Auto" Width="Auto" Margin="10,10,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Black">
             <TextBlock Name="textBlock1" TextWrapping="Wrap" FontFamily="Wasco Sans"></TextBlock>
         </Label>
-        <Label Name="label2" FontSize="70" Height="Auto" Width="Auto" MaxHeight="600" MaxWidth="1900" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Azure" Foreground="SaddleBrown">
+        <Label Name="label2" FontSize="70" Height="Auto" Width="Auto" MaxHeight="769" MaxWidth="1200" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Azure" Foreground="SaddleBrown">
             <TextBlock Name="textBlock2" TextWrapping="Wrap" FontFamily="Wasco Sans"></TextBlock>
         </Label>
 
@@ -27,6 +27,6 @@
         <TextBox Text="" Name="textBox1" FontSize="70" FontFamily="Wasco Sans" TextWrapping="Wrap" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox1_TextChanged" Background="White" />
         <TextBox Text="" Name="textBox2" FontSize="70" FontFamily="Wasco Sans" Height="116" Width="1200" Margin="10,262,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox2_TextChanged" Background="White" />
         
-        <Image Name="image1" Height="642" Width="666" Margin="0,261,12,0"  Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" StretchDirection="Both" />
+        <Image Name="image1" Height="642" Width="666" Margin="1220,262,0,0"  Stretch="Uniform" HorizontalAlignment="LEft" VerticalAlignment="Top" StretchDirection="Both" />
     </Grid>
 </Window>

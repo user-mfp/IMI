@@ -43,15 +43,16 @@ namespace IMI_Administration
             None = 0,
             UserPosition, //1
             BackgroundImage, //2
-            Threshold, //3
-            SelectionTime, //4
-            LockTime, //5
-            SlideTime, //6
-            EndWait, //7
+            Overview, //3
+            Threshold, //4
+            SelectionTime, //5
+            LockTime, //6
+            SlideTime, //7
+            EndWait, //8
             // Exhibit
-            KernelSize, //8
-            KernelWeight, //9
-            Position //10
+            KernelSize, //9
+            KernelWeight, //10
+            Position //11
         };
 
         // Canstants for... 
@@ -325,6 +326,9 @@ namespace IMI_Administration
                     }
                     break;
                 default:
+                    {
+                        this.button5.Visibility = Visibility.Visible;
+                    }
                     break;
             }
             updateButtons();
@@ -528,7 +532,8 @@ namespace IMI_Administration
             // ComboBoxes
             this.comboBox1.Items.Clear();
             this.comboBox1.Items.Add("Benutzerposition"); //UserPosition
-            this.comboBox1.Items.Add("Hintergrundbild"); 
+            this.comboBox1.Items.Add("Hintergrundbild"); //BackgroundImage
+            this.comboBox1.Items.Add("Übersicht"); //Overview
             this.comboBox1.Items.Add("Genauigkeit"); // Threshold
             this.comboBox1.Items.Add("Auswahlzeit"); // SelectionTime
             this.comboBox1.Items.Add("Sperrdauer"); // LockTime
@@ -572,7 +577,7 @@ namespace IMI_Administration
             this.comboBox1.Items.Clear();
             this.comboBox1.Items.Add("Position"); // Position
             this.comboBox1.Items.Add("Radius"); // KernelSize
-            this.comboBox1.Items.Add("Gewicht"); // KernelWeight
+            this.comboBox1.Items.Add("Gewichtung"); // KernelWeight
             this.comboBox1.Visibility = Visibility.Visible;
 
             this.comboBox2.Visibility = Visibility.Hidden;
@@ -1132,6 +1137,8 @@ namespace IMI_Administration
                     break;
                 case Setting.BackgroundImage:
                     break;
+                case Setting.Overview:
+                    break;
                 case Setting.Threshold:
                     this.comboBox2.SelectedIndex = detLessIsMore(DEFAULT_EXHIBITION.getThreshold(), this.exhibition.getThreshold());
                     break;
@@ -1258,27 +1265,35 @@ namespace IMI_Administration
                             this.button3.Visibility = Visibility.Hidden;
                             this.setting = Setting.BackgroundImage;
                             break;
-                        case 2: //Threshold
+                        case 2: //Overview
+                            updateImage(this.exhibition.getOverview().Value);
+                            this.comboBox2.Visibility = Visibility.Hidden;
+                            this.contentButton2 = "laden";
+                            this.button2.Visibility = Visibility.Visible;
+                            this.button3.Visibility = Visibility.Hidden;
+                            this.setting = Setting.Overview;
+                            break;
+                        case 3: //Threshold
                             this.image1.Visibility = Visibility.Hidden;
                             this.setting = Setting.Threshold;
                             this.showLowMedHigh();
                             break;
-                        case 3: //SelectionTime
+                        case 4: //SelectionTime
                             this.image1.Visibility = Visibility.Hidden;
                             this.setting = Setting.SelectionTime;
                             this.showLowMedHigh();
                             break;
-                        case 4: //LockTime
+                        case 5: //LockTime
                             this.image1.Visibility = Visibility.Hidden;
                             this.setting = Setting.LockTime;
                             this.showLowMedHigh();
                             break;
-                        case 5: //SlideTime
+                        case 6: //SlideTime
                             this.image1.Visibility = Visibility.Hidden;
                             this.setting = Setting.SlideTime;
                             this.showLowMedHigh();
                             break;
-                        case 6: //EndWait
+                        case 7: //EndWait
                             this.image1.Visibility = Visibility.Hidden;
                             this.setting = Setting.EndWait;
                             this.showLowMedHigh();
@@ -1548,6 +1563,13 @@ namespace IMI_Administration
                         if (this.loadImageDialog.ShowDialog() == true)
                         {
                             this.exhibition.setBackgroundImage(this.fileHandler.loadImage(this.loadImageDialog.FileName));
+                        }
+                    }
+                    else if (this.setting == Setting.Overview)
+                    {
+                        if (this.loadImageDialog.ShowDialog() == true)
+                        {
+                            this.exhibition.setOverview(this.fileHandler.loadImage(this.loadImageDialog.FileName));
                         }
                     }
                     updateLayout();
@@ -1899,7 +1921,7 @@ namespace IMI_Administration
                     }
                     break;
                 case Headline.ExhibitDone: //"abort validation of exhibition plane"        
-                    if ((int)this.setting == 1) //ExhibitionSetting: UserPosition
+                    if (this.setting == Setting.UserPosition)
                     {
                         MessageBox.Show("Bestimmung der Benutzerposition (nicht) erfolgreich");
                         this.exhibition.setUserPosition(new Point3D(1, 1, 1));
@@ -1908,7 +1930,7 @@ namespace IMI_Administration
                         this.contentButton5 = "OK";
                         this.headline = Headline.ExhibitionSettings;                   
                     }
-                    else if ((int)this.setting == 10) //ExhibitSettings: Position
+                    else if (this.setting == Setting.Position)
                     {
                         MessageBox.Show("Neubestimmung der Exponatposition (nicht) erfolgreich");
                         this.TMP_EXHIBIT.setPosition(new Point3D(1, 1, 1));
@@ -1916,7 +1938,7 @@ namespace IMI_Administration
                         this.contentLabel1 = this.TMP_EXHIBIT.getName() + " - EINSTELLUNGEN";
                         this.headline = Headline.ExhibitSettings;
                     }
-                    else //((int)this.settings == 0) //New Exhibit: Settings.None
+                    else //((int)this.setting == 0) //New Exhibit: Settings.None
                     {
                         Point3D position = this.geometryHandler.getCenter(this.TMP_POSITION, this.TMP_POSITION_2);
                         this.TMP_EXHIBIT = new Exhibit(this.TMP_NAME, position);
@@ -2135,45 +2157,45 @@ namespace IMI_Administration
                 factor = this.HIGH;
             }
 
-            switch ((int)this.setting)
+            switch (this.setting)
             {
-                case 3: //Threshold
+                case Setting.Threshold:
                     if (factor != 1.0)
                         this.exhibition.setThreshold(DEFAULT_EXHIBITION.getThreshold() * ((this.LOW + this.HIGH) - factor));
                     else
                         this.exhibition.setThreshold(DEFAULT_EXHIBITION.getThreshold());
                     break;
-                case 4: //SelectionTime
+                case Setting.SelectionTime:
                     if (factor != 1.0)
                         this.exhibition.setSelectionTime(DEFAULT_EXHIBITION.getSelectionTime() * factor);
                     else
                         this.exhibition.setSelectionTime(DEFAULT_EXHIBITION.getSelectionTime());
                     break;
-                case 5: //LockTime
+                case Setting.LockTime:
                     if (factor != 1.0)
                         this.exhibition.setLockTime(DEFAULT_EXHIBITION.getLockTime() * factor);
                     else
                         this.exhibition.setLockTime(DEFAULT_EXHIBITION.getLockTime());
                     break;
-                case 6: //SlideTime
+                case Setting.SlideTime:
                     if (factor != 1.0)
                         this.exhibition.setSlideTime(DEFAULT_EXHIBITION.getSlideTime() * factor);
                     else
                         this.exhibition.setSlideTime(DEFAULT_EXHIBITION.getSlideTime());
                     break;
-                case 7: //EndWait
+                case Setting.EndWait:
                     if (factor != 1.0)
                         this.exhibition.setEndWait(DEFAULT_EXHIBITION.getEndWait() * factor);
                     else
                         this.exhibition.setEndWait(DEFAULT_EXHIBITION.getEndWait());
                     break;
-                case 8: //KernelSize
+                case Setting.KernelSize:
                     if (factor != 1.0)
                         this.TMP_EXHIBIT.setKernelSize(DEFAULT_EXHIBIT.getKernelSize() * factor);
                     else
                         this.TMP_EXHIBIT.setKernelSize(DEFAULT_EXHIBIT.getKernelSize());
                     break;
-                case 9: //KernelWeight
+                case Setting.KernelWeight:
                     if (factor != 1.0)
                         this.TMP_EXHIBIT.setKernelWeight(DEFAULT_EXHIBIT.getKernelWeight() * factor);
                     else
@@ -2211,7 +2233,7 @@ namespace IMI_Administration
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EBENENBESTIMMUNG";
                     if (this.calibrationHandler.validatePlane(this.TMP_EXHIBITION_PLANE, this.TMP_EXHIBITION_PLANE_2))
                     {
-                        this.exhibition.setExhibitionPlane(this.TMP_EXHIBITION_PLANE);//this.calibrationHandler.makePlane(this.TMP_EXHIBITION_PLANE, this.TMP_EXHIBITION_PLANE_2));
+                        this.exhibition = new Exhibition(this.TMP_NAME, this.calibrationHandler.makePlane(this.TMP_EXHIBITION_PLANE, this.TMP_EXHIBITION_PLANE_2));
 
                         this.contentLabel2 = "Eckpunkte erfolgreich validiert.";
                         this.contentButton4 = "zurück";
