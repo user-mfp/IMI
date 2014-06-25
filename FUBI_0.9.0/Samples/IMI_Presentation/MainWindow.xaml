@@ -1,0 +1,33 @@
+﻿<Window x:Class="IMI_Presentation.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="IMI Präsentationssoftware" 
+        WindowState="Maximized" WindowStyle="None" Width="1920" Height="1080">
+    <Grid Width="Auto" Height="Auto" Background="Beige">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*"/>
+            <ColumnDefinition Width="945*"/>
+            <ColumnDefinition Width="10*"/>
+            <ColumnDefinition Width="945*"/>
+            <ColumnDefinition Width="10*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="1060*"/>
+            <RowDefinition Height="10*"/>
+        </Grid.RowDefinitions>
+        <!-- Labels -->
+        <Label Name="label1" Height="Auto" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1">
+            <TextBlock Text="" TextWrapping="Wrap" Name="textBlock1" FontSize="70" FontFamily="Wasco Sans" Padding="10" Foreground="Black" Background="BlanchedAlmond"/>
+        </Label>
+        <Label Name="label2" Height="Auto" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1">
+            <TextBlock Text="" TextWrapping="Wrap" Name="textBlock2" FontSize="70" FontFamily="Wasco Sans" Padding="10" Foreground="Black" Background="BlanchedAlmond"/>
+        </Label>
+        <!-- Buttons -->
+        <Button Content="Ausstellung laden" Name="button1" FontSize="70" Height="Auto" Width="Auto" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click" FontFamily="Wasco Sans" Grid.Column="1" Grid.Row="1"/>
+
+        <!-- Images -->
+        <Image Name="image1" Grid.ColumnSpan="5" Grid.RowSpan="3"/>
+        <Image Name="image2" Grid.Column="3" Grid.Row="1"/>
+    </Grid>
+</Window>
