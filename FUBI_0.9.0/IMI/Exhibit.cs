@@ -1,14 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Windows.Controls;
 using System.Windows.Media.Media3D;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace IMI_Administration
+namespace IMI
 {
-    class Exhibit
+    public partial class Exhibit
     {
         #region DECLARATIONS
         // Elements
@@ -94,7 +91,7 @@ namespace IMI_Administration
         public void setPath(string path)
         {
             this.path = path;
-        }  
+        }
 
         public void setDescription(string description)
         {

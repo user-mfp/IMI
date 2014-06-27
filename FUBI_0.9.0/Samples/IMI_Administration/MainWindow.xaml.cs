@@ -1,15 +1,14 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Media3D;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Threading;
-using System.Threading;
-using System.Collections.Generic;
 using FubiNET;
+using IMI;
+using Microsoft.Win32;
 
 namespace IMI_Administration
 {
@@ -225,9 +224,9 @@ namespace IMI_Administration
             }
         }
         
-        private bool trackableUser(uint userID)
+        private bool isTrackableUser(uint id)
         {
-            if (Fubi.isUserInScene(Fubi.getClosestUserID()) && Fubi.isUserTracked(Fubi.getClosestUserID()))
+            if (Fubi.isUserInScene(id) && Fubi.isUserTracked(id))
             {
                 return true;
             }
@@ -239,7 +238,7 @@ namespace IMI_Administration
 
         private void updateFubi()
         {
-            if (trackableUser(Fubi.getClosestUserID())) // There is a trackable user
+            if (isTrackableUser(Fubi.getClosestUserID())) // There is a trackable user
             {
                 updateJoints();
             }
@@ -252,7 +251,7 @@ namespace IMI_Administration
             switch (this.headline)
             {
                 case Headline.ExhibitionPlaneDef:
-                    if (trackableUser(Fubi.getClosestUserID())) // There is a trackable user
+                    if (isTrackableUser(Fubi.getClosestUserID())) // There is a trackable user
                     {
                         if (this.calibrating)
                         {
@@ -269,7 +268,7 @@ namespace IMI_Administration
                     }
                     break;
                 case Headline.ExhibitionPlaneVal:
-                    if (trackableUser(Fubi.getClosestUserID())) // There is a trackable user
+                    if (isTrackableUser(Fubi.getClosestUserID())) // There is a trackable user
                     {
                         if (this.calibrating)
                         {
@@ -286,7 +285,7 @@ namespace IMI_Administration
                     }
                     break;
                 case Headline.ExhibitDef:
-                    if (trackableUser(Fubi.getClosestUserID())) // There is a trackable user
+                    if (isTrackableUser(Fubi.getClosestUserID())) // There is a trackable user
                     {
                         if (this.calibrating)
                         {
@@ -303,7 +302,7 @@ namespace IMI_Administration
                     }
                     break;
                 case Headline.ExhibitVal:
-                    if (trackableUser(Fubi.getClosestUserID())) // There is a trackable user
+                    if (isTrackableUser(Fubi.getClosestUserID())) // There is a trackable user
                     {
                         if (this.calibrating)
                         {
@@ -2449,7 +2448,7 @@ namespace IMI_Administration
         {
             GeometryHandler.Vector vector = new GeometryHandler.Vector();
 
-            if (trackableUser(Fubi.getClosestUserID()))
+            if (isTrackableUser(Fubi.getClosestUserID()))
             {
                 while (!this.geometryHandler.vectorOK(vector))
                 {
@@ -2468,7 +2467,7 @@ namespace IMI_Administration
         {
             GeometryHandler.Vector vector = new GeometryHandler.Vector();
 
-            if (trackableUser(Fubi.getClosestUserID()))
+            if (isTrackableUser(Fubi.getClosestUserID()))
             {
                 while (!this.geometryHandler.vectorOK(vector))
                 {
@@ -2489,7 +2488,7 @@ namespace IMI_Administration
             Point3D hipLeft = new Point3D();
             Point3D hipRight = new Point3D();
 
-            if (trackableUser(Fubi.getClosestUserID()))
+            if (isTrackableUser(Fubi.getClosestUserID()))
             {
                 // Track left hip
                 Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID(), FubiUtils.SkeletonJoint.LEFT_HIP, out x, out y, out z, out confidence, out timestamp);
@@ -2511,11 +2510,11 @@ namespace IMI_Administration
         private void closeAllThreads()
         {
 
-            if (calibrating)
+            if (this.calibrating)
             {
                 stopCalibration();
             }
-            if (tracking)
+            if (this.tracking)
             {
                 stopTracking();
             }

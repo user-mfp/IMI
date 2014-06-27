@@ -21,7 +21,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -95,16 +95,16 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Images\" />
+    <Folder Include="data\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Fubi_CS_Wrapper\Fubi_CS_Wrapper.csproj">
       <Project>{E681F26D-1EAB-41C1-BCF9-10F199DD1805}</Project>
       <Name>Fubi_CS_Wrapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\IMI_Administration\IMI_Administration.csproj">
-      <Project>{852DF5AA-0CCB-4776-8667-986A9E8BEF83}</Project>
-      <Name>IMI_Administration</Name>
+    <ProjectReference Include="..\..\IMI\IMI.csproj">
+      <Project>{62C7032F-23A5-469A-822E-EA61AF56D356}</Project>
+      <Name>IMI</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

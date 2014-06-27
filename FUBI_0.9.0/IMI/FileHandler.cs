@@ -4,15 +4,15 @@ using System.Xml;
 using System.Windows.Media.Imaging;
 using System;
 
-namespace IMI_Administration
+namespace IMI
 {
-    class FileHandler
+    public partial class FileHandler
     {
         #region DECLARATIONS
         // Writer and reader
         private XmlWriterSettings xmlWriterSettings;
         private string exhibitionFolder;
-        
+
         // Exhibition
         private Exhibition TMP_EXHIBITION;
         private Exhibit TMP_EXHIBIT;
@@ -20,7 +20,7 @@ namespace IMI_Administration
 
         #region CONSTRUCTORS
         public FileHandler()
-        { 
+        {
             // Initialize settings for XmlWriter
             this.xmlWriterSettings = new XmlWriterSettings();
             this.xmlWriterSettings.Indent = true;
@@ -48,14 +48,14 @@ namespace IMI_Administration
                 if (exhibitionReader.NodeType == XmlNodeType.Element)
                 {
                     switch (exhibitionReader.Name)
-                    { 
+                    {
                         case "Exhibition":
                             this.TMP_EXHIBITION = new Exhibition();
 
                             while (exhibitionReader.MoveToNextAttribute())
                             {
                                 switch (exhibitionReader.Name)
-                                { 
+                                {
                                     case "Name":
                                         this.TMP_EXHIBITION.setName(exhibitionReader.Value);
                                         break;
@@ -131,8 +131,8 @@ namespace IMI_Administration
                 if (exhibitionPlaneReader.NodeType == XmlNodeType.Element)
                 {
                     switch (exhibitionPlaneReader.Name)
-                    { 
-                        case "ExhibitionPlane":                            
+                    {
+                        case "ExhibitionPlane":
                             break;
                         case "Corner":
                             while (exhibitionPlaneReader.MoveToNextAttribute())
@@ -141,7 +141,7 @@ namespace IMI_Administration
                                 {
                                     corners.Add(Point3D.Parse(exhibitionPlaneReader.Value));
                                 }
-                            }                            
+                            }
                             break;
                         default:
                             break;
@@ -243,21 +243,21 @@ namespace IMI_Administration
             if (exhibition.getBackgroundImage().Key != null)
                 exhibitionWriter.WriteAttributeString("BackgroundImage", exhibition.getBackgroundImage().Key);
             if (exhibition.getOverview().Key != null)
-                exhibitionWriter.WriteAttributeString("Overview", exhibition.getOverview().Key);          
+                exhibitionWriter.WriteAttributeString("Overview", exhibition.getOverview().Key);
             exhibitionWriter.WriteAttributeString("UserPosition", exhibition.getUserPosition().ToString().Replace(',', '.').Replace(';', ' '));
             exhibitionWriter.WriteAttributeString("Threshold", exhibition.getThreshold().ToString().Replace(',', '.'));
             exhibitionWriter.WriteAttributeString("SelectionTime", exhibition.getSelectionTime().ToString());
             exhibitionWriter.WriteAttributeString("LockTime", exhibition.getLockTime().ToString());
             exhibitionWriter.WriteAttributeString("SlideTime", exhibition.getSlideTime().ToString());
             exhibitionWriter.WriteAttributeString("EndWait", exhibition.getEndWait().ToString());
-            
+
             saveExhibitionPlane(exhibition.getExhibitionPlane());
-            
-                //<ExhibitionPlane>
+
+            //<ExhibitionPlane>
             exhibitionWriter.WriteStartElement("ExhibitionPlane");
             exhibitionWriter.WriteAttributeString("Path", this.exhibitionFolder + "_Plane.xml");
-            exhibitionWriter.WriteEndElement(); 
-                //</ExhibitionPlane>
+            exhibitionWriter.WriteEndElement();
+            //</ExhibitionPlane>
 
             if (exhibition.getExhibits() != null) // There are exhibits in the exhibition
             {
@@ -268,14 +268,14 @@ namespace IMI_Administration
                 {
                     if (exhibit.getPath() == null) // No Path yet
                         exhibit.setPath(this.exhibitionFolder + "_" + exhibit.getName() + ".xml");
-                    
+
                     saveExhibit(exhibit);
 
                     //<Exhibit>
                     exhibitionWriter.WriteStartElement("Exhibit");
                     exhibitionWriter.WriteAttributeString("Name", exhibit.getName());
                     exhibitionWriter.WriteAttributeString("Path", exhibit.getPath());
-                    exhibitionWriter.WriteEndElement(); 
+                    exhibitionWriter.WriteEndElement();
                     //</Exhibit>
                 }
 
@@ -283,7 +283,7 @@ namespace IMI_Administration
                 //</Exhibits>
             }
 
-            exhibitionWriter.WriteEndElement(); 
+            exhibitionWriter.WriteEndElement();
             //</Exhibition>
 
             exhibitionWriter.WriteEndDocument(); // Stop writing the file
@@ -293,25 +293,25 @@ namespace IMI_Administration
         public void saveExhibitionPlane(GeometryHandler.Plane exhibitionPlane)
         {
             string path = this.exhibitionFolder + "_Plane.xml";
-            XmlWriter exhibitionPlaneWriter = XmlWriter.Create(path, this.xmlWriterSettings) ; 
+            XmlWriter exhibitionPlaneWriter = XmlWriter.Create(path, this.xmlWriterSettings);
 
             //<ExhibitionPlane>
             exhibitionPlaneWriter.WriteStartElement("ExhibitionPlane");
-                //<Corner> #1
+            //<Corner> #1
             exhibitionPlaneWriter.WriteStartElement("Corner");
             exhibitionPlaneWriter.WriteAttributeString("Position", exhibitionPlane.Start.ToString().Replace(',', '.').Replace(';', ' '));
             exhibitionPlaneWriter.WriteEndElement();
-                //</Corner> #1
-                //<Corner> #2
+            //</Corner> #1
+            //<Corner> #2
             exhibitionPlaneWriter.WriteStartElement("Corner");
             exhibitionPlaneWriter.WriteAttributeString("Position", exhibitionPlane.End1.ToString().Replace(',', '.').Replace(';', ' '));
-            exhibitionPlaneWriter.WriteEndElement(); 
-                //</Corner> #2
-                //<Corner> #3
+            exhibitionPlaneWriter.WriteEndElement();
+            //</Corner> #2
+            //<Corner> #3
             exhibitionPlaneWriter.WriteStartElement("Corner");
             exhibitionPlaneWriter.WriteAttributeString("Position", exhibitionPlane.End2.ToString().Replace(',', '.').Replace(';', ' '));
-            exhibitionPlaneWriter.WriteEndElement(); 
-                //</Corner> #3
+            exhibitionPlaneWriter.WriteEndElement();
+            //</Corner> #3
             exhibitionPlaneWriter.WriteEndElement();
             //</ExhibitionPlane>
 
@@ -336,11 +336,11 @@ namespace IMI_Administration
                 exhibitWriter.WriteAttributeString("Description", exhibit.getDescription());
             }
 
-                //<Position>
+            //<Position>
             exhibitWriter.WriteStartElement("Position");
             exhibitWriter.WriteAttributeString("Position", exhibit.getPosition().ToString().Replace(',', '.').Replace(';', ' '));
             exhibitWriter.WriteEndElement();
-                //</Position>
+            //</Position>
 
             if (exhibit.getImages() != null) // The exhibit has images
             {
@@ -348,7 +348,7 @@ namespace IMI_Administration
                 exhibitWriter.WriteStartElement("Images");
 
                 foreach (KeyValuePair<string, BitmapImage> image in exhibit.getImages())
-                { 
+                {
                     //<Image>
                     exhibitWriter.WriteStartElement("Image");
                     exhibitWriter.WriteAttributeString("Path", image.Key);
@@ -364,6 +364,20 @@ namespace IMI_Administration
 
             exhibitWriter.WriteEndDocument(); // Stop writing the file
             exhibitWriter.Close(); // Close the file
+        }
+        #endregion
+
+        #region TXT-FILES
+        public string readTxt(string path)
+        {
+            string data = System.IO.File.ReadAllText(path, System.Text.Encoding.UTF8); // C:\Users\Haßleben\Documents\GitHub\IMI\FUBI_0.9.0\Samples\IMI_Presentation\data\IMI_ExhibitionPath.txt
+            
+            return data;
+        }
+
+        public void writeTxt(string path, string data)
+        {
+            System.IO.File.WriteAllText(path, data, System.Text.Encoding.UTF8);
         }
         #endregion
     }

@@ -2,9 +2,9 @@
 using System.Windows.Media.Media3D;
 using System.Windows.Media.Imaging;
 
-namespace IMI_Administration
+namespace IMI
 {
-    class Exhibition
+    public partial class Exhibition
     {
         #region DECLARATIONS
         // Elements
@@ -97,8 +97,8 @@ namespace IMI_Administration
 
         #region SAVE AND LOAD
         public string getName()
-        { 
-            return this.name; 
+        {
+            return this.name;
         }
 
         public string getPath()
@@ -221,7 +221,7 @@ namespace IMI_Administration
         }
 
         public void addExhibit(Exhibit exhibit)
-        {       
+        {
             this.exhibits.Add(exhibit);
         }
 

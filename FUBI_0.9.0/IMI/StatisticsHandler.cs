@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
 
-namespace IMI_Administration
+namespace IMI
 {
-    public class StatisticsHandler
+    public partial class StatisticsHandler
     {
         #region ROUTINES
         public Point3D getAvg(List<Point3D> points)

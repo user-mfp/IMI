@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Windows.Media.Media3D;
 using XNA = Microsoft.Xna.Framework;
 
-namespace IMI_Administration
+namespace IMI
 {
-    public class GeometryHandler
+    public partial class GeometryHandler
     {
         #region VECTOR
         public struct Vector
@@ -36,7 +36,7 @@ namespace IMI_Administration
                 this.Direction = end - start;
             }
 
-            public static bool operator==(Vector lhs, Vector rhs)
+            public static bool operator ==(Vector lhs, Vector rhs)
             {
                 if (lhs.Start == rhs.Start && lhs.End == rhs.End)
                     return true;
@@ -44,7 +44,7 @@ namespace IMI_Administration
                     return false;
             }
 
-            public static bool operator!=(Vector lhs, Vector rhs)
+            public static bool operator !=(Vector lhs, Vector rhs)
             {
                 if (lhs.Start != rhs.Start || lhs.End != rhs.End)
                     return true;
@@ -71,7 +71,7 @@ namespace IMI_Administration
             }
         }
         #endregion
-        
+
         #region PLANE
         public struct Plane
         {
@@ -109,7 +109,7 @@ namespace IMI_Administration
             }
         }
         #endregion
-        
+
         #region DECLARATIONS AND INITIALIZATIONS
         private StatisticsHandler statisticsHandler = new StatisticsHandler();
         // Calibration and Validation
@@ -143,7 +143,7 @@ namespace IMI_Administration
         }
         #endregion
 
-        #region INTERSECTIONS        
+        #region INTERSECTIONS
         public List<Point3D> vectorsIntersectFoot(Vector vectorA, Vector vectorB)
         {
             List<Point3D> feet = new List<Point3D>();
@@ -182,7 +182,7 @@ namespace IMI_Administration
             XNA.Plane plane = new XNA.Plane(vec1, vec2, vec3);
 
             double s = (double)XNA.Vector3.Dot(plane.Normal, (vec1 - vec0)) / XNA.Vector3.Dot(plane.Normal, vec5);
-            
+
             Point3D intersection = v.Start + (s * v.Direction);
 
             return intersection;
@@ -207,7 +207,7 @@ namespace IMI_Administration
 
         // Returns a vector's properties as string (Start, End, Direction)
         public string getString(Vector v)
-        { 
+        {
             string vector = (v.Start.X).ToString() + '\t' + (v.Start.Y).ToString() + '\t' + (v.Start.Z).ToString() + '\t' + (v.End.X).ToString() + '\t' + (v.End.Y).ToString() + '\t' + (v.End.Z).ToString() + '\t' + (v.Direction.X).ToString() + '\t' + (v.Direction.Y).ToString() + '\t' + (v.Direction.Z).ToString();
             return vector;
         }
@@ -228,19 +228,24 @@ namespace IMI_Administration
             return Math.Min(Math.Min(v.Direction.X, v.Direction.Y), v.Direction.Z);
         }
 
+        private double absDistance(double lhs, double rhs)
+        {
+            return Math.Abs(Math.Abs(lhs) - Math.Abs(rhs));
+        }
+
         // Returns the "centers" from equivalent points from lists of equal length
         public List<Point3D> getCenters(List<Point3D> pointsA, List<Point3D> pointsB)
         {
             List<Point3D> centers = new List<Point3D>();
 
             for (int point = 0; point != pointsA.Count; ++point)
-            { 
+            {
                 centers.Add(getCenter(pointsA[point], pointsB[point]));
             }
 
             return centers;
         }
-        
+
         // Returns the "center" from a list of points
         public Point3D getCenter(List<Point3D> points)
         {
@@ -295,7 +300,7 @@ namespace IMI_Administration
         {
             List<Point3D> starts = new List<Point3D>();
             List<Point3D> ends = new List<Point3D>();
-            
+
             foreach (Vector vector in vectors)
             {
                 starts.Add(vector.Start);
@@ -303,11 +308,6 @@ namespace IMI_Administration
             }
 
             return new Vector(getCenter(starts), getCenter(ends));
-        }
-
-        public void makePlane(Point3D start, Point3D end1, Point3D end2)
-        {
-
         }
 
         private int withinThreshold(Point3D a, Point3D b)
@@ -336,11 +336,16 @@ namespace IMI_Administration
                 ++passes;
             }
 
-            /*if (this.passes.ContainsKey(tmp))
-            {
-                ++this.passes[tmp];
-            }*/
             return passes;
+        }
+        
+        public double furthestDistance(Point3D target, Point3D point)
+        {
+            double x = absDistance(target.X, point.X);
+            double y = absDistance(target.Y, point.Y);
+            double z = absDistance(target.Z, point.Z);
+
+            return Math.Max(Math.Max(x, y), z);
         }
         #endregion
 
@@ -370,10 +375,10 @@ namespace IMI_Administration
             tmp.X = classifyBig(pointing.X, aiming.X);
             tmp.Y = classifyBig(pointing.Y, aiming.Y);
             tmp.Z = classifyBig(pointing.Z, aiming.Z);
-            
+
             return tmp;
         }
-        
+
         private double classifySmall(double pointing, double aiming)
         {
             double bias = smallerValue(pointing, aiming);
@@ -472,7 +477,7 @@ namespace IMI_Administration
             {
                 weightedAxis = (pointing + aiming) / 2;
             }
-            
+
             return weightedAxis;
         }
 

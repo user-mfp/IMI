@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media.Media3D;
-using Microsoft.Xna.Framework;
 using System;
 
-namespace IMI_Administration
+namespace IMI
 {
-    class CalibrationHandler
+    public partial class CalibrationHandler
     {
         #region DECLARATIONS
         private DataLogger dataLogger;
@@ -20,7 +19,7 @@ namespace IMI_Administration
         {
             this.dataLogger = new DataLogger(@"C:\Users\Haßleben\Desktop\IMI-DATA\Debug\"); // TODO: Initialize properly!
             this.geometryHandler = new GeometryHandler();
-            this.samplesPerPosition = samplingVectors; 
+            this.samplesPerPosition = samplingVectors;
         }
 
         public CalibrationHandler(int samplingVectors, double threshold)
@@ -30,7 +29,7 @@ namespace IMI_Administration
             this.samplesPerPosition = samplingVectors;
             this.threshold = threshold;
         }
-        #endregion 
+        #endregion
 
         #region THRESHOLD
         public double getThreshold()
@@ -55,7 +54,7 @@ namespace IMI_Administration
             List<Point3D> combinedPoints = new List<Point3D>();
 
             switch (mode)
-            { 
+            {
                 case 0: // Only (pointing-)samples
                     setFootPoints(ref pointFootPoints, samples, points);
                     return pointFootPoints;
@@ -66,7 +65,7 @@ namespace IMI_Administration
                     List<GeometryHandler.Vector> pointAvgVectors = new List<GeometryHandler.Vector>();
                     List<GeometryHandler.Vector> aimAvgVectors = new List<GeometryHandler.Vector>();
                     int cnt = 0;
-                    foreach(GeometryHandler.Vector sample in samples)
+                    foreach (GeometryHandler.Vector sample in samples)
                     {
                         if (cnt < (samples.Count / 2))
                             pointAvgVectors.Add(sample);
@@ -75,7 +74,7 @@ namespace IMI_Administration
                         ++cnt;
                     }
 
-                    setFootPoints(ref pointFootPoints, pointAvgVectors, points); 
+                    setFootPoints(ref pointFootPoints, pointAvgVectors, points);
                     setFootPoints(ref aimFootPoints, aimAvgVectors, points);
 
                     combinedPoints = this.geometryHandler.classifyCombined(pointFootPoints, aimFootPoints);
@@ -130,7 +129,7 @@ namespace IMI_Administration
             {
                 for (int position = 0; position != positions; ++position)
                 {
-                    vecIndex = point + (points * position); 
+                    vecIndex = point + (points * position);
                     tmp.Add(vectors[vecIndex]);
                 }
             }
@@ -141,7 +140,7 @@ namespace IMI_Administration
         private int pointsToDefine(int samples, int positions, int mode)
         {
             int points; // Either 3 corers or 1 position
-            
+
             if (mode == 2)
             {
                 points = samples / (positions * this.samplesPerPosition * mode);
@@ -164,7 +163,7 @@ namespace IMI_Administration
             List<GeometryHandler.Vector> aimAvgVectors;
 
             switch (mode)
-            { 
+            {
                 case 0: // Only pointing-samples
                     pointingSamples = samples;
                     pointAvgVectors = this.geometryHandler.getAvgVector(pointingSamples, samplesPerPosition);
@@ -181,7 +180,7 @@ namespace IMI_Administration
                     pointingSamples = new List<GeometryHandler.Vector>();
                     aimingSamples = new List<GeometryHandler.Vector>();
                     int cnt = 0;
-                    foreach(GeometryHandler.Vector sample in samples)
+                    foreach (GeometryHandler.Vector sample in samples)
                     {
                         if (cnt < (samples.Count / 2))
                             pointingSamples.Add(sample);
@@ -189,14 +188,14 @@ namespace IMI_Administration
                             aimingSamples.Add(sample);
                         ++cnt;
                     }
-                    
+
                     pointAvgVectors = this.geometryHandler.getAvgVector(pointingSamples, samplesPerPosition);
-                    sortAvgVectors(ref pointAvgVectors, points);                    
+                    sortAvgVectors(ref pointAvgVectors, points);
                     aimAvgVectors = this.geometryHandler.getAvgVector(aimingSamples, samplesPerPosition);
                     sortAvgVectors(ref aimAvgVectors, points);
-                    
+
                     samples.Clear();
-                    foreach(GeometryHandler.Vector pAvgVec in pointAvgVectors)
+                    foreach (GeometryHandler.Vector pAvgVec in pointAvgVectors)
                     {
                         samples.Add(pAvgVec);
                     }
@@ -237,7 +236,7 @@ namespace IMI_Administration
                 case 2: // Both kinds of samples                    
                     List<GeometryHandler.Vector> pointAvgVectors = new List<GeometryHandler.Vector>();
                     List<GeometryHandler.Vector> aimAvgVectors = new List<GeometryHandler.Vector>();
-                    
+
                     int cnt = 0;
                     foreach (GeometryHandler.Vector sample in samples)
                     {
@@ -322,13 +321,13 @@ namespace IMI_Administration
         #region DATA-LOGGING
         private void initLogger()
         {
-            this.dataLogger.newPargraph(); 
+            this.dataLogger.newPargraph();
         }
 
         private void logVectors(List<GeometryHandler.Vector> vectors, int index)
         {
             this.dataLogger.newPargraph("Start.X" + '\t' + "Start.Y" + '\t' + "Start.Z" + '\t' + "End.X" + '\t' + "End.Y" + '\t' + "End.Z" + '\t' + "Direction.X" + '\t' + "Direction.Y" + '\t' + "Direction.Z");
-            
+
             foreach (GeometryHandler.Vector vector in vectors)
             {
                 this.dataLogger.addLineToParagraph(index, this.geometryHandler.getString(vector));
@@ -336,9 +335,9 @@ namespace IMI_Administration
         }
 
         private void logPoints(List<Point3D> points, int index)
-        { 
+        {
             this.dataLogger.newPargraph("Point.X" + '\t' + "Point.Y" + '\t' + "Point.Z");
-       
+
             foreach (Point3D point in points)
             {
                 this.dataLogger.addLineToParagraph(index, this.geometryHandler.getString(point));

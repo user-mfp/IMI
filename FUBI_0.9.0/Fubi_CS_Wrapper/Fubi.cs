@@ -229,7 +229,7 @@ namespace FubiNET
 
         public static bool isInitialized()
         {
-          return FubiInternal.isInitialized();
+            return FubiInternal.isInitialized();
         }
 
         public static UInt32 getNumUserDefinedRecognizers()
