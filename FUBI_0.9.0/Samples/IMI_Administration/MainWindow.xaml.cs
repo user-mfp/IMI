@@ -1581,7 +1581,7 @@ namespace IMI_Administration
                     this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSDEFINITION";
                     this.contentLabel2 = this.INSTRUCTIONS_EXHIBIT;
                     this.contentButton4 = "zurück";
-                    this.contentButton5 = "OK";
+                    this.contentButton5 = "Start";
                     this.headline = Headline.ExhibitDef;
                     updateLayout();
                     break;
@@ -1899,9 +1899,25 @@ namespace IMI_Administration
                         this.button5.Visibility = Visibility.Hidden;
                         updateButtons();
                     }
+                    else if (!this.calibrating && this.setting == Setting.Position)
+                    {
+                        startPositionDefinition();
+
+                        this.contentButton4 = "Abbruch";
+                        this.button5.Visibility = Visibility.Hidden;
+                        updateButtons();
+                    }
                     break;
                 case Headline.ExhibitVal: //"start validation of an exhibit or accept user position"
                     if (!this.calibrating && this.setting == Setting.None) // Validation
+                    {
+                        startPositionDefinition();
+
+                        this.contentButton4 = "Abbruch";
+                        this.button5.Visibility = Visibility.Hidden;
+                        updateButtons();
+                    }
+                    else if (!this.calibrating && this.setting == Setting.Position)
                     {
                         startPositionDefinition();
 
@@ -1922,7 +1938,6 @@ namespace IMI_Administration
                 case Headline.ExhibitDone: //"abort validation of exhibition plane"        
                     if (this.setting == Setting.UserPosition)
                     {
-                        MessageBox.Show("Bestimmung der Benutzerposition (nicht) erfolgreich");
                         this.exhibition.setUserPosition(new Point3D(1, 1, 1));
 
                         this.contentLabel1 = this.exhibition.getName() + " - EINSTELLUNGEN";
@@ -1931,9 +1946,8 @@ namespace IMI_Administration
                     }
                     else if (this.setting == Setting.Position)
                     {
-                        MessageBox.Show("Neubestimmung der Exponatposition (nicht) erfolgreich");
-                        this.TMP_EXHIBIT.setPosition(new Point3D(1, 1, 1));
-
+                        this.TMP_EXHIBIT.setPosition(this.geometryHandler.getCenter(this.TMP_POSITION, this.TMP_POSITION_2));
+                        
                         this.contentLabel1 = this.TMP_EXHIBIT.getName() + " - EINSTELLUNGEN";
                         this.headline = Headline.ExhibitSettings;
                     }
@@ -2209,9 +2223,10 @@ namespace IMI_Administration
         #region DEFINITION AND VALIDATION
         private void definePlane()
         {
+            int mode = 2; // 0 := pointing, 1 := aiming, 2 := both
             this.calibrationHandler = new CalibrationHandler(this.SAMPLING_VECTORS); // Initiate calibrator
-            List<GeometryHandler.Vector> vectors = sampleVectors(this.SAMPLING_POINTS, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2); // Sampled vectors
-            List<Point3D> corners = this.calibrationHandler.definePlane(vectors, this.SAMPLING_POSITIONS, 2); // Calibration-points
+            List<GeometryHandler.Vector> vectors = sampleVectors(this.SAMPLING_POINTS, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, mode); // Sampled vectors
+            List<Point3D> corners = this.calibrationHandler.definePlane(vectors, this.SAMPLING_POSITIONS, mode); // Calibration-points
             
             switch (this.headline)
             {
@@ -2261,9 +2276,10 @@ namespace IMI_Administration
 
         private void definePosition()
         {
+            int mode = 1; // 0 := pointing, 1 := aiming, 2 := both
             this.calibrationHandler = new CalibrationHandler(this.SAMPLING_VECTORS, this.exhibition.getThreshold()); // Initiate calibrator
-            List<GeometryHandler.Vector> vectors = sampleVectors(1, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, 2); // Sampled vectors
-            Point3D position = this.calibrationHandler.definePosition(this.exhibition.getExhibitionPlane(), vectors, this.SAMPLING_POSITIONS, 2); // Calibration-points
+            List<GeometryHandler.Vector> vectors = sampleVectors(1, this.SAMPLING_POSITIONS, this.SAMPLING_VECTORS, mode); // Sampled vectors
+            Point3D position = this.calibrationHandler.definePosition(this.exhibition.getExhibitionPlane(), vectors, this.SAMPLING_POSITIONS, mode); // Calibration-points
 
             switch (this.setting)
             { 
@@ -2295,7 +2311,9 @@ namespace IMI_Administration
                         }
                         else
                         {
-                            this.contentLabel2 = "Position konnte nicht validiert werden." + '\n' + '\n' + "Erneut definieren?";
+                            this.contentLabel2 = "Position konnte nicht validiert werden." + '\n' + "Erneut definieren?";
+                            this.contentLabel2 += +'\n' + "1.: " + (int)this.TMP_POSITION.X + ";" + (int)this.TMP_POSITION.Y + ";" + (int)this.TMP_POSITION.Z;
+                            this.contentLabel2 += +'\n' + "2.: " + (int)this.TMP_POSITION_2.X + ";" + (int)this.TMP_POSITION_2.Y + ";" + (int)this.TMP_POSITION_2.Z;
                             this.contentButton4 = "zurück";
                             this.contentButton5 = "OK";
                             this.headline = Headline.ExhibitDef;
@@ -2314,6 +2332,7 @@ namespace IMI_Administration
                 case Setting.Position: // Re-defining exhibit's position
                     if (this.headline == Headline.ExhibitDef)
                     {
+                        this.TMP_POSITION = position;
                         this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSVALIDIERUNG";
                         this.contentLabel2 = this.INSTRUCTIONS_EXHIBIT;
                         this.contentButton4 = "zurück";
@@ -2324,18 +2343,29 @@ namespace IMI_Administration
                     }
                     else if (this.headline == Headline.ExhibitVal)
                     {
-                        this.contentLabel1 = this.TMP_NAME.ToUpper() + " - EINSTELLUNGEN";
-                        this.headline = Headline.ExhibitSettings;
+                        this.TMP_POSITION_2 = position;
+                        this.contentLabel1 = this.TMP_NAME.ToUpper() + " - POSITIONSBESTIMMUNG";
+                        if (this.calibrationHandler.validatePoint(this.TMP_POSITION, this.TMP_POSITION_2) == 3) // All three axis are within threshold
+                        {
+                            this.contentLabel2 = "Position erfolgreich validiert.";
+                            this.contentButton4 = "zurück";
+                            this.contentButton5 = "OK";
+                            this.headline = Headline.ExhibitDone;
 
-                        stopCalibration();
-                        stopTracking();
-                    }
-                    else
-                    {
-                        MessageBox.Show("definePosition()-Problem: Setting.Position, Headline?");
+                            stopCalibration();
+                            stopTracking();
+                        }
+                        else
+                        {
+                            this.contentLabel2 = "Position konnte nicht validiert werden." + '\n' + "Erneut definieren?";
+                            this.contentLabel2 += + '\n' + "1.: " + (int)this.TMP_POSITION.X + ";" + (int)this.TMP_POSITION.Y + ";" + (int)this.TMP_POSITION.Z;
+                            this.contentLabel2 += + '\n' + "2.: " + (int)this.TMP_POSITION_2.X + ";" + (int)this.TMP_POSITION_2.Y + ";" + (int)this.TMP_POSITION_2.Z;
+                            this.contentButton4 = "zurück";
+                            this.contentButton5 = "OK";
+                            this.headline = Headline.ExhibitDef;
 
-                        stopCalibration();
-                        stopTracking();
+                            stopCalibration();
+                        }
                     }
                     break;
                 default:

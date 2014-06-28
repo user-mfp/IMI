@@ -460,6 +460,11 @@ namespace IMI
             return tmp;
         }
 
+        public Point3D weighPosition(Point3D pointing, Point3D aiming)
+        { 
+            return weighPoints(pointing, aiming, classifyPoints(pointing, aiming));
+        }
+
         private double weighAxisValue(double pointing, double aiming, double classification)
         {
             double weightedAxis;
@@ -490,7 +495,7 @@ namespace IMI
         #endregion
 
         #region CONVERSIONS
-        private XNA.Vector3 makeVector3(Point3D point)
+        public XNA.Vector3 makeVector3(Point3D point)
         {
             XNA.Vector3 vector = new XNA.Vector3();
             
@@ -500,8 +505,19 @@ namespace IMI
 
             return vector;
         }
+        
+        public XNA.Vector3 makeVector3(Vector3D point)
+        {
+            XNA.Vector3 vector = new XNA.Vector3();
 
-        private XNA.Vector3 makeVector3(Point3D start, Point3D end)
+            vector.X = (float)point.X;
+            vector.Y = (float)point.Y;
+            vector.Z = (float)point.Z;
+
+            return vector;
+        }
+
+        public XNA.Vector3 makeVector3(Point3D start, Point3D end)
         {
             XNA.Vector3 vector = new XNA.Vector3();
 
@@ -512,7 +528,7 @@ namespace IMI
             return vector;
         }
 
-        private Point3D makePoint3D(XNA.Vector3 vector)
+        public Point3D makePoint3D(XNA.Vector3 vector)
         {
             Point3D point = new Point3D();
 

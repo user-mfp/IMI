@@ -1,6 +1,7 @@
 ﻿using System.Windows.Media.Media3D;
 using System.Collections.Generic;
 using System;
+using XNA = Microsoft.Xna.Framework;
 
 
 namespace IMI
@@ -12,6 +13,13 @@ namespace IMI
         private Point3D userPosition;
         private double radius;
         private Dictionary<Point3D, int> lookup;
+        
+        // Plane
+        private XNA.Plane plane;
+        private XNA.Vector3 planeNormal;
+        private XNA.Vector3 planeStart;
+        private XNA.Vector3 planeEnd1;
+        private XNA.Vector3 planeEnd2;
 
         private GeometryHandler geometryHandler = new GeometryHandler();
         #endregion
@@ -64,6 +72,19 @@ namespace IMI
         }
         #endregion
 
+        #region PLANE
+        public void initPlane(GeometryHandler.Plane plane)
+        {
+            this.planeStart = new XNA.Vector3((float)plane.Start.X, (float)plane.Start.Y, (float)plane.Start.Z);
+            this.planeEnd1 = new XNA.Vector3((float)plane.End1.X, (float)plane.End1.Y, (float)plane.End1.Z);
+            this.planeEnd2 = new XNA.Vector3((float)plane.End2.X, (float)plane.End2.Y, (float)plane.End2.Z);
+
+            this.plane = new XNA.Plane(planeStart, planeEnd1, planeEnd2);
+
+            this.planeNormal = this.plane.Normal;
+        }
+        #endregion
+
         #region USER POSITION
         public Point3D getUserPosition()
         {
@@ -77,6 +98,24 @@ namespace IMI
         #endregion
 
         #region EXHIBIT POSITION
+
+        public Point3D getPosition(List<GeometryHandler.Vector> vectors)
+        {
+            return this.geometryHandler.weighPosition(getPosition(vectors[0]), getPosition(vectors[1]));
+        }
+
+        public Point3D getPosition(GeometryHandler.Vector vector)
+        {
+            XNA.Vector3 vS = this.geometryHandler.makeVector3(vector.Start);
+            XNA.Vector3 vD = this.geometryHandler.makeVector3(vector.Direction);
+
+            double s = (double)XNA.Vector3.Dot(this.plane.Normal, (planeStart - vS)) / XNA.Vector3.Dot(this.plane.Normal, vD);
+
+            Point3D intersection = vector.Start + (s * vector.Direction);
+
+            return intersection;
+        }
+        
         private void lookUpTable(Point3D position)
         {
 
@@ -84,8 +123,8 @@ namespace IMI
 
         public void makeLookupTable(List<Exhibit> exhibits, GeometryHandler.Plane exhibitionPlane)
         {
-            DateTime start = DateTime.Now;
             this.lookup = new Dictionary<Point3D, int>();
+            Dictionary<Point3D, int> checkup = new Dictionary<Point3D, int>();
             List<Point3D> positions = makeLookupPositions(exhibitionPlane);
             List<double> weightsForPosition = new List<double>();
 
@@ -100,9 +139,57 @@ namespace IMI
 
                 this.lookup.Add(position, getMaxIndex(weightsForPosition));
             }
-            DateTime finish = DateTime.Now;
-            TimeSpan duration = finish - start;
-            int success = 0;
+
+            int nix = 0;
+            int box = 0;
+            int bub = 0;
+            int iso = 0;
+
+            foreach (KeyValuePair<Point3D, int> position in this.lookup)
+            {
+                if (position.Value == 99)
+                {
+                    ++nix;
+                }
+                else if (position.Value == 0)
+                {
+                    ++box;
+                }
+                else if (position.Value == 1)
+                {
+                    ++bub;
+                }
+                else if (position.Value == 2)
+                {
+                    ++iso;
+                }
+                else
+                { }
+            }
+
+            Point3D checkPt = getClosestPosition(exhibits[2].getPosition()); 
+            int check = 0;
+        }
+
+        private Point3D getClosestPosition(Point3D exhibitPosition)
+        {
+            Point3D tmp = new Point3D();
+            double min = 9999.0;
+            double relDist = 0; // relDist gets negative for positions, which are not within the exhibits kernel
+
+            foreach (KeyValuePair<Point3D, int> position in this.lookup)
+            {
+                double distance = this.geometryHandler.getDistance(exhibitPosition, position.Key);
+                if (distance < min)
+                {
+                    tmp = position.Key;
+                    min = distance;
+                    relDist = 100.0 - distance; // relDist gets negative for positions, which are not within the exhibits kernel
+                }
+            }
+
+            return tmp;
+            int check = 0;
         }
 
         private List<Point3D> makeLookupPositions(GeometryHandler.Plane plane)
@@ -113,9 +200,9 @@ namespace IMI
             double lambdaDir1;
             double lambdaDir2;
 
-            for (lambdaDir1 = 0.0; lambdaDir1 < 2.0; lambdaDir1 += stepSize) // Over twice the first direction of the plane, make 1000(=: 2.0/stepSize) steps
+            for (lambdaDir1 = 0.0; lambdaDir1 < 2.0; lambdaDir1 += stepSize) // Over (twice) the first direction of the plane, make 1000(=: 2.0/stepSize) steps
             {
-                for (lambdaDir2 = 0.0; lambdaDir2 < 2.0; lambdaDir2 += stepSize) // Over twice the second direction of the plane, make 1000(=: 2.0/stepSize) steps
+                for (lambdaDir2 = 0.0; lambdaDir2 < 2.0; lambdaDir2 += stepSize) // Over (twice) the second direction of the plane, make 1000(=: 2.0/stepSize) steps
                 {
                     tmpPos = plane.Start + (lambdaDir1 * plane.Direction1) + (lambdaDir2 * plane.Direction2);
                     planePositions.Add(tmpPos);
@@ -129,13 +216,15 @@ namespace IMI
         {
             double distance = this.geometryHandler.getDistance(targetPosition, position);
             double relDist = kernelRadius - distance; // relDist gets negative for positions, which are not within the exhibits kernel
+
             // Triangular
             return kernelWeight * relDist;
         }
 
+
         private int getMaxIndex(List<double> weights)
         {
-            int index = 0;
+            int index = 99;
             double maxWeight = 0.0;
 
             for (int i = 0; i != weights.Count; ++i)
@@ -146,7 +235,6 @@ namespace IMI
                     index = i;
                 }
             }
-
             return index;
         }
 

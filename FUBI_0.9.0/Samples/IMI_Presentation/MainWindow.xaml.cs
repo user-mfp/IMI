@@ -132,6 +132,7 @@ namespace IMI_Presentation
             {
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
                 this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0);
+                this.sessionHandler.initPlane(this.IMI_EXHIBITION.getExhibitionPlane());
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
 
                 this.contentLabel1 = this.IMI_EXHIBITION.getName();
@@ -209,7 +210,7 @@ namespace IMI_Presentation
                 this.users.Clear(); // Remove all ids                
                 foreach (uint id in this.ids) // For each trackable user
                 {
-                    this.users.Add(id, getHip(id)); // Add user and user's position
+                    this.users.Add(id, takeHipSample(id)); // Add user and user's position
                 }
                 this.USER_ID = this.sessionHandler.getCurrentUserID(this.users); // Update current user id
 
@@ -235,7 +236,12 @@ namespace IMI_Presentation
             {
                 if (this.USER_ID != 99) // There is no user in the interaction zone
                 {
-                    this.contentLabel2 = "ID:" + '\t' + this.USER_ID + '\n' + "Nose:" + '\t' + (int)this.jointsToTrack[4].X + ";" + (int)this.jointsToTrack[4].Y + ";" + (int)this.jointsToTrack[4].Z;
+                    //GeometryHandler.Vector aim = takeAimingSample();
+                    Point3D pos = this.sessionHandler.getPosition(takeAimingSample());
+                    this.contentLabel2 = "ID:" + '\t' + this.USER_ID 
+                        //+ '\n' + "Nose:" + '\t' + (int)this.jointsToTrack[4].X + ";" + (int)this.jointsToTrack[4].Y + ";" + (int)this.jointsToTrack[4].Z
+                        //+ '\n' + "AimDir:" + '\t' + (int)aim.Direction.X + ";" + (int)aim.Direction.Y + ";" + (int)aim.Direction.Z
+                        + '\n' + "Pos:" + '\t' + (int)pos.X + ";" + (int)pos.Y + ";" + (int)pos.Z;
                 }
                 else
                 {
@@ -288,8 +294,15 @@ namespace IMI_Presentation
                     break;
             }
         }
+        
+        private void releaseFubi()
+        {
+            Fubi.release();
+        }
+        #endregion
 
-        private Point3D getHip(uint id)
+        #region SAMPLING
+        private Point3D takeHipSample(uint id)
         {
             float lx, ly, lz;
             float rx, ry, rz;
@@ -300,9 +313,38 @@ namespace IMI_Presentation
             return this.geometryHandler.getCenter(new Point3D((double)lx, (double)ly, (double)lz), new Point3D((double)rx, (double)ry, (double)rz));
         }
 
-        private void releaseFubi()
+        private List<GeometryHandler.Vector> takeSamples()
         {
-            Fubi.release();
+            List<GeometryHandler.Vector> samples = new List<GeometryHandler.Vector>();
+            
+            samples.Add(takePointingSample());
+            samples.Add(takeAimingSample());
+
+            return samples;
+        }
+
+        private GeometryHandler.Vector takePointingSample()
+        {
+            GeometryHandler.Vector vector = new GeometryHandler.Vector();
+
+            while (!this.geometryHandler.vectorOK(vector))
+            {
+                vector.reset(jointsToTrack[0], jointsToTrack[1]); // (RIGHT_ELBOW, RIGHT_HAND)
+            }
+
+            return vector;
+        }
+
+        private GeometryHandler.Vector takeAimingSample()
+        {
+            GeometryHandler.Vector vector = new GeometryHandler.Vector();
+
+            while (!this.geometryHandler.vectorOK(vector))
+            {
+                vector.reset(jointsToTrack[4], jointsToTrack[1]); // (HEAD, RIGHT_HAND)
+            }
+
+            return vector;
         }
         #endregion
 

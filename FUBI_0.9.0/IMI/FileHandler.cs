@@ -117,6 +117,7 @@ namespace IMI
                     }
                 }
             }
+            exhibitionReader.Close();
 
             return this.TMP_EXHIBITION;
         }
@@ -148,6 +149,7 @@ namespace IMI
                     }
                 }
             }
+            exhibitionPlaneReader.Close();
 
             return new GeometryHandler.Plane(corners[0], corners[1], corners[2]);
         }
@@ -217,6 +219,7 @@ namespace IMI
                 }
             }
             this.TMP_EXHIBIT.setImages(images);
+            exhibitReader.Close();
 
             return this.TMP_EXHIBIT;
         }
