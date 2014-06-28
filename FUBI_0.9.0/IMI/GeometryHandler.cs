@@ -488,5 +488,47 @@ namespace IMI
             this.classWeight = Math.Min(0.95, (Math.Max(0.7, (1 - (this.threshold / diff))))); // Min-,Max-Function: classWeight is always bewteen 0.6 and 0.9
         }
         #endregion
+
+        #region CONVERSIONS
+        private XNA.Vector3 makeVector3(Point3D point)
+        {
+            XNA.Vector3 vector = new XNA.Vector3();
+            
+            vector.X = (float)point.X;
+            vector.Y = (float)point.Y;
+            vector.Z = (float)point.Z;
+
+            return vector;
+        }
+
+        private XNA.Vector3 makeVector3(Point3D start, Point3D end)
+        {
+            XNA.Vector3 vector = new XNA.Vector3();
+
+            vector.X = (float)(end.X - start.X);
+            vector.Y = (float)(end.Y - start.Y);
+            vector.Z = (float)(end.Z - start.Z);
+
+            return vector;
+        }
+
+        private Point3D makePoint3D(XNA.Vector3 vector)
+        {
+            Point3D point = new Point3D();
+
+            point.X = (double)vector.X;
+            point.Y = (double)vector.Y;
+            point.Z = (double)vector.Z;
+
+            return point;
+        }
+
+        public double getDistance(Point3D lhs, Point3D rhs)
+        {
+            XNA.Vector3 vector = makeVector3(lhs, rhs);
+
+            return (double)vector.Length();
+        }
+        #endregion
     }
 }

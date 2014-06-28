@@ -132,7 +132,8 @@ namespace IMI_Presentation
             {
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
                 this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0);
-                
+                this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
+
                 this.contentLabel1 = this.IMI_EXHIBITION.getName();
                 this.mode = Mode.Standby;
                 updateLayout();
