@@ -238,10 +238,12 @@ namespace IMI_Presentation
                 {
                     //GeometryHandler.Vector aim = takeAimingSample();
                     Point3D pos = this.sessionHandler.getPosition(takeAimingSample());
+                    int target = this.sessionHandler.getTarget(takeAimingSample());
                     this.contentLabel2 = "ID:" + '\t' + this.USER_ID 
                         //+ '\n' + "Nose:" + '\t' + (int)this.jointsToTrack[4].X + ";" + (int)this.jointsToTrack[4].Y + ";" + (int)this.jointsToTrack[4].Z
                         //+ '\n' + "AimDir:" + '\t' + (int)aim.Direction.X + ";" + (int)aim.Direction.Y + ";" + (int)aim.Direction.Z
-                        + '\n' + "Pos:" + '\t' + (int)pos.X + ";" + (int)pos.Y + ";" + (int)pos.Z;
+                        + '\n' + "Pos:" + '\t' + (int)pos.X + ";" + (int)pos.Y + ";" + (int)pos.Z
+                        + '\n' + "Target:" + '\t' + target;
                 }
                 else
                 {

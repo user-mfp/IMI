@@ -29,7 +29,7 @@ namespace IMI
         {
             this.id = id;
             this.userPosition = userPosition;
-            this.radius = 500.0;// Default := 500mm
+            this.radius = 300.0;// Default := 300mm
         }
 
         public SessionHandler(uint id, Point3D userPosition, double radius)
@@ -97,7 +97,13 @@ namespace IMI
         }
         #endregion
 
-        #region EXHIBIT POSITION
+        #region LOOKUP
+        public int getTarget(GeometryHandler.Vector vector)
+        {
+            Point3D pos = getPosition(vector);
+
+            return getClosestIndex(pos);
+        }
 
         public Point3D getPosition(List<GeometryHandler.Vector> vectors)
         {
@@ -114,11 +120,6 @@ namespace IMI
             Point3D intersection = vector.Start + (s * vector.Direction);
 
             return intersection;
-        }
-        
-        private void lookUpTable(Point3D position)
-        {
-
         }
 
         public void makeLookupTable(List<Exhibit> exhibits, GeometryHandler.Plane exhibitionPlane)
@@ -139,57 +140,47 @@ namespace IMI
 
                 this.lookup.Add(position, getMaxIndex(weightsForPosition));
             }
-
-            int nix = 0;
-            int box = 0;
-            int bub = 0;
-            int iso = 0;
-
-            foreach (KeyValuePair<Point3D, int> position in this.lookup)
-            {
-                if (position.Value == 99)
-                {
-                    ++nix;
-                }
-                else if (position.Value == 0)
-                {
-                    ++box;
-                }
-                else if (position.Value == 1)
-                {
-                    ++bub;
-                }
-                else if (position.Value == 2)
-                {
-                    ++iso;
-                }
-                else
-                { }
-            }
-
-            Point3D checkPt = getClosestPosition(exhibits[2].getPosition()); 
-            int check = 0;
         }
 
-        private Point3D getClosestPosition(Point3D exhibitPosition)
+        private Point3D getClosestPosition(Point3D target)
         {
             Point3D tmp = new Point3D();
-            double min = 9999.0;
-            double relDist = 0; // relDist gets negative for positions, which are not within the exhibits kernel
+            double min = this.radius;
 
+            DateTime start = DateTime.Now;
             foreach (KeyValuePair<Point3D, int> position in this.lookup)
             {
-                double distance = this.geometryHandler.getDistance(exhibitPosition, position.Key);
+                double distance = this.geometryHandler.getDistance(target, position.Key);
                 if (distance < min)
                 {
                     tmp = position.Key;
                     min = distance;
-                    relDist = 100.0 - distance; // relDist gets negative for positions, which are not within the exhibits kernel
                 }
             }
-
+            DateTime end = DateTime.Now;
+            TimeSpan dur = end - start;
             return tmp;
-            int check = 0;
+        }
+
+
+        private int getClosestIndex(Point3D target)
+        {
+            int tmp = 99;
+            double min = this.radius;
+
+            DateTime start = DateTime.Now;
+            foreach (KeyValuePair<Point3D, int> position in this.lookup)
+            {
+                double distance = this.geometryHandler.getDistance(target, position.Key);
+                if (distance < min)
+                {
+                    tmp = position.Value;
+                    min = distance;
+                }
+            }
+            DateTime end = DateTime.Now;
+            TimeSpan dur = end - start;
+            return tmp;
         }
 
         private List<Point3D> makeLookupPositions(GeometryHandler.Plane plane)
@@ -221,7 +212,6 @@ namespace IMI
             return kernelWeight * relDist;
         }
 
-
         private int getMaxIndex(List<double> weights)
         {
             int index = 99;
@@ -236,11 +226,6 @@ namespace IMI
                 }
             }
             return index;
-        }
-
-        private int getLookupExhibit()
-        {
-            return 0;
         }
         #endregion
     }
