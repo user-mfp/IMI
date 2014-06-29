@@ -9,6 +9,9 @@ using System.Windows.Threading;
 using FubiNET;
 using IMI;
 using Microsoft.Win32;
+using System.Windows.Input;
+using System.ComponentModel;
+using System;
 
 namespace IMI_Presentation
 {
@@ -54,6 +57,7 @@ namespace IMI_Presentation
         private bool tracking;
         private Thread trackThread;
         // Session-thread
+        private bool paused;
         private bool sessioning;
         private Thread sessionThread;
         #endregion
@@ -234,20 +238,33 @@ namespace IMI_Presentation
         {
             while (this.sessioning)
             {
-                if (this.USER_ID != 99) // There is no user in the interaction zone
+                if (this.USER_ID != 99 && !this.paused) // There is no user in the interaction zone
                 {
-                    //GeometryHandler.Vector aim = takeAimingSample();
                     Point3D pos = this.sessionHandler.getPosition(takeAimingSample());
                     int target = this.sessionHandler.getTarget(takeAimingSample());
-                    this.contentLabel2 = "ID:" + '\t' + this.USER_ID 
-                        //+ '\n' + "Nose:" + '\t' + (int)this.jointsToTrack[4].X + ";" + (int)this.jointsToTrack[4].Y + ";" + (int)this.jointsToTrack[4].Z
-                        //+ '\n' + "AimDir:" + '\t' + (int)aim.Direction.X + ";" + (int)aim.Direction.Y + ";" + (int)aim.Direction.Z
-                        + '\n' + "Pos:" + '\t' + (int)pos.X + ";" + (int)pos.Y + ";" + (int)pos.Z
-                        + '\n' + "Target:" + '\t' + target;
+
+                    if (target != 99) // There is a valid target
+                    {
+                        this.contentLabel2 = "ID:" + '\t' + this.USER_ID
+                            + '\n' + "Target:" + '\t' + this.IMI_EXHIBITION.getExhibits()[target].getName();
+                    }
+                    else
+                    {
+                        this.contentLabel2 = "ID:" + '\t' + this.USER_ID
+                            + '\n' + "Pos:" + '\t' + (int)pos.X + ";" + (int)pos.Y + ";" + (int)pos.Z;
+                    }
+                }
+                else if (this.USER_ID == 99 && !this.paused)
+                {
+                    this.contentLabel2 = "Empty Zone: Waiting...";
+                }
+                else if ((this.USER_ID == 99 || this.USER_ID != 99) && this.paused)
+                {
+                    this.contentLabel2 = "Pausiert: No Sampling...";
                 }
                 else
                 {
-                    this.contentLabel2 = "Empty Zone: Waiting";
+                    this.contentLabel2 = "ID: " + this.USER_ID + '\n' + "" + "Paused: " + this.paused;
                 }
             }
         }
@@ -364,6 +381,7 @@ namespace IMI_Presentation
             // Starting the session-thread properly
             this.sessionThread = new Thread(updateSession);
             this.sessioning = true;
+            this.paused = false;
             this.sessionThread.Start();
         }
 
@@ -378,7 +396,49 @@ namespace IMI_Presentation
         {
             // Stopping the tracking-thread properly
             this.sessioning = false;
+            this.paused = true;
             this.sessionThread.Abort();
+        }
+
+        private void pauseSession()
+        {
+            if (this.tracking && this.sessioning) // Session in progress
+            {
+                if (!this.paused)
+                {
+                    this.paused = true;
+                }
+                else
+                {
+                    this.paused = false;
+                }
+            }
+        }
+
+        private void pauseSession(int ms)
+        {
+            if (this.tracking && this.sessioning) // Session in progress
+            {
+                if (!this.paused)
+                {
+                    this.paused = true;
+                    Thread.Sleep(ms);
+                    this.paused = false;
+                }
+            }
+        }
+
+        private void closeAllThreads()
+        {
+            if (this.sessioning)
+            {
+                stopSession();
+            }
+            if (this.tracking)
+            {
+                stopTracking();
+            }
+            this.Close();
         }
         #endregion
         
@@ -549,10 +609,19 @@ namespace IMI_Presentation
             }            
         }
 
-
-        private void TMP_KILL_BUTTON_Click(object sender, RoutedEventArgs e)
+        private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            closeAllThreads();
+            switch (e.Key)
+            { 
+                case Key.Escape:
+                    closeAllThreads();
+                    break;
+                case Key.Space:
+                    pauseSession(3000);
+                    break;
+                default:
+                    break;
+            }
         }
 
         void loadConfigDialog_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
@@ -560,19 +629,5 @@ namespace IMI_Presentation
             this.TMP_PATH = this.loadConfigDialog.FileName;
         }
         #endregion
-
-        private void closeAllThreads()
-        {
-
-            if (this.sessioning)
-            {
-                stopSession();
-            }
-            if (this.tracking)
-            {
-                stopTracking();
-            }
-            this.Close();
-        }
     }
 }
