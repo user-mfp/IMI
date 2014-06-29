@@ -75,16 +75,16 @@ namespace IMI
                                         this.TMP_EXHIBITION.setThreshold(double.Parse(exhibitionReader.Value));
                                         break;
                                     case "SelectionTime":
-                                        this.TMP_EXHIBITION.setSelectionTime(double.Parse(exhibitionReader.Value));
+                                        this.TMP_EXHIBITION.setSelectionTime(int.Parse(exhibitionReader.Value));
                                         break;
                                     case "LockTime":
-                                        this.TMP_EXHIBITION.setLockTime(double.Parse(exhibitionReader.Value));
+                                        this.TMP_EXHIBITION.setLockTime(int.Parse(exhibitionReader.Value));
                                         break;
                                     case "SlideTime":
-                                        this.TMP_EXHIBITION.setSlideTime(double.Parse(exhibitionReader.Value));
+                                        this.TMP_EXHIBITION.setSlideTime(int.Parse(exhibitionReader.Value));
                                         break;
                                     case "EndWait":
-                                        this.TMP_EXHIBITION.setEndWait(double.Parse(exhibitionReader.Value));
+                                        this.TMP_EXHIBITION.setEndWait(int.Parse(exhibitionReader.Value));
                                         break;
                                     default:
                                         break;

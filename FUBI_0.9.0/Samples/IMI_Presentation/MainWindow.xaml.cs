@@ -52,7 +52,9 @@ namespace IMI_Presentation
         private float confidence; // DO NOT USE ! ! !
         private List<uint> ids;
         private Dictionary<uint, Point3D> users = new Dictionary<uint,Point3D>(); 
-        private uint USER_ID;
+        private uint IMI_ID;
+        private int TMP_TARGET;
+        private int IMI_TARGET;
         // Tracking-thread
         private bool tracking;
         private Thread trackThread;
@@ -60,6 +62,13 @@ namespace IMI_Presentation
         private bool paused;
         private bool sessioning;
         private Thread sessionThread;
+        // Timed threads
+        private bool selecting;
+        private Thread selectionThread;
+        private bool slideShow;
+        private Thread slideThread;
+        private bool waiting;
+        private Thread endWaitThread;
         #endregion
 
         #region INITIALIZATIONS
@@ -216,9 +225,9 @@ namespace IMI_Presentation
                 {
                     this.users.Add(id, takeHipSample(id)); // Add user and user's position
                 }
-                this.USER_ID = this.sessionHandler.getCurrentUserID(this.users); // Update current user id
+                this.IMI_ID = this.sessionHandler.getCurrentUserID(this.users); // Update current user id
 
-                if (this.USER_ID != 99) // There is a user in the interaction zone
+                if (this.IMI_ID != 99) // There is a user in the interaction zone
                 {
                     updateJoints();
                 }
@@ -231,40 +240,40 @@ namespace IMI_Presentation
                     this.contentLabel2 = "No Visitors: Start Stanby-Countdown";
                 }
             }
-            updateLabels();
+            updateLayout();
         }
 
         private void updateSession()
         {
             while (this.sessioning)
             {
-                if (this.USER_ID != 99 && !this.paused) // There is no user in the interaction zone
+                if (this.IMI_ID != 99 && !this.paused) // There is no user in the interaction zone
                 {
                     Point3D pos = this.sessionHandler.getPosition(takeAimingSample());
-                    int target = this.sessionHandler.getTarget(takeAimingSample());
-
-                    if (target != 99) // There is a valid target
+                    this.TMP_TARGET = this.sessionHandler.getTarget(takeAimingSample());
+                    updateTarget();
+                    /*if (this.IMI_TARGET != 99) // There is a valid target
                     {
-                        this.contentLabel2 = "ID:" + '\t' + this.USER_ID
-                            + '\n' + "Target:" + '\t' + this.IMI_EXHIBITION.getExhibits()[target].getName();
+                        this.contentLabel2 = "ID:" + '\t' + this.IMI_ID
+                            + '\n' + "Target:" + '\t' + this.IMI_EXHIBITION.getExhibits()[this.IMI_TARGET].getName();
                     }
                     else
                     {
-                        this.contentLabel2 = "ID:" + '\t' + this.USER_ID
+                        this.contentLabel2 = "ID:" + '\t' + this.IMI_ID
                             + '\n' + "Pos:" + '\t' + (int)pos.X + ";" + (int)pos.Y + ";" + (int)pos.Z;
-                    }
+                    }*/
                 }
-                else if (this.USER_ID == 99 && !this.paused)
+                else if (this.IMI_ID == 99 && !this.paused)
                 {
-                    this.contentLabel2 = "Empty Zone: Waiting...";
+                    this.contentLabel2 = "Empty Zone: Waiting for users.";
                 }
-                else if ((this.USER_ID == 99 || this.USER_ID != 99) && this.paused)
+                else if ((this.IMI_ID == 99 || this.IMI_ID != 99) && this.paused)
                 {
-                    this.contentLabel2 = "Pausiert: No Sampling...";
+                    this.contentLabel2 = "Paused: Not sampling, but tracking.";
                 }
                 else
                 {
-                    this.contentLabel2 = "ID: " + this.USER_ID + '\n' + "" + "Paused: " + this.paused;
+                    this.contentLabel2 = "ID: " + this.IMI_ID + '\n' + "" + "Paused: " + this.paused;
                 }
             }
         }
@@ -274,17 +283,17 @@ namespace IMI_Presentation
             float x, y, z;
 
             // Right arm
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getUserID(this.USER_ID), FubiUtils.SkeletonJoint.RIGHT_ELBOW, out x, out y, out z, out confidence, out timestamp);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getUserID(this.IMI_ID), FubiUtils.SkeletonJoint.RIGHT_ELBOW, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.RIGHT_ELBOW, x, y, z);
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getUserID(this.USER_ID), FubiUtils.SkeletonJoint.RIGHT_HAND, out x, out y, out z, out confidence, out timestamp);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getUserID(this.IMI_ID), FubiUtils.SkeletonJoint.RIGHT_HAND, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.RIGHT_HAND, x, y, z);
             // Left arm
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getUserID(this.USER_ID), FubiUtils.SkeletonJoint.LEFT_ELBOW, out x, out y, out z, out confidence, out timestamp);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getUserID(this.IMI_ID), FubiUtils.SkeletonJoint.LEFT_ELBOW, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.LEFT_ELBOW, x, y, z);
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getUserID(this.USER_ID), FubiUtils.SkeletonJoint.LEFT_HAND, out x, out y, out z, out confidence, out timestamp);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getUserID(this.IMI_ID), FubiUtils.SkeletonJoint.LEFT_HAND, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.LEFT_HAND, x, y, z);
             // Nose (head)
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getUserID(this.USER_ID), FubiUtils.SkeletonJoint.FACE_NOSE, out x, out y, out z, out this.confidence, out this.timestamp); // this.USER_ID, FubiUtils.SkeletonJoint.HEAD, out x, out y, out z, out confidence, out timestamp);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getUserID(this.IMI_ID), FubiUtils.SkeletonJoint.FACE_NOSE, out x, out y, out z, out this.confidence, out this.timestamp); // this.IMI_ID, FubiUtils.SkeletonJoint.HEAD, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.FACE_NOSE, x, y, z);
         }
 
@@ -313,7 +322,20 @@ namespace IMI_Presentation
                     break;
             }
         }
-        
+
+        private void updateTarget()
+        {
+            if (this.IMI_TARGET != this.TMP_TARGET && this.TMP_TARGET != 99) // New target assigned AND is valid
+            {
+                this.IMI_TARGET = this.TMP_TARGET; // Assign new, valid target
+                if (this.selecting) // Timer already running
+                {
+                    stopSelectionTimer();
+                }
+                startSelectionTimer();
+            }
+        }
+
         private void releaseFubi()
         {
             Fubi.release();
@@ -385,6 +407,13 @@ namespace IMI_Presentation
             this.sessionThread.Start();
         }
 
+        private void startSelectionTimer()
+        {
+            this.selectionThread = new Thread(selection);
+            this.selecting = true;
+            this.selectionThread.Start();
+        }
+
         private void stopTracking()
         {
             // Stopping the tracking-thread properly
@@ -398,6 +427,12 @@ namespace IMI_Presentation
             this.sessioning = false;
             this.paused = true;
             this.sessionThread.Abort();
+        }
+
+        private void stopSelectionTimer()
+        {
+            this.selecting = false;
+            this.selectionThread.Abort();
         }
 
         private void pauseSession()
@@ -520,9 +555,9 @@ namespace IMI_Presentation
             this.image2.Visibility = Visibility.Hidden;
 
             // Labels
-            this.textBlock1.Text = this.contentLabel1;
+            this.textBlock1.Text = this.TMP_EXHIBIT.getName();
             this.label1.Visibility = Visibility.Visible;
-            this.textBlock2.Text = this.contentLabel2;
+            this.textBlock2.Text = this.TMP_EXHIBIT.getDescription();
             this.label2.Visibility = Visibility.Visible;
 
             // Button
@@ -544,6 +579,17 @@ namespace IMI_Presentation
         {
             this.textBlock1.Text = this.contentLabel1;
             this.textBlock2.Text = this.contentLabel2;
+        }
+        #endregion
+
+        #region TIMERS
+        private void selection()
+        { 
+            Thread.Sleep(this.IMI_EXHIBITION.getSelectionTime());
+            this.TMP_EXHIBIT = this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET);
+            this.mode = Mode.Presentation;
+            pauseSession(this.IMI_EXHIBITION.getLockTime());
+            stopSelectionTimer();
         }
         #endregion
 

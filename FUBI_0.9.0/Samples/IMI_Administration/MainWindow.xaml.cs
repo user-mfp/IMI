@@ -2180,25 +2180,25 @@ namespace IMI_Administration
                     break;
                 case Setting.SelectionTime:
                     if (factor != 1.0)
-                        this.exhibition.setSelectionTime(DEFAULT_EXHIBITION.getSelectionTime() * factor);
+                        this.exhibition.setSelectionTime((int)(DEFAULT_EXHIBITION.getSelectionTime() * factor));
                     else
                         this.exhibition.setSelectionTime(DEFAULT_EXHIBITION.getSelectionTime());
                     break;
                 case Setting.LockTime:
                     if (factor != 1.0)
-                        this.exhibition.setLockTime(DEFAULT_EXHIBITION.getLockTime() * factor);
+                        this.exhibition.setLockTime((int)(DEFAULT_EXHIBITION.getLockTime() * factor));
                     else
                         this.exhibition.setLockTime(DEFAULT_EXHIBITION.getLockTime());
                     break;
                 case Setting.SlideTime:
                     if (factor != 1.0)
-                        this.exhibition.setSlideTime(DEFAULT_EXHIBITION.getSlideTime() * factor);
+                        this.exhibition.setSlideTime((int)(DEFAULT_EXHIBITION.getSlideTime() * factor));
                     else
                         this.exhibition.setSlideTime(DEFAULT_EXHIBITION.getSlideTime());
                     break;
                 case Setting.EndWait:
                     if (factor != 1.0)
-                        this.exhibition.setEndWait(DEFAULT_EXHIBITION.getEndWait() * factor);
+                        this.exhibition.setEndWait((int)(DEFAULT_EXHIBITION.getEndWait() * factor));
                     else
                         this.exhibition.setEndWait(DEFAULT_EXHIBITION.getEndWait());
                     break;
