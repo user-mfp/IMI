@@ -12,6 +12,7 @@ using Microsoft.Win32;
 using System.Windows.Input;
 using System.ComponentModel;
 using System;
+using System.Collections;
 
 namespace IMI_Presentation
 {
@@ -27,7 +28,7 @@ namespace IMI_Presentation
             Presentation
         };
         // Internal path to exhibition
-        private string IMI_EXHIBITION_PATH = @"..\Samples\IMI_Presentation\data\IMI_ExhibitionPath.txt";
+        private string IMI_EXHIBITION_PATH = @"C:\Users\Haßleben\Desktop\IMI-DATA\Daten\IMI_ExhibitionPath.txt";
         #endregion
 
         #region DECLARATIONS
@@ -510,7 +511,7 @@ namespace IMI_Presentation
             this.label2.Visibility = Visibility.Hidden;
 
             // Button
-            this.button1.Content = "Ausstelleung laden"; // Load Exhibition
+            this.button1.Content = "Ausstelleung laden"; // "Load exhibition"
             this.button1.Visibility = Visibility.Visible;
         }
 
@@ -527,8 +528,7 @@ namespace IMI_Presentation
             this.label2.Visibility = Visibility.Visible;
 
             // Button
-            this.button1.Visibility = Visibility.Hidden;
-        
+            this.button1.Visibility = Visibility.Hidden;        
         }
 
         private void showNavigation()
@@ -544,15 +544,18 @@ namespace IMI_Presentation
             this.label2.Visibility = Visibility.Visible;
 
             // Button
-            this.button1.Visibility = Visibility.Hidden;
-        
+            this.button1.Visibility = Visibility.Hidden;        
         }
 
         private void showPresentation()
         {
             // Images
             this.image1.Visibility = Visibility.Hidden;
-            this.image2.Visibility = Visibility.Hidden;
+            IEnumerator e = this.TMP_EXHIBIT.getImages().Keys.GetEnumerator();
+            e.MoveNext();
+            object key = e.Current;
+            this.image2.Source = this.TMP_EXHIBIT.getImages()[key.ToString()];
+            this.image2.Visibility = Visibility.Visible;
 
             // Labels
             this.textBlock1.Text = this.TMP_EXHIBIT.getName();
@@ -561,8 +564,7 @@ namespace IMI_Presentation
             this.label2.Visibility = Visibility.Visible;
 
             // Button
-            this.button1.Visibility = Visibility.Hidden;
-        
+            this.button1.Visibility = Visibility.Hidden;        
         }
 
         private void loadImage1(string path)
@@ -588,7 +590,7 @@ namespace IMI_Presentation
             Thread.Sleep(this.IMI_EXHIBITION.getSelectionTime());
             this.TMP_EXHIBIT = this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET);
             this.mode = Mode.Presentation;
-            pauseSession(this.IMI_EXHIBITION.getLockTime());
+            pauseSession(this.IMI_EXHIBITION.getLockTime()); // pause selection for lockTime[ms]
             stopSelectionTimer();
         }
         #endregion
