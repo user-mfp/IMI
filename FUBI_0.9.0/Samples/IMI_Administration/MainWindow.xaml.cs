@@ -1938,7 +1938,7 @@ namespace IMI_Administration
                 case Headline.ExhibitDone: //"abort validation of exhibition plane"        
                     if (this.setting == Setting.UserPosition)
                     {
-                        this.exhibition.setUserPosition(new Point3D(1, 1, 1));
+                        //this.exhibition.setUserPosition SOMEHOW
 
                         this.contentLabel1 = this.exhibition.getName() + " - EINSTELLUNGEN";
                         this.contentButton5 = "OK";

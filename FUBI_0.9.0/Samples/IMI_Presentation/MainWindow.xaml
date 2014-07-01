@@ -29,7 +29,7 @@
         <Button Content="..." Name="button1" FontSize="70" Height="Auto" Width="Auto" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click" FontFamily="Wasco Sans" Grid.Column="1" Grid.Row="1"/>
         
         <!-- Images -->
-        <Image Name="image1" Grid.ColumnSpan="5" Grid.RowSpan="5"/>
+        <Image Name="image1" Grid.ColumnSpan="5" Grid.RowSpan="5" />
         <Image Name="image2" Grid.Column="3" Grid.Row="2" Grid.RowSpan="2"/>
     </Grid>
 </Window>

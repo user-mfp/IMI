@@ -28,7 +28,7 @@ namespace IMI_Presentation
             Presentation
         };
         // Internal path to exhibition
-        private string IMI_EXHIBITION_PATH = @"C:\Users\Haßleben\Desktop\IMI-DATA\Daten\IMI_ExhibitionPath.txt";
+        private string IMI_EXHIBITION_PATH = @"C:\IMI-DATA\Daten\IMI_ExhibitionPath.txt";
         #endregion
 
         #region DECLARATIONS
@@ -40,6 +40,8 @@ namespace IMI_Presentation
         private Mode mode;
         private string contentLabel1;
         private string contentLabel2;
+        private BitmapImage contentImage1;
+        private BitmapImage contentImage2;
         // Dialog
         private OpenFileDialog loadConfigDialog;
         // Handler
@@ -60,7 +62,7 @@ namespace IMI_Presentation
         private bool tracking;
         private Thread trackThread;
         // Session-thread
-        private bool paused;
+        private bool paused = false;
         private bool sessioning;
         private Thread sessionThread;
         // Timed threads
@@ -149,7 +151,7 @@ namespace IMI_Presentation
                 this.sessionHandler.initPlane(this.IMI_EXHIBITION.getExhibitionPlane());
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
 
-                this.contentLabel1 = this.IMI_EXHIBITION.getName();
+                this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
                 this.mode = Mode.Standby;
                 updateLayout();
 
@@ -216,9 +218,11 @@ namespace IMI_Presentation
 
             if (this.ids.Count != 0) // There are visitors
             {
-                if (!this.sessioning) // Start session
+                if (!this.sessioning) // No session in progress
                 {
-                    startSession();
+                    startSession(); // Start session
+                    this.contentLabel1 = "Navigation - " + this.IMI_EXHIBITION.getName();
+                    this.mode = Mode.Navigation;
                 }
 
                 this.users.Clear(); // Remove all ids                
@@ -233,14 +237,16 @@ namespace IMI_Presentation
                     updateJoints();
                 }
             }
-            else // There are no (more) visitors
+            else // (this.ids.Count == 0) // There are no visitors
             {
                 if (this.sessioning)
                 {
-                    stopSession();
-                    this.contentLabel2 = "No Visitors: Start Stanby-Countdown";
+                    stopSession(); // Start a session
+                    this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
+                    this.mode = Mode.Standby;
                 }
             }
+            //this.contentLabel2 = "User: " + this.IMI_ID + '\n' + "Exp.: " + this.IMI_TARGET + '\n' + "track: " + this.tracking + '\n' + "sess: " + this.sessioning + '\n' + "paus: " + this.paused + '\n';
             updateLayout();
         }
 
@@ -248,33 +254,29 @@ namespace IMI_Presentation
         {
             while (this.sessioning)
             {
-                if (this.IMI_ID != 99 && !this.paused) // There is no user in the interaction zone
+                if (!this.paused) // Session in progress
                 {
-                    Point3D pos = this.sessionHandler.getPosition(takeAimingSample());
-                    this.TMP_TARGET = this.sessionHandler.getTarget(takeAimingSample());
-                    updateTarget();
-                    /*if (this.IMI_TARGET != 99) // There is a valid target
+                    if (this.IMI_ID != 99) // User in interaction zone
                     {
-                        this.contentLabel2 = "ID:" + '\t' + this.IMI_ID
-                            + '\n' + "Target:" + '\t' + this.IMI_EXHIBITION.getExhibits()[this.IMI_TARGET].getName();
+                        //Point3D pos = this.sessionHandler.getPosition(takeAimingSample());
+                        this.TMP_TARGET = this.sessionHandler.getTarget(takeAimingSample());
+                        updateTarget();
                     }
-                    else
+                    else // (this.IMI_ID == 99) // No user in interaction zone 
                     {
-                        this.contentLabel2 = "ID:" + '\t' + this.IMI_ID
-                            + '\n' + "Pos:" + '\t' + (int)pos.X + ";" + (int)pos.Y + ";" + (int)pos.Z;
-                    }*/
+                        //this.contentLabel2 = "Mode." + this.mode.ToString() + ": No updateTarget()." + '\n' + "IMI_ID: " + this.IMI_ID; //"Mode.Navigation: No updateTarget()"
+                    }
                 }
-                else if (this.IMI_ID == 99 && !this.paused)
+                else // (this.paused) // Session paused
                 {
-                    this.contentLabel2 = "Empty Zone: Waiting for users.";
-                }
-                else if ((this.IMI_ID == 99 || this.IMI_ID != 99) && this.paused)
-                {
-                    this.contentLabel2 = "Paused: Not sampling, but tracking.";
-                }
-                else
-                {
-                    this.contentLabel2 = "ID: " + this.IMI_ID + '\n' + "" + "Paused: " + this.paused;
+                    if (this.IMI_ID != 99) // User in interaction zone
+                    {
+                        //this.contentLabel2 = "Paused: Not sampling, but tracking and user in zone.";
+                    }
+                    else // (this.IMI_ID == 99) // No user in interaction zone
+                    {
+                        //this.contentLabel2 = "Paused: Not sampling, but tracking and no user in zone.";
+                    }
                 }
             }
         }
@@ -326,7 +328,7 @@ namespace IMI_Presentation
 
         private void updateTarget()
         {
-            if (this.IMI_TARGET != this.TMP_TARGET && this.TMP_TARGET != 99) // New target assigned AND is valid
+            if (this.IMI_TARGET != this.TMP_TARGET && this.TMP_TARGET != 99) // New target assigned AND it is valid
             {
                 this.IMI_TARGET = this.TMP_TARGET; // Assign new, valid target
                 if (this.selecting) // Timer already running
@@ -401,10 +403,8 @@ namespace IMI_Presentation
 
         private void startSession()
         {
-            // Starting the session-thread properly
             this.sessionThread = new Thread(updateSession);
             this.sessioning = true;
-            this.paused = false;
             this.sessionThread.Start();
         }
 
@@ -417,16 +417,13 @@ namespace IMI_Presentation
 
         private void stopTracking()
         {
-            // Stopping the tracking-thread properly
             this.tracking = false;
             this.trackThread.Abort();
         }
 
         private void stopSession()
         {
-            // Stopping the tracking-thread properly
             this.sessioning = false;
-            this.paused = true;
             this.sessionThread.Abort();
         }
 
@@ -438,29 +435,27 @@ namespace IMI_Presentation
 
         private void pauseSession()
         {
-            if (this.tracking && this.sessioning) // Session in progress
+            if (!this.paused)
             {
-                if (!this.paused)
-                {
-                    this.paused = true;
-                }
-                else
-                {
-                    this.paused = false;
-                }
+                this.paused = true;
+            }
+            else
+            {
+                this.paused = false;
             }
         }
 
         private void pauseSession(int ms)
         {
-            if (this.tracking && this.sessioning) // Session in progress
+            if (!this.paused) // Session in progress
             {
-                if (!this.paused)
-                {
-                    this.paused = true;
-                    Thread.Sleep(ms);
-                    this.paused = false;
-                }
+                this.paused = true;
+                Thread.Sleep(ms);
+                this.paused = false;
+            }
+            else
+            {
+                this.paused = false;
             }
         }
 
@@ -478,6 +473,22 @@ namespace IMI_Presentation
         }
         #endregion
         
+        #region TIMERS
+        private void selection()
+        {
+            Thread.Sleep(this.IMI_EXHIBITION.getSelectionTime()); // Wait for confirmation time to elapse
+
+            this.TMP_EXHIBIT = this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET); // Set current exhibit
+
+            this.contentLabel1 = this.TMP_EXHIBIT.getName(); // Set the current exhibit's name as headline
+            this.contentLabel2 = this.TMP_EXHIBIT.getDescription(); // Set the current exhibit's description
+            this.mode = Mode.Presentation; // Go to presentation mode
+
+            pauseSession(this.IMI_EXHIBITION.getLockTime());
+            stopSelectionTimer(); // Selection done := close this thread
+        }
+        #endregion
+
         #region LAYOUT
         private void updateLayout()
         {
@@ -518,14 +529,13 @@ namespace IMI_Presentation
         private void showStandby()
         {
             // Images
-            this.image1.Visibility = Visibility.Hidden;
+            this.image1.Source = this.IMI_EXHIBITION.getBackgroundImage().Value;
+            this.image1.Visibility = Visibility.Visible;
             this.image2.Visibility = Visibility.Hidden;
 
             // Labels
-            this.textBlock1.Text = this.contentLabel1;
-            this.label1.Visibility = Visibility.Visible;
-            this.textBlock2.Text = this.contentLabel2;
-            this.label2.Visibility = Visibility.Visible;
+            this.label1.Visibility = Visibility.Hidden;
+            this.label2.Visibility = Visibility.Hidden;
 
             // Button
             this.button1.Visibility = Visibility.Hidden;        
@@ -551,47 +561,33 @@ namespace IMI_Presentation
         {
             // Images
             this.image1.Visibility = Visibility.Hidden;
-            IEnumerator e = this.TMP_EXHIBIT.getImages().Keys.GetEnumerator();
-            e.MoveNext();
-            object key = e.Current;
-            this.image2.Source = this.TMP_EXHIBIT.getImages()[key.ToString()];
+            this.image2.Source = this.contentImage2;
             this.image2.Visibility = Visibility.Visible;
 
             // Labels
-            this.textBlock1.Text = this.TMP_EXHIBIT.getName();
+            this.textBlock1.Text = this.contentLabel1;
             this.label1.Visibility = Visibility.Visible;
-            this.textBlock2.Text = this.TMP_EXHIBIT.getDescription();
+            this.textBlock2.Text = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
 
             // Button
             this.button1.Visibility = Visibility.Hidden;        
         }
 
-        private void loadImage1(string path)
-        { 
-            
+        private void loadImage1(BitmapImage image)
+        {
+            this.image1.Source = image;
         }
 
-        private void loadImage2(string path)
-        { 
-        
+        private void loadImage2(BitmapImage image)
+        {
+            this.image2.Source = image;
         }
 
         private void updateLabels()
         {
             this.textBlock1.Text = this.contentLabel1;
             this.textBlock2.Text = this.contentLabel2;
-        }
-        #endregion
-
-        #region TIMERS
-        private void selection()
-        { 
-            Thread.Sleep(this.IMI_EXHIBITION.getSelectionTime());
-            this.TMP_EXHIBIT = this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET);
-            this.mode = Mode.Presentation;
-            pauseSession(this.IMI_EXHIBITION.getLockTime()); // pause selection for lockTime[ms]
-            stopSelectionTimer();
         }
         #endregion
 
@@ -610,46 +606,12 @@ namespace IMI_Presentation
                             this.TMP_PATH = null;
                             this.sessionHandler = new SessionHandler(42, this.IMI_EXHIBITION.getUserPosition());
 
-                            this.contentLabel1 = this.IMI_EXHIBITION.getName();
+                            this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
                             this.mode = Mode.Standby;
                             updateLayout();
 
                             startTracking();
                         }
-                    }
-                    else
-                    {
-                        closeAllThreads();
-                    }
-                    break;
-                case Mode.Standby:
-                    if (!this.tracking)
-                    {
-                        startTracking();
-                    }
-                    else
-                    {
-                        closeAllThreads();
-                    }
-                    break;
-                case Mode.Navigation:
-                    if (!this.tracking)
-                    {
-                        startTracking();
-                    }
-                    else
-                    {
-                        closeAllThreads();
-                    }
-                    break;
-                case Mode.Presentation:
-                    if (!this.tracking)
-                    {
-                        startTracking();
-                    }
-                    else
-                    {
-                        closeAllThreads();
                     }
                     break;
                 default:
@@ -665,7 +627,7 @@ namespace IMI_Presentation
                     closeAllThreads();
                     break;
                 case Key.Space:
-                    pauseSession(3000);
+                    pauseSession();
                     break;
                 default:
                     break;
