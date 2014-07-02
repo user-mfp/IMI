@@ -68,8 +68,8 @@ namespace IMI_Presentation
         // Timed threads
         private bool selecting;
         private Thread selectionThread;
-        private bool slideShow;
-        private Thread slideThread;
+        private bool presenting;
+        private Thread presentationThread;
         private bool waiting;
         private Thread endWaitThread;
         #endregion
@@ -236,6 +236,10 @@ namespace IMI_Presentation
                 {
                     updateJoints();
                 }
+                else // (this.IMI_ID == 99) // There is no user in the interaction zone
+                { 
+                    // Keep going
+                }
             }
             else // (this.ids.Count == 0) // There are no visitors
             {
@@ -331,7 +335,7 @@ namespace IMI_Presentation
             if (this.IMI_TARGET != this.TMP_TARGET && this.TMP_TARGET != 99) // New target assigned AND it is valid
             {
                 this.IMI_TARGET = this.TMP_TARGET; // Assign new, valid target
-                if (this.selecting) // Timer already running
+                if (this.selecting) // Timer already running or no valid target (exhibit) selected := deselect
                 {
                     stopSelectionTimer();
                 }
@@ -415,6 +419,13 @@ namespace IMI_Presentation
             this.selectionThread.Start();
         }
 
+        private void startPresentation()
+        {
+            this.presentationThread = new Thread(presentation);
+            this.presenting = true;
+            this.presentationThread.Start();
+        }
+
         private void stopTracking()
         {
             this.tracking = false;
@@ -431,6 +442,17 @@ namespace IMI_Presentation
         {
             this.selecting = false;
             this.selectionThread.Abort();
+        }
+
+        private void stopPresentation()
+        {
+            // Reload navigtion's properties
+            this.contentLabel1 = "Navigation - " + this.IMI_EXHIBITION.getName();
+            this.contentLabel2 = "";
+            this.mode = Mode.Navigation;
+
+            this.presenting = false;
+            this.presentationThread.Abort();
         }
 
         private void pauseSession()
@@ -461,22 +483,30 @@ namespace IMI_Presentation
 
         private void closeAllThreads()
         {
-            if (this.sessioning)
-            {
-                stopSession();
-            }
             if (this.tracking)
             {
                 stopTracking();
             }
+            if (this.sessioning)
+            {
+                stopSession();
+            }
+            if (this.presenting)
+            {
+                stopPresentation();
+            }
             this.Close();
         }
         #endregion
-        
+
         #region TIMERS
         private void selection()
         {
             Thread.Sleep(this.IMI_EXHIBITION.getSelectionTime()); // Wait for confirmation time to elapse
+            if (this.presenting) // PResentation allready running
+            {
+                stopPresentation(); // Abort running presentation
+            }
 
             this.TMP_EXHIBIT = this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET); // Set current exhibit
 
@@ -484,8 +514,23 @@ namespace IMI_Presentation
             this.contentLabel2 = this.TMP_EXHIBIT.getDescription(); // Set the current exhibit's description
             this.mode = Mode.Presentation; // Go to presentation mode
 
+            startPresentation();
             pauseSession(this.IMI_EXHIBITION.getLockTime());
             stopSelectionTimer(); // Selection done := close this thread
+        }
+
+        private void presentation()
+        {
+            foreach (KeyValuePair<string, BitmapImage> image in this.TMP_EXHIBIT.getImages())
+            {
+                this.contentLabel1 = this.TMP_EXHIBIT.getName();
+                this.contentLabel2 = this.TMP_EXHIBIT.getDescription();
+                this.contentImage2 = image.Value; // Load next image
+                Thread.Sleep(this.IMI_EXHIBITION.getSlideTime()); // Wait for the slideTime
+            }
+            Thread.Sleep(this.IMI_EXHIBITION.getEndWait()); // Wait a little more
+            
+            stopPresentation();
         }
         #endregion
 

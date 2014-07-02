@@ -5,31 +5,25 @@
         WindowState="Maximized" WindowStyle="None" Width="1920" Height="1080" KeyUp="Window_KeyUp">
     <Grid Width="Auto" Height="Auto" Background="Beige">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="945*"/>
-            <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="945*"/>
-            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
         <!-- Labels -->
-        <Label Name="label1" Height="Auto" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
+        <Label Name="label1" Height="Auto" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="1">
             <TextBlock Text="" TextWrapping="Wrap" Name="textBlock1" FontSize="70" FontFamily="Wasco Sans" Padding="10" Foreground="Black" Background="BlanchedAlmond"/>
         </Label>
-        <Label Name="label2" Height="Auto" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Grid.Row="2" Grid.RowSpan="2">
+        <Label Name="label2" Height="Auto" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="1" Grid.RowSpan="1">
             <TextBlock Text="" TextWrapping="Wrap" Name="textBlock2" FontSize="70" FontFamily="Wasco Sans" Padding="10" Foreground="Black" Background="BlanchedAlmond"/>
         </Label>
         <!-- Buttons -->
-        <Button Content="..." Name="button1" FontSize="70" Height="Auto" Width="Auto" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click" FontFamily="Wasco Sans" Grid.Column="1" Grid.Row="1"/>
+        <Button Content="..." Name="button1" FontSize="70" Height="Auto" Width="Auto" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click" FontFamily="Wasco Sans" Margin="10" Grid.Column="0" Grid.Row="0"/>
         
         <!-- Images -->
-        <Image Name="image1" Grid.ColumnSpan="5" Grid.RowSpan="5" />
-        <Image Name="image2" Grid.Column="3" Grid.Row="2" Grid.RowSpan="2"/>
+        <Image Name="image1" Height="Auto" Width="Auto" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2" />
+        <Image Name="image2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Grid.Column="1" Grid.Row="1"/>
     </Grid>
 </Window>

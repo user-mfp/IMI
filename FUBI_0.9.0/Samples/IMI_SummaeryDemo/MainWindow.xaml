@@ -1,0 +1,11 @@
+﻿<Window x:Class="IMI_SummaeryDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="IMI Präsentationssoftware" 
+        WindowState="Maximized" WindowStyle="None" Width="1920" Height="1080" 
+        Background="Black"
+        KeyUp="Window_KeyUp">
+    <Grid>
+        
+    </Grid>
+</Window>
