@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.ComponentModel;
 using System;
 using System.Collections;
+using System.Windows.Media;
 
 namespace IMI_Presentation
 {
@@ -40,7 +41,6 @@ namespace IMI_Presentation
         private Mode mode;
         private string contentLabel1;
         private string contentLabel2;
-        private BitmapImage contentImage1;
         private BitmapImage contentImage2;
         // Dialog
         private OpenFileDialog loadConfigDialog;
@@ -139,18 +139,19 @@ namespace IMI_Presentation
         {
             string exhibitionPath = this.fileHandler.readTxt(this.IMI_EXHIBITION_PATH);
 
-            if (exhibitionPath == "")
+            if (exhibitionPath == "") // There is no exhibition
             {
                 this.mode = Mode.Start;
                 updateLayout();
             }
-            else
+            else // There is an exhibition
             {
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
                 this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0);
                 this.sessionHandler.initPlane(this.IMI_EXHIBITION.getExhibitionPlane());
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
 
+                loadBackground(this.IMI_EXHIBITION.getBackgroundImage().Value);
                 this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
                 this.mode = Mode.Standby;
                 updateLayout();
@@ -557,9 +558,9 @@ namespace IMI_Presentation
         }
 
         private void showStart()
-        { 
+        {
             // Images
-            this.image1.Visibility = Visibility.Hidden;
+            this.Background = Brushes.BlanchedAlmond;
             this.image2.Visibility = Visibility.Hidden;
 
             // Labels
@@ -574,8 +575,7 @@ namespace IMI_Presentation
         private void showStandby()
         {
             // Images
-            this.image1.Source = this.IMI_EXHIBITION.getBackgroundImage().Value;
-            this.image1.Visibility = Visibility.Visible;
+            loadBackground(this.IMI_EXHIBITION.getBackgroundImage().Value);
             this.image2.Visibility = Visibility.Hidden;
 
             // Labels
@@ -589,14 +589,12 @@ namespace IMI_Presentation
         private void showNavigation()
         {
             // Images
-            this.image1.Visibility = Visibility.Hidden;
+            loadBackground(this.IMI_EXHIBITION.getOverview().Value);
             this.image2.Visibility = Visibility.Hidden;
 
             // Labels
-            this.textBlock1.Text = this.contentLabel1;
-            this.label1.Visibility = Visibility.Visible;
-            this.textBlock2.Text = this.contentLabel2;
-            this.label2.Visibility = Visibility.Visible;
+            this.label1.Visibility = Visibility.Hidden;
+            this.label2.Visibility = Visibility.Hidden;
 
             // Button
             this.button1.Visibility = Visibility.Hidden;        
@@ -605,7 +603,7 @@ namespace IMI_Presentation
         private void showPresentation()
         {
             // Images
-            this.image1.Visibility = Visibility.Hidden;
+            this.Background = Brushes.BlanchedAlmond;
             this.image2.Source = this.contentImage2;
             this.image2.Visibility = Visibility.Visible;
 
@@ -619,9 +617,9 @@ namespace IMI_Presentation
             this.button1.Visibility = Visibility.Hidden;        
         }
 
-        private void loadImage1(BitmapImage image)
+        private void loadBackground(BitmapImage image)
         {
-            this.image1.Source = image;
+            this.Background = new ImageBrush(image);
         }
 
         private void loadImage2(BitmapImage image)
