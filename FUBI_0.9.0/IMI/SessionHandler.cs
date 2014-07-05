@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System;
 using XNA = Microsoft.Xna.Framework;
-
+using System.Windows;
+using System.Windows.Forms;
 
 namespace IMI
 {
@@ -13,30 +14,34 @@ namespace IMI
         private Point3D userPosition;
         private double radius;
         private Dictionary<Point3D, int> lookup;
-        
+                
         // Plane
         private XNA.Plane plane;
         private XNA.Vector3 planeNormal;
         private XNA.Vector3 planeStart;
         private XNA.Vector3 planeEnd1;
         private XNA.Vector3 planeEnd2;
+        private XNA.Vector3 planeDir1;
+        private XNA.Vector3 planeDir2;
+
+        // Screen
+        private Point3D screenSize;
+        private Point3D canvasSize;
+        private double planeCanvasRatio;
 
         private GeometryHandler geometryHandler = new GeometryHandler();
         #endregion
 
-        #region CONSTRUCTORS
-        public SessionHandler(uint id, Point3D userPosition)
-        {
-            this.id = id;
-            this.userPosition = userPosition;
-            this.radius = 300.0;// Default := 300mm
-        }
-
-        public SessionHandler(uint id, Point3D userPosition, double radius)
+        #region CONSTRUCTOR
+        public SessionHandler(uint id, Point3D userPosition, double radius, GeometryHandler.Plane plane, Point3D screenSize)
         {
             this.id = id;
             this.userPosition = userPosition;
             this.radius = radius;
+            this.screenSize = screenSize;
+
+            initPlane(plane);
+            initScreen();
         }
         #endregion
 
@@ -75,12 +80,13 @@ namespace IMI
         #region PLANE
         public void initPlane(GeometryHandler.Plane plane)
         {
+            // Plane
             this.planeStart = new XNA.Vector3((float)plane.Start.X, (float)plane.Start.Y, (float)plane.Start.Z);
             this.planeEnd1 = new XNA.Vector3((float)plane.End1.X, (float)plane.End1.Y, (float)plane.End1.Z);
             this.planeEnd2 = new XNA.Vector3((float)plane.End2.X, (float)plane.End2.Y, (float)plane.End2.Z);
-
+            this.planeDir1 = new XNA.Vector3((float)plane.Direction1.X, (float)plane.Direction1.Y, (float)plane.Direction1.Z);
+            this.planeDir2 = new XNA.Vector3((float)plane.Direction2.X, (float)plane.Direction2.Y, (float)plane.Direction2.Z);
             this.plane = new XNA.Plane(planeStart, planeEnd1, planeEnd2);
-
             this.planeNormal = this.plane.Normal;
         }
         #endregion
@@ -147,7 +153,6 @@ namespace IMI
             Point3D tmp = new Point3D();
             double min = this.radius;
 
-            DateTime start = DateTime.Now;
             foreach (KeyValuePair<Point3D, int> position in this.lookup)
             {
                 double distance = this.geometryHandler.getDistance(target, position.Key);
@@ -157,8 +162,6 @@ namespace IMI
                     min = distance;
                 }
             }
-            DateTime end = DateTime.Now;
-            TimeSpan dur = end - start;
             return tmp;
         }
 
@@ -168,7 +171,6 @@ namespace IMI
             int tmp = 99;
             double min = this.radius;
 
-            DateTime start = DateTime.Now;
             foreach (KeyValuePair<Point3D, int> position in this.lookup)
             {
                 double distance = this.geometryHandler.getDistance(target, position.Key);
@@ -178,23 +180,24 @@ namespace IMI
                     min = distance;
                 }
             }
-            DateTime end = DateTime.Now;
-            TimeSpan dur = end - start;
             return tmp;
         }
 
         private List<Point3D> makeLookupPositions(GeometryHandler.Plane plane)
         {
             List<Point3D> planePositions = new List<Point3D>();
-            Point3D tmpPos = new Point3D();
-            double stepSize = 0.002; // ~3mm steps, at least in lab's exhibition plane(1800x1800mm)
+            Point3D tmpPos = plane.Start;
+            double steps = 1000; // ~3mm steps, at least in lab's exhibition plane(1800x1800mm)
             double lambdaDir1;
             double lambdaDir2;
 
-            for (lambdaDir1 = 0.0; lambdaDir1 < 2.0; lambdaDir1 += stepSize) // Over (twice) the first direction of the plane, make 1000(=: 2.0/stepSize) steps
+            planePositions.Add(tmpPos);
+            for (int stepDir1 = 0; stepDir1 != steps; ++stepDir1) // Over (twice) the first direction of the plane, make 1000(=: 2.0/stepSize) steps
             {
-                for (lambdaDir2 = 0.0; lambdaDir2 < 2.0; lambdaDir2 += stepSize) // Over (twice) the second direction of the plane, make 1000(=: 2.0/stepSize) steps
+                for (int stepDir2 = 0; stepDir2 != steps; ++stepDir2) // Over (twice) the second direction of the plane, make 1000(=: 2.0/stepSize) steps
                 {
+                    lambdaDir1 = (stepDir1 + 1) / steps;
+                    lambdaDir2 = (stepDir2 + 1) / steps;
                     tmpPos = plane.Start + (lambdaDir1 * plane.Direction1) + (lambdaDir2 * plane.Direction2);
                     planePositions.Add(tmpPos);
                 }
@@ -226,6 +229,92 @@ namespace IMI
                 }
             }
             return index;
+        }
+        #endregion
+
+        #region SCREEN
+        private void initScreen()
+        {
+            this.canvasSize = new Point3D();
+            float planeDir1L = this.planeDir1.Length(); // Depth of plane
+            float planeDir2L = this.planeDir2.Length(); // Width of plane
+            float planeDirMax = Math.Max(planeDir1L, planeDir2L);
+
+            if (planeDirMax == planeDir1L) // Depth the plane is longest dimension
+            {
+                this.canvasSize.Y = this.screenSize.Y;
+                this.planeCanvasRatio = canvasSize.Y / planeDir1L;
+                this.canvasSize.X = this.screenSize.X * this.planeCanvasRatio;
+            }
+            else if (planeDirMax == planeDir2L) // Width of plane is longest dimension
+            {
+                this.canvasSize.X = this.screenSize.X;
+                this.planeCanvasRatio = canvasSize.X / planeDir2L;
+                this.canvasSize.Y = this.screenSize.Y * this.planeCanvasRatio;
+            }
+            else // Neither is longest dimension of the two
+            {
+                // WTF?
+            }
+        }
+
+        public Point3D getCanvasSize()
+        {
+            return this.canvasSize;
+        }
+
+        public double getPlaneCanvasRatio()
+        {
+            return this.planeCanvasRatio;
+        }
+
+        private Point getClosestLambdas(Point3D target)
+        {
+            int tmp = 0;
+            int index = 0;
+            double min = this.radius;
+
+            foreach (KeyValuePair<Point3D, int> position in this.lookup)
+            {
+                double distance = this.geometryHandler.getDistance(target, position.Key);
+
+                if (distance < min)
+                {
+                    index = tmp;
+                    min = distance;
+                }
+
+                ++tmp;
+            }
+
+            int stepsDir1 = index / 1000;
+            int stepsDir2 = index % 1000;
+
+            Point lambdas = new Point();
+            lambdas.X = stepsDir1 / 1000.0;
+            lambdas.Y = stepsDir2 / 1000.0;
+
+            return lambdas;
+        }
+
+        public Point3D getCanvasPosition(Point3D position)
+        {
+            Point3D canvasPosition = new Point3D();
+            
+            Point lambdas = getClosestLambdas(position);
+            canvasPosition.Y = this.canvasSize.X - (lambdas.X * this.canvasSize.X); // Position on screen in relation to origin (upper left corner)
+            canvasPosition.X = this.canvasSize.Y - (lambdas.Y * this.canvasSize.Y); // Position on screen in relation to origin (upper left corner)
+
+            return canvasPosition;
+        }
+
+        public double getSizeOnCanvas(double planeSize)
+        {
+            double canvasSize = 0;
+
+            // TODO: RETURN CORRECT DIMENSIONS
+
+            return canvasSize;
         }
         #endregion
     }

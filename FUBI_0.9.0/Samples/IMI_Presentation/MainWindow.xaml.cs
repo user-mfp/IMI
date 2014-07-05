@@ -14,6 +14,7 @@ using System.ComponentModel;
 using System;
 using System.Collections;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace IMI_Presentation
 {
@@ -42,6 +43,10 @@ namespace IMI_Presentation
         private string contentLabel1;
         private string contentLabel2;
         private BitmapImage contentImage2;
+        // Feedback
+        private List<Ellipse> exhibitFeedbackPositions;
+        private Ellipse feedbackEllipse;
+        private Point3D feedbackPosition;
         // Dialog
         private OpenFileDialog loadConfigDialog;
         // Handler
@@ -56,8 +61,8 @@ namespace IMI_Presentation
         private List<uint> ids;
         private Dictionary<uint, Point3D> users = new Dictionary<uint,Point3D>(); 
         private uint IMI_ID;
-        private int TMP_TARGET;
-        private int IMI_TARGET;
+        private int TMP_TARGET = 99;
+        private int IMI_TARGET = 99;
         // Tracking-thread
         private bool tracking;
         private Thread trackThread;
@@ -92,6 +97,7 @@ namespace IMI_Presentation
 
             // Initialize layout
             initExhibition();
+            initFeedbackPositions();
         }
 
         private void initJoints()
@@ -102,6 +108,57 @@ namespace IMI_Presentation
             this.jointsToTrack.Add(new Point3D()); // [2] := LEFT_ELBOW
             this.jointsToTrack.Add(new Point3D()); // [3] := LEFT_HAND
             this.jointsToTrack.Add(new Point3D()); // [4] := HEAD
+        }
+
+        private void initFeedbackPositions()
+        {
+            this.exhibitFeedbackPositions = new List<Ellipse>();
+            double planeCanvasRatio = this.sessionHandler.getPlaneCanvasRatio();
+            Point3D canvasSize = this.sessionHandler.getCanvasSize();
+
+            // Define canvas size and set planeScreenRatio
+            this.canvas1.Width = canvasSize.X;
+            this.canvas1.Height = canvasSize.Y;
+
+            // Define Shapes for each exhibit
+            foreach (Exhibit exhibit in this.IMI_EXHIBITION.getExhibits())
+            {
+                Ellipse position = new Ellipse();
+                    
+                position.Width = exhibit.getKernelSize() * planeCanvasRatio;
+                position.Height = exhibit.getKernelSize() * planeCanvasRatio;                
+                position.Fill = Brushes.CornflowerBlue;
+                position.Opacity = 0.5;
+
+                this.canvas1.Children.Add(position);                
+                this.exhibitFeedbackPositions.Add(position);
+            }
+
+            // Define screen position for each exhibit according to its position on exhibition plane
+            int count = 0;
+            foreach (Shape joint in this.exhibitFeedbackPositions)
+            {
+                Point3D position = this.sessionHandler.getCanvasPosition(this.IMI_EXHIBITION.getExhibit(count).getPosition());
+
+                // Offset, since origin (0;0) is in top left corner of shape
+                position.X -= joint.Width / 2; // Move shape half its width to the left 
+                position.Y -= joint.Height / 2; // Move shape half its height up
+
+                Canvas.SetLeft(joint, position.X);
+                Canvas.SetTop(joint, position.Y);
+                ++count;
+            }
+
+            // Define feedback shape
+            this.feedbackEllipse = new Ellipse();
+            this.feedbackEllipse.Width = 50;
+            this.feedbackEllipse.Height = 50;
+            this.feedbackEllipse.Fill = Brushes.Coral;
+            // Define feedback position
+            this.feedbackPosition = new Point3D();
+            Canvas.SetLeft(this.feedbackEllipse, (this.canvas1.Width / 2)); // Center of the canvas
+            Canvas.SetTop(this.feedbackEllipse, (this.canvas1.Height / 2)); // Center of the canvas
+            this.canvas1.Children.Add(this.feedbackEllipse);
         }
 
         private void initFubi()
@@ -147,10 +204,9 @@ namespace IMI_Presentation
             else // There is an exhibition
             {
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
-                this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0);
-                this.sessionHandler.initPlane(this.IMI_EXHIBITION.getExhibitionPlane());
+                this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
-
+                
                 loadBackground(this.IMI_EXHIBITION.getBackgroundImage().Value);
                 this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
                 this.mode = Mode.Standby;
@@ -224,6 +280,7 @@ namespace IMI_Presentation
                     startSession(); // Start session
                     this.contentLabel1 = "Navigation - " + this.IMI_EXHIBITION.getName();
                     this.mode = Mode.Navigation;
+                    this.TMP_EXHIBIT = null;
                 }
 
                 this.users.Clear(); // Remove all ids                
@@ -236,6 +293,7 @@ namespace IMI_Presentation
                 if (this.IMI_ID != 99) // There is a user in the interaction zone
                 {
                     updateJoints();
+                    updateFeedbackPosition();
                 }
                 else // (this.IMI_ID == 99) // There is no user in the interaction zone
                 { 
@@ -263,7 +321,7 @@ namespace IMI_Presentation
                 {
                     if (this.IMI_ID != 99) // User in interaction zone
                     {
-                        //Point3D pos = this.sessionHandler.getPosition(takeAimingSample());
+                        this.feedbackPosition = this.sessionHandler.getPosition(takeAimingSample());
                         this.TMP_TARGET = this.sessionHandler.getTarget(takeAimingSample());
                         updateTarget();
                     }
@@ -341,6 +399,23 @@ namespace IMI_Presentation
                     stopSelectionTimer();
                 }
                 startSelectionTimer();
+            }
+        }
+
+        private void updateFeedbackPosition()
+        {
+            Point3D screenPosition = this.sessionHandler.getCanvasPosition(this.feedbackPosition);
+            screenPosition.X -= (this.feedbackEllipse.Width / 2);
+            screenPosition.Y -= (this.feedbackEllipse.Height / 2);
+            if (screenPosition.X > 0 && screenPosition.Y > 0)
+            {
+                Canvas.SetLeft(this.feedbackEllipse, screenPosition.X);
+                Canvas.SetTop(this.feedbackEllipse, screenPosition.Y);
+            }
+            else
+            {
+                Canvas.SetLeft(this.feedbackEllipse, (this.canvas1.Width / 2));
+                Canvas.SetTop(this.feedbackEllipse, (this.canvas1.Height / 2));
             }
         }
 
@@ -451,6 +526,7 @@ namespace IMI_Presentation
             this.contentLabel1 = "Navigation - " + this.IMI_EXHIBITION.getName();
             this.contentLabel2 = "";
             this.mode = Mode.Navigation;
+            this.TMP_EXHIBIT = null;
 
             this.presenting = false;
             this.presentationThread.Abort();
@@ -559,6 +635,9 @@ namespace IMI_Presentation
 
         private void showStart()
         {
+            // Canvas
+            this.canvas1.Visibility = Visibility.Visible;
+
             // Images
             this.Background = Brushes.BlanchedAlmond;
             this.image2.Visibility = Visibility.Hidden;
@@ -574,6 +653,9 @@ namespace IMI_Presentation
 
         private void showStandby()
         {
+            // Canvas
+            this.canvas1.Visibility = Visibility.Hidden;
+
             // Images
             loadBackground(this.IMI_EXHIBITION.getBackgroundImage().Value);
             this.image2.Visibility = Visibility.Hidden;
@@ -588,6 +670,9 @@ namespace IMI_Presentation
 
         private void showNavigation()
         {
+            // Canvas
+            this.canvas1.Visibility = Visibility.Visible;
+
             // Images
             loadBackground(this.IMI_EXHIBITION.getOverview().Value);
             this.image2.Visibility = Visibility.Hidden;
@@ -602,6 +687,9 @@ namespace IMI_Presentation
 
         private void showPresentation()
         {
+            // Canvas
+            this.canvas1.Visibility = Visibility.Hidden;
+
             // Images
             this.Background = Brushes.BlanchedAlmond;
             this.image2.Source = this.contentImage2;
@@ -647,8 +735,8 @@ namespace IMI_Presentation
                             this.IMI_EXHIBITION = this.fileHandler.loadExhibition(this.TMP_PATH);
                             this.fileHandler.writeTxt(this.IMI_EXHIBITION_PATH, this.TMP_PATH);
                             this.TMP_PATH = null;
-                            this.sessionHandler = new SessionHandler(42, this.IMI_EXHIBITION.getUserPosition());
-
+                            this.sessionHandler = new SessionHandler(99, this.IMI_EXHIBITION.getUserPosition(), 250.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
+                
                             this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
                             this.mode = Mode.Standby;
                             updateLayout();

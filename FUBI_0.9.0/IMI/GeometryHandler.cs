@@ -310,6 +310,19 @@ namespace IMI
             return new Vector(getCenter(starts), getCenter(ends));
         }
 
+        public double getAvg(List<double> values)
+        {
+            double average = 0.0;
+
+            foreach (double value in values)
+            {
+                average += value;
+            }
+            average /= values.Count;
+
+            return average;
+        }
+
         private int withinThreshold(Point3D a, Point3D b)
         {
             int passes = 0;
@@ -531,6 +544,17 @@ namespace IMI
         public Point3D makePoint3D(XNA.Vector3 vector)
         {
             Point3D point = new Point3D();
+
+            point.X = (double)vector.X;
+            point.Y = (double)vector.Y;
+            point.Z = (double)vector.Z;
+
+            return point;
+        }
+
+        public Vector3D makeVector3D(XNA.Vector3 vector)
+        {
+            Vector3D point = new Vector3D();
 
             point.X = (double)vector.X;
             point.Y = (double)vector.Y;
