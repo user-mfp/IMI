@@ -280,7 +280,8 @@ namespace IMI_Presentation
                     startSession(); // Start session
                     this.contentLabel1 = "Navigation - " + this.IMI_EXHIBITION.getName();
                     this.mode = Mode.Navigation;
-                    this.TMP_EXHIBIT = null;
+                    this.TMP_TARGET = 99;
+                    this.IMI_TARGET = 99;
                 }
 
                 this.users.Clear(); // Remove all ids                
@@ -526,7 +527,8 @@ namespace IMI_Presentation
             this.contentLabel1 = "Navigation - " + this.IMI_EXHIBITION.getName();
             this.contentLabel2 = "";
             this.mode = Mode.Navigation;
-            this.TMP_EXHIBIT = null;
+            this.TMP_TARGET = 99;
+            this.IMI_TARGET = 99;
 
             this.presenting = false;
             this.presentationThread.Abort();
