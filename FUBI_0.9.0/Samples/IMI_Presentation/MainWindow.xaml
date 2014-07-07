@@ -15,7 +15,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <!-- Canvas -->
-        <Canvas Name="canvas1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2" Background="Gainsboro"/>
+        <Canvas Name="canvas1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="Gainsboro"/>
         
         <!-- Labels -->
         <Label Name="label1" Height="Auto" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">

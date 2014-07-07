@@ -673,6 +673,7 @@ namespace IMI_Presentation
         private void showNavigation()
         {
             // Canvas
+            this.canvas1.Height = this.sessionHandler.getCanvasSize().Y;
             this.canvas1.Visibility = Visibility.Visible;
 
             // Images
@@ -690,6 +691,7 @@ namespace IMI_Presentation
         private void showPresentation()
         {
             // Canvas
+            this.canvas1.Height = 0;
             this.canvas1.Visibility = Visibility.Hidden;
 
             // Images
