@@ -31,6 +31,7 @@ namespace IMI_Presentation
         };
         // Internal path to exhibition
         private string IMI_EXHIBITION_PATH = @"C:\IMI-DATA\Daten\IMI_ExhibitionPath.txt";
+        private string IMI_INTRO_PATH = @"C:\IMI-DATA\Bilder\white.jpg";
         #endregion
 
         #region DECLARATIONS
@@ -43,6 +44,7 @@ namespace IMI_Presentation
         private string contentLabel1;
         private string contentLabel2;
         private BitmapImage contentImage2;
+        private BitmapImage IMI_INTRO;
         // Feedback
         private List<Ellipse> exhibitFeedbackPositions;
         private Ellipse feedbackEllipse;
@@ -60,7 +62,7 @@ namespace IMI_Presentation
         private float confidence; // DO NOT USE ! ! !
         private List<uint> ids;
         private Dictionary<uint, Point3D> users = new Dictionary<uint,Point3D>(); 
-        private uint IMI_ID;
+        private uint IMI_ID = 99;
         private int TMP_TARGET = 99;
         private int IMI_TARGET = 99;
         // Tracking-thread
@@ -204,6 +206,8 @@ namespace IMI_Presentation
             else // There is an exhibition
             {
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
+                this.IMI_INTRO = new BitmapImage(new Uri(this.IMI_INTRO_PATH));
+
                 this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
 
@@ -273,42 +277,55 @@ namespace IMI_Presentation
         {
             this.ids = trackableUserIds(); // Get all trackable users
 
+            this.users.Clear(); // Remove all ids                
+            foreach (uint id in this.ids) // For each trackable user
+            {
+                this.users.Add(id, takeHipSample(id)); // Add user and user's position
+            }
+            this.IMI_ID = this.sessionHandler.getCurrentUserID(this.users); // Update current user id
+
             if (this.ids.Count != 0) // There are visitors
             {
-                if (!this.sessioning) // No session in progress
+                if (!this.sessioning) // No session in progress := initiate session
                 {
-                    startSession(); // Start session
-                    this.contentLabel1 = "Navigation - " + this.IMI_EXHIBITION.getName();
-                    this.mode = Mode.Navigation;
+                    if (this.IMI_ID != 99) // There is a user in the interaction zone
+                    {
+                        startSession(); // Start session
+                    }
+                    else // (this.IMI_ID == 99) // There is no user in the interaction zone
+                    {
+                        if (this.mode != Mode.Presentation)
+                        {
+                            this.contentLabel1 = "Die " + this.IMI_EXHIBITION.getName() + "-Ausstellung";
+                            this.contentLabel2 = "Herzlich Willkomen!" + '\n' + "Bitte stellen Sie sich auf die Fußspuren und zeigen Sie auf die Exponate, um zusätzliche Informationen zu erhalten.";
+                            this.loadImage2(this.IMI_INTRO);
+                            this.mode = Mode.Presentation;
+                        }
+                    }
                 }
-
-                this.users.Clear(); // Remove all ids                
-                foreach (uint id in this.ids) // For each trackable user
+                else //(this.sessioning) // Session in progress
                 {
-                    this.users.Add(id, takeHipSample(id)); // Add user and user's position
-                }
-                this.IMI_ID = this.sessionHandler.getCurrentUserID(this.users); // Update current user id
-
-                if (this.IMI_ID != 99) // There is a user in the interaction zone
-                {
-                    updateJoints();
-                    updateFeedbackPosition();
-                }
-                else // (this.IMI_ID == 99) // There is no user in the interaction zone
-                { 
-                    // Keep going
+                    if (this.IMI_ID != 99) // There is a user in the interaction zone
+                    {
+                        updateJoints();
+                        updateFeedbackPosition();
+                    }
+                    else // (this.IMI_ID == 99) // There is no user in the interaction zone
+                    {
+                        if (!this.presenting) // No presentation in progress
+                        {
+                            stopSession(); // Stop the session
+                        }
+                    }
                 }
             }
             else // (this.ids.Count == 0) // There are no visitors
             {
-                if (this.sessioning)
+                if (!this.presenting) // No presentation in progress
                 {
-                    stopSession(); // Stop the session
-                    this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
-                    this.mode = Mode.Standby;
+                    this.mode = Mode.Standby; // Stand by
                 }
             }
-            //this.contentLabel2 = "User: " + this.IMI_ID + '\n' + "Exp.: " + this.IMI_TARGET + '\n' + "track: " + this.tracking + '\n' + "sess: " + this.sessioning + '\n' + "paus: " + this.paused + '\n';
             updateLayout();
         }
 
@@ -474,6 +491,7 @@ namespace IMI_Presentation
 
         private void startSession()
         {
+            this.mode = Mode.Navigation;
             this.sessionThread = new Thread(updateSession);
             this.sessioning = true;
             this.sessionThread.Start();
@@ -570,7 +588,7 @@ namespace IMI_Presentation
         private void selection()
         {
             Thread.Sleep(this.IMI_EXHIBITION.getSelectionTime()); // Wait for confirmation time to elapse
-            if (this.presenting) // Presentation allready running
+            if (this.presenting) // Other presentation allready running
             {
                 stopPresentation(); // Abort running presentation
             }
@@ -597,9 +615,10 @@ namespace IMI_Presentation
             }
             Thread.Sleep(this.IMI_EXHIBITION.getEndWait()); // Wait a little more
 
-            // Set current and temporary target to "invalid target"
+            // Reset current and temporary target to "invalid target"
             this.IMI_TARGET = 99;
             this.TMP_TARGET = 99;
+            // Stop current presentation
             stopPresentation();
         }
         #endregion
@@ -707,7 +726,7 @@ namespace IMI_Presentation
 
         private void loadImage2(BitmapImage image)
         {
-            this.image2.Source = image;
+            this.contentImage2 = image;
         }
 
         private void updateLabels()
