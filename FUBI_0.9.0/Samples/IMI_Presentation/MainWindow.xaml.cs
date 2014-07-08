@@ -206,7 +206,7 @@ namespace IMI_Presentation
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
                 this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
-                
+
                 loadBackground(this.IMI_EXHIBITION.getBackgroundImage().Value);
                 this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
                 this.mode = Mode.Standby;
@@ -280,8 +280,6 @@ namespace IMI_Presentation
                     startSession(); // Start session
                     this.contentLabel1 = "Navigation - " + this.IMI_EXHIBITION.getName();
                     this.mode = Mode.Navigation;
-                    this.TMP_TARGET = 99;
-                    this.IMI_TARGET = 99;
                 }
 
                 this.users.Clear(); // Remove all ids                
@@ -305,7 +303,7 @@ namespace IMI_Presentation
             {
                 if (this.sessioning)
                 {
-                    stopSession(); // Start a session
+                    stopSession(); // Stop the session
                     this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
                     this.mode = Mode.Standby;
                 }
@@ -392,7 +390,7 @@ namespace IMI_Presentation
 
         private void updateTarget()
         {
-            if (this.IMI_TARGET != this.TMP_TARGET && this.TMP_TARGET != 99) // New target assigned AND it is valid
+            if (this.TMP_TARGET != 99 && this.IMI_TARGET != this.TMP_TARGET) // Valid AND new target
             {
                 this.IMI_TARGET = this.TMP_TARGET; // Assign new, valid target
                 if (this.selecting) // Timer already running or no valid target (exhibit) selected := deselect
@@ -408,16 +406,8 @@ namespace IMI_Presentation
             Point3D screenPosition = this.sessionHandler.getCanvasPosition(this.feedbackPosition);
             screenPosition.X -= (this.feedbackEllipse.Width / 2);
             screenPosition.Y -= (this.feedbackEllipse.Height / 2);
-            if (screenPosition.X > 0 && screenPosition.Y > 0)
-            {
-                Canvas.SetLeft(this.feedbackEllipse, screenPosition.X);
-                Canvas.SetTop(this.feedbackEllipse, screenPosition.Y);
-            }
-            else
-            {
-                Canvas.SetLeft(this.feedbackEllipse, (this.canvas1.Width / 2));
-                Canvas.SetTop(this.feedbackEllipse, (this.canvas1.Height / 2));
-            }
+            Canvas.SetLeft(this.feedbackEllipse, screenPosition.X);
+            Canvas.SetTop(this.feedbackEllipse, screenPosition.Y);
         }
 
         private void releaseFubi()
@@ -527,8 +517,6 @@ namespace IMI_Presentation
             this.contentLabel1 = "Navigation - " + this.IMI_EXHIBITION.getName();
             this.contentLabel2 = "";
             this.mode = Mode.Navigation;
-            this.TMP_TARGET = 99;
-            this.IMI_TARGET = 99;
 
             this.presenting = false;
             this.presentationThread.Abort();
@@ -582,7 +570,7 @@ namespace IMI_Presentation
         private void selection()
         {
             Thread.Sleep(this.IMI_EXHIBITION.getSelectionTime()); // Wait for confirmation time to elapse
-            if (this.presenting) // PResentation allready running
+            if (this.presenting) // Presentation allready running
             {
                 stopPresentation(); // Abort running presentation
             }
@@ -608,7 +596,10 @@ namespace IMI_Presentation
                 Thread.Sleep(this.IMI_EXHIBITION.getSlideTime()); // Wait for the slideTime
             }
             Thread.Sleep(this.IMI_EXHIBITION.getEndWait()); // Wait a little more
-            
+
+            // Set current and temporary target to "invalid target"
+            this.IMI_TARGET = 99;
+            this.TMP_TARGET = 99;
             stopPresentation();
         }
         #endregion

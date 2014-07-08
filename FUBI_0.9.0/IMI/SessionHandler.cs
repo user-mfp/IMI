@@ -291,8 +291,8 @@ namespace IMI
             int stepsDir2 = index % 1000;
 
             Point lambdas = new Point();
-            lambdas.X = stepsDir1 / 1000.0;
-            lambdas.Y = stepsDir2 / 1000.0;
+            lambdas.Y = stepsDir1 / 1000.0;
+            lambdas.X = stepsDir2 / 1000.0;
 
             return lambdas;
         }
@@ -302,8 +302,8 @@ namespace IMI
             Point3D canvasPosition = new Point3D();
             
             Point lambdas = getClosestLambdas(position);
-            canvasPosition.Y = this.canvasSize.X - (lambdas.X * this.canvasSize.X); // Position on screen in relation to origin (upper left corner)
-            canvasPosition.X = this.canvasSize.Y - (lambdas.Y * this.canvasSize.Y); // Position on screen in relation to origin (upper left corner)
+            canvasPosition.X = this.canvasSize.X - (lambdas.X * this.canvasSize.X); // Position on screen in relation to origin (upper left corner)
+            canvasPosition.Y = this.canvasSize.Y - (lambdas.Y * this.canvasSize.Y); // Position on screen in relation to origin (upper left corner)
 
             return canvasPosition;
         }
