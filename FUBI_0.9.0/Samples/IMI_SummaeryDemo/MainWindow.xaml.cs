@@ -5,7 +5,10 @@ using System.Windows.Media.Media3D;
 using System.Collections.Generic;
 using System.Windows.Threading;
 using FubiNET;
-using IMI;
+using System.Windows.Shapes;
+using System.Windows.Controls;
+using System.Drawing;
+using System;
 
 namespace IMI_SummaeryDemo
 {
@@ -15,9 +18,12 @@ namespace IMI_SummaeryDemo
     public partial class MainWindow : Window
     {
         #region DECLARATIONS
+        // Layout
+        private int centerJoint;
+        // Threading
         private delegate void NoArgDelegate();
         private List<Point3D> jointsToTrack;
-        private List<Point3D> jointsToShow;
+        private List<Ellipse> jointsToShow;
         private double timestamp; // DO NOT USE ! ! !
         private float confidence; // DO NOT USE ! ! !
         // Tracking-thread
@@ -29,6 +35,12 @@ namespace IMI_SummaeryDemo
         public MainWindow()
         {
             InitializeComponent();
+
+            initFubi();
+            initCanvas();
+            initJoints();
+
+            startTracking();
         }
 
         private void initFubi()
@@ -54,6 +66,7 @@ namespace IMI_SummaeryDemo
             this.jointsToTrack.Add(new Point3D()); //  0 := HEAD
 			this.jointsToTrack.Add(new Point3D()); //  1 := NECK
 			this.jointsToTrack.Add(new Point3D()); //  2 := TORSO
+            this.centerJoint = 2; // := TORSO IS CENTER OF THE SCREEN
 			this.jointsToTrack.Add(new Point3D()); //  3 := WAIST
 			this.jointsToTrack.Add(new Point3D()); //  4 := LEFT_SHOULDER
 			this.jointsToTrack.Add(new Point3D()); //  5 := LEFT_ELBOW
@@ -77,11 +90,27 @@ namespace IMI_SummaeryDemo
             this.jointsToTrack.Add(new Point3D()); // 23 := FACE_FOREHEAD
             this.jointsToTrack.Add(new Point3D()); // 24 := FACE_CHIN
 
-            this.jointsToShow = new List<Point3D>();
+            this.jointsToShow = new List<Ellipse>();
             foreach (Point3D point in this.jointsToTrack)
-            { 
-                this.jointsToShow.Add(new Point3D());
+            {
+                Ellipse feedbackEllipse  = new Ellipse();
+                feedbackEllipse.Width = 50;
+                feedbackEllipse.Height = 50;
+                feedbackEllipse.Fill = System.Windows.Media.Brushes.Ivory;
+
+                Canvas.SetLeft(feedbackEllipse, (this.canvas1.Width / 2)); // Center of the canvas
+                Canvas.SetTop(feedbackEllipse, (this.canvas1.Height / 2)); // Center of the canvas
+                
+                this.canvas1.Children.Add(feedbackEllipse);
+
+                this.jointsToShow.Add(feedbackEllipse);
             }
+        }
+
+        private void initCanvas()
+        {
+            this.canvas1.Width = (double)System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
+            this.canvas1.Height = (double)System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
         }
         #endregion
 
@@ -123,15 +152,15 @@ namespace IMI_SummaeryDemo
             }
         }
 
-        private void pauseTracking()
+        private void toggleTracking()
         {
             if (this.tracking)
             {
-                this.tracking = false;
+                stopTracking();
             }
             else
-            { 
-                this.tracking = true;
+            {
+                startTracking();
             }
         }
 
@@ -152,11 +181,33 @@ namespace IMI_SummaeryDemo
         #endregion
 
         #region RUNTIME
+        private List<uint> trackableUserIds()
+        {
+            ushort users = Fubi.getNumUsers();
+            List<uint> ids = new List<uint>();
+
+            for (uint id = 0; id != users; ++id)
+            {
+                if (trackableUser(id))
+                {
+                    ids.Add(id);
+                }
+            }
+
+            return ids;
+        }
+
+        private bool trackableUser(uint id)
+        {
+            return (Fubi.isUserInScene(Fubi.getUserID(id)) && Fubi.isUserTracked(Fubi.getUserID(id)));
+        }
+
         private void updateFubi()
         {
-            while (tracking)
-            { 
-                
+            if (Fubi.getNumUsers() != 0)
+            {
+                updateJoints();
+                updateFeedback();
             }
         }
 
@@ -247,9 +298,58 @@ namespace IMI_SummaeryDemo
             this.jointsToTrack[joint] = point;
         }
 
+        private void updateFeedback()
+        {
+            int count = 0;
+            foreach (Shape feedbackEllipse in this.jointsToShow)
+            {
+                Point3D canvasPosition = canvasPositionInRelationToCenterJoint(this.jointsToTrack[count]);
+
+                Canvas.SetLeft(feedbackEllipse, canvasPosition.X); // Center of the canvas
+                Canvas.SetTop(feedbackEllipse, canvasPosition.Y); // Center of the canvas
+
+                ++count;
+            }
+        }
+
         private void releaseFubi()
         {
             Fubi.release();
+        }
+        #endregion
+
+        #region LAYOUT
+        private Point3D canvasPositionInRelationToCenterJoint(Point3D jointPosition)
+        {
+            Point3D centerJoint = this.jointsToTrack[this.centerJoint];
+            Point3D canvasPosition = new Point3D((this.canvas1.Width / 2), (this.canvas1.Height / 2), 0);
+
+            if (jointPosition.X < centerJoint.X) // To the left
+            {
+                canvasPosition.X -= absoluteDifference(jointPosition.X, centerJoint.X);
+            }
+            else //(jointPosition.X > centerJoint.X || jointPosition.X == centerJoint.X) // To the right
+            {
+                canvasPosition.X += absoluteDifference(jointPosition.X, centerJoint.X);
+            }
+
+            if (jointPosition.Y < centerJoint.Y) // Below
+            {
+                canvasPosition.Y += absoluteDifference(jointPosition.Y, centerJoint.Y);
+            }
+            else //(jointPosition.Y > centerJoint.Y || jointPosition.Y == centerJoint.Y) // Above
+            {
+                canvasPosition.Y -= absoluteDifference(jointPosition.Y, centerJoint.Y);
+            }
+
+            return canvasPosition;
+        }
+
+        private double absoluteDifference(double lhs, double rhs)
+        {
+            double absDiff = Math.Abs(Math.Abs(lhs) - Math.Abs(rhs)) / 2.5;
+
+            return absDiff;
         }
         #endregion
 
@@ -262,7 +362,7 @@ namespace IMI_SummaeryDemo
                     closeAllThreads();
                     break;
                 case Key.Space:
-                    pauseTracking();
+                    toggleTracking();
                     break;
                 default:
                     break;

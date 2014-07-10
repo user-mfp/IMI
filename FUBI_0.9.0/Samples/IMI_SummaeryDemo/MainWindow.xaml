@@ -6,6 +6,6 @@
         Background="Black"
         KeyUp="Window_KeyUp">
     <Grid>
-        
+        <Canvas Name="canvas1" /> 
     </Grid>
 </Window>
