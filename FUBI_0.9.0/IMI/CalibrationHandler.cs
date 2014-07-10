@@ -7,7 +7,6 @@ namespace IMI
     public partial class CalibrationHandler
     {
         #region DECLARATIONS
-        private DataLogger dataLogger;
         private GeometryHandler geometryHandler;
 
         int samplesPerPosition; // Number of samples taken per position pointed from
@@ -17,14 +16,12 @@ namespace IMI
         #region CONSTRUCTOR
         public CalibrationHandler(int samplingVectors)
         {
-            this.dataLogger = new DataLogger(@"C:\Users\Haßleben\Desktop\IMI-DATA\Debug\"); // TODO: Initialize properly!
             this.geometryHandler = new GeometryHandler();
             this.samplesPerPosition = samplingVectors;
         }
 
         public CalibrationHandler(int samplingVectors, double threshold)
         {
-            this.dataLogger = new DataLogger(@"C:\Users\Haßleben\Desktop\IMI-DATA\Debug\"); // TODO: Initialize properly!
             this.geometryHandler = new GeometryHandler();
             this.samplesPerPosition = samplingVectors;
             this.threshold = threshold;
@@ -318,7 +315,7 @@ namespace IMI
         }
         #endregion
 
-        #region DATA-LOGGING
+        /*#region DATA-LOGGING
         private void initLogger()
         {
             this.dataLogger.newPargraph();
@@ -343,6 +340,6 @@ namespace IMI
                 this.dataLogger.addLineToParagraph(index, this.geometryHandler.getString(point));
             }
         }
-        #endregion
+        #endregion*/
     }
 }

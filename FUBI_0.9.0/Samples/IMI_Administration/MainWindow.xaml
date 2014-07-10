@@ -6,27 +6,27 @@
     <Grid Width="Auto" Background="Beige">
         <!-- Labels -->
         <Label Name="label1" FontSize="70" Height="Auto" Width="Auto" Margin="10,10,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Black">
-            <TextBlock Name="textBlock1" TextWrapping="Wrap" FontFamily="Wasco Sans"></TextBlock>
+            <TextBlock Name="textBlock1" TextWrapping="Wrap" FontFamily="TheSans B4 SemiLight"></TextBlock>
         </Label>
         <Label Name="label2" FontSize="70" Height="Auto" Width="Auto" MaxHeight="769" MaxWidth="1200" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Azure" Foreground="SaddleBrown">
-            <TextBlock Name="textBlock2" TextWrapping="Wrap" FontFamily="Wasco Sans"></TextBlock>
+            <TextBlock Name="textBlock2" TextWrapping="Wrap" FontFamily="TheSans B4 SemiLight"></TextBlock>
         </Label>
 
         <!-- Buttons -->
-        <Button Content="button1" Name="button1" FontSize="70" MinHeight="0" MinWidth="0" Height="Auto" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click" FontFamily="Wasco Sans" />
-        <Button Content="button2" Name="button2" FontSize="70" Height="Auto" Width="Auto" Margin="10,261,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button2_Click" FontFamily="Wasco Sans" />
-        <Button Content="button3" Name="button3" FontSize="70" Height="Auto" Width="Auto" Margin="10,388,0,0" Padding="10" HorizontalAlignment="Left"   VerticalAlignment="Top" Click="button3_Click" FontFamily="Wasco Sans" />
+        <Button Content="button1" Name="button1" FontSize="70" MinHeight="0" MinWidth="0" Height="Auto" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click" FontFamily="TheSans B4 SemiLight" />
+        <Button Content="button2" Name="button2" FontSize="70" Height="Auto" Width="Auto" Margin="10,261,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button2_Click" FontFamily="TheSans B4 SemiLight" />
+        <Button Content="button3" Name="button3" FontSize="70" Height="Auto" Width="Auto" Margin="10,388,0,0" Padding="10" HorizontalAlignment="Left"   VerticalAlignment="Top" Click="button3_Click" FontFamily="TheSans B4 SemiLight" />
 
-        <Button Content="button4" Name="button4" FontSize="70" Height="Auto" Width="Auto" Margin="10,0,0,10" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="button4_Click" FontFamily="Wasco Sans" />
-        <Button Content="button5" Name="button5" FontSize="70" Height="Auto" Width="Auto" Margin="0,0,10,10" Padding="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="button5_Click" FontFamily="Wasco Sans" />
+        <Button Content="button4" Name="button4" FontSize="70" Height="Auto" Width="Auto" Margin="10,0,0,10" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="button4_Click" FontFamily="TheSans B4 SemiLight" />
+        <Button Content="button5" Name="button5" FontSize="70" Height="Auto" Width="Auto" Margin="0,0,10,10" Padding="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="button5_Click" FontFamily="TheSans B4 SemiLight" />
 
         <!-- Boxes -->
-        <ComboBox Name="comboBox1" FontSize="70" Height="Auto" MinWidth="400" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox1_SelectionChanged" FontFamily="Wasco Sans" />
-        <ComboBox Name="comboBox2" FontSize="70" Height="Auto" MinWidth="400" Width="Auto" Margin="10,261,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox2_SelectionChanged" FontFamily="Wasco Sans" />
+        <ComboBox Name="comboBox1" FontSize="70" Height="Auto" MinWidth="400" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox1_SelectionChanged" FontFamily="TheSans B4 SemiLight" />
+        <ComboBox Name="comboBox2" FontSize="70" Height="Auto" MinWidth="400" Width="Auto" Margin="10,261,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox2_SelectionChanged" FontFamily="TheSans B4 SemiLight" />
 
         <TextBox Text="" Name="textBox1" FontSize="70" FontFamily="Wasco Sans" TextWrapping="Wrap" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox1_TextChanged" Background="White" />
         <TextBox Text="" Name="textBox2" FontSize="70" FontFamily="Wasco Sans" Height="116" Width="1200" Margin="10,262,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox2_TextChanged" Background="White" />
         
-        <Image Name="image1" Height="642" Width="666" Margin="1220,262,0,0"  Stretch="Uniform" HorizontalAlignment="LEft" VerticalAlignment="Top" StretchDirection="Both" />
+        <Image Name="image1" Height="642" Width="666" Margin="1220,262,0,0"  Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" StretchDirection="Both" />
     </Grid>
 </Window>

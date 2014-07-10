@@ -5,6 +5,7 @@ using System.Windows.Media.Media3D;
 using System.Collections.Generic;
 using System.Windows.Threading;
 using FubiNET;
+using IMI;
 
 namespace IMI_SummaeryDemo
 {

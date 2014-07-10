@@ -26,7 +26,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>10</ApplicationRevision>
+    <AutorunEnabled>true</AutorunEnabled>
+    <ApplicationRevision>13</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -125,7 +126,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="data\" />
+    <Resource Include="Daten\Idiogram.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Fubi_CS_Wrapper\Fubi_CS_Wrapper.csproj">
@@ -160,7 +161,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\TSV-WG - Downtown.PNG" />
+    <Resource Include="Daten\IMI_ExhibitionPath.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Daten\black.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -332,7 +332,7 @@ namespace IMI
             exhibitWriter.WriteAttributeString("Name", exhibit.getName());
             exhibitWriter.WriteAttributeString("Path", exhibit.getPath());
             exhibitWriter.WriteAttributeString("KernelSize", exhibit.getKernelSize().ToString().Replace(',', '.'));
-            exhibitWriter.WriteAttributeString("KernelWeight", exhibit.getKernelWeight().ToString().Replace(',', '.'));
+            exhibitWriter.WriteAttributeString("KernelWeight", exhibit.getKernelWeight().ToString());
 
             if (exhibit.getDescription() != null) // The exhibit has a description
             {

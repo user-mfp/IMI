@@ -131,7 +131,7 @@ namespace IMI
         public void makeLookupTable(List<Exhibit> exhibits, GeometryHandler.Plane exhibitionPlane)
         {
             this.lookup = new Dictionary<Point3D, int>();
-            Dictionary<Point3D, int> checkup = new Dictionary<Point3D, int>();
+            Dictionary<int, int> checkup = new Dictionary<int, int>();
             List<Point3D> positions = makeLookupPositions(exhibitionPlane);
             List<double> weightsForPosition = new List<double>();
 
@@ -145,6 +145,18 @@ namespace IMI
                 }
 
                 this.lookup.Add(position, getMaxIndex(weightsForPosition));
+            }
+
+            foreach (KeyValuePair<Point3D, int> position in this.lookup)
+            { 
+                if (checkup.ContainsKey(position.Value) == false)
+                {
+                    checkup.Add(position.Value, 1);
+                }
+                else
+                {
+                    ++checkup[position.Value];
+                }
             }
         }
 

@@ -30,8 +30,8 @@ namespace IMI_Presentation
             Presentation
         };
         // Internal path to exhibition
-        private string IMI_EXHIBITION_PATH = @"C:\IMI-DATA\Daten\IMI_ExhibitionPath.txt";
-        private string IMI_INTRO_PATH = @"C:\IMI-DATA\Bilder\white.jpg";
+        private string IMI_EXHIBITION_PATH = @"..\Samples\IMI_Presentation\Daten\IMI_ExhibitionPath.txt";
+        private string IMI_INTRO_PATH = @"..\Samples\IMI_Presentation\Daten\Idiogram.png";
         #endregion
 
         #region DECLARATIONS
@@ -39,6 +39,7 @@ namespace IMI_Presentation
         private Exhibition IMI_EXHIBITION = new Exhibition();
         private Exhibit TMP_EXHIBIT = new Exhibit();
         private string TMP_PATH;
+        private DataLogger dataLogger;
         // Layout
         private Mode mode;
         private string contentLabel1;
@@ -77,8 +78,6 @@ namespace IMI_Presentation
         private Thread selectionThread;
         private bool presenting;
         private Thread presentationThread;
-        private bool waiting;
-        private Thread endWaitThread;
         #endregion
 
         #region INITIALIZATIONS
@@ -99,7 +98,6 @@ namespace IMI_Presentation
 
             // Initialize layout
             initExhibition();
-            initFeedbackPositions();
         }
 
         private void initJoints()
@@ -140,7 +138,8 @@ namespace IMI_Presentation
             int count = 0;
             foreach (Shape joint in this.exhibitFeedbackPositions)
             {
-                Point3D position = this.sessionHandler.getCanvasPosition(this.IMI_EXHIBITION.getExhibit(count).getPosition());
+                Point3D exPos = this.IMI_EXHIBITION.getExhibit(count).getPosition();
+                Point3D position = this.sessionHandler.getCanvasPosition(exPos);
 
                 // Offset, since origin (0;0) is in top left corner of shape
                 position.X -= joint.Width / 2; // Move shape half its width to the left 
@@ -153,8 +152,8 @@ namespace IMI_Presentation
 
             // Define feedback shape
             this.feedbackEllipse = new Ellipse();
-            this.feedbackEllipse.Width = 50;
-            this.feedbackEllipse.Height = 50;
+            this.feedbackEllipse.Width = 25;
+            this.feedbackEllipse.Height = 25;
             this.feedbackEllipse.Fill = Brushes.Coral;
             // Define feedback position
             this.feedbackPosition = new Point3D();
@@ -206,10 +205,14 @@ namespace IMI_Presentation
             else // There is an exhibition
             {
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
-                this.IMI_INTRO = new BitmapImage(new Uri(this.IMI_INTRO_PATH));
+                this.IMI_INTRO = new BitmapImage(new Uri(this.IMI_INTRO_PATH, UriKind.Relative));
 
                 this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
+                initFeedbackPositions();
+
+                int x = exhibitionPath.LastIndexOf('\\');
+                this.dataLogger = new DataLogger(exhibitionPath.Remove(x));
 
                 loadBackground(this.IMI_EXHIBITION.getBackgroundImage().Value);
                 this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
@@ -310,7 +313,7 @@ namespace IMI_Presentation
                         updateJoints();
                         updateFeedbackPosition();
                     }
-                    else // (this.IMI_ID == 99) // There is no user in the interaction zone
+                    else // (this.IMI_ID == 99) // User left interaction zone during the session
                     {
                         if (!this.presenting) // No presentation in progress
                         {
@@ -324,6 +327,10 @@ namespace IMI_Presentation
                 if (!this.presenting) // No presentation in progress
                 {
                     this.mode = Mode.Standby; // Stand by
+                }
+                else //(this.presenting) // Presentation in progress
+                {
+                    this.dataLogger.endSession();
                 }
             }
             updateLayout();
@@ -407,14 +414,19 @@ namespace IMI_Presentation
 
         private void updateTarget()
         {
-            if (this.TMP_TARGET != 99 && this.IMI_TARGET != this.TMP_TARGET) // Valid AND new target
+            if (this.IMI_TARGET != this.TMP_TARGET) // New target
             {
-                this.IMI_TARGET = this.TMP_TARGET; // Assign new, valid target
-                if (this.selecting) // Timer already running or no valid target (exhibit) selected := deselect
+                this.IMI_TARGET = this.TMP_TARGET; // Assign new target
+                this.dataLogger.addEventToSession("New Target", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
+
+                if (this.selecting) // Timer already running for valid target(exhibit) := deselect
                 {
                     stopSelectionTimer();
                 }
-                startSelectionTimer();
+                if (this.IMI_TARGET != 99) // Start timer for valid target (exhibit) := select
+                {
+                    startSelectionTimer();
+                }
             }
         }
 
@@ -491,7 +503,10 @@ namespace IMI_Presentation
 
         private void startSession()
         {
+            this.dataLogger.newSession();
+
             this.mode = Mode.Navigation;
+
             this.sessionThread = new Thread(updateSession);
             this.sessioning = true;
             this.sessionThread.Start();
@@ -519,6 +534,8 @@ namespace IMI_Presentation
 
         private void stopSession()
         {
+            this.dataLogger.endSession();
+
             this.sessioning = false;
             this.sessionThread.Abort();
         }
@@ -544,10 +561,12 @@ namespace IMI_Presentation
         {
             if (!this.paused)
             {
+                this.dataLogger.addEventToSession("Session paused", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
                 this.paused = true;
             }
             else
             {
+                this.dataLogger.addEventToSession("Session resumed", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
                 this.paused = false;
             }
         }
@@ -556,12 +575,15 @@ namespace IMI_Presentation
         {
             if (!this.paused) // Session in progress
             {
+                this.dataLogger.addEventToSession("Session paused", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
                 this.paused = true;
                 Thread.Sleep(ms);
+                this.dataLogger.addEventToSession("Session resumed", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
                 this.paused = false;
             }
             else
             {
+                this.dataLogger.addEventToSession("Session resumed", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
                 this.paused = false;
             }
         }
@@ -599,6 +621,8 @@ namespace IMI_Presentation
             this.contentLabel2 = this.TMP_EXHIBIT.getDescription(); // Set the current exhibit's description
             this.mode = Mode.Presentation; // Go to presentation mode
 
+            this.dataLogger.addEventToSession("Select Target", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
+
             startPresentation();
             pauseSession(this.IMI_EXHIBITION.getLockTime());
             stopSelectionTimer(); // Selection done := close this thread
@@ -606,14 +630,22 @@ namespace IMI_Presentation
 
         private void presentation()
         {
-            foreach (KeyValuePair<string, BitmapImage> image in this.TMP_EXHIBIT.getImages())
+            if (this.TMP_EXHIBIT.getImages().Count != 0) // Exhibit has images
             {
-                this.contentLabel1 = this.TMP_EXHIBIT.getName();
-                this.contentLabel2 = this.TMP_EXHIBIT.getDescription();
-                this.contentImage2 = image.Value; // Load next image
-                Thread.Sleep(this.IMI_EXHIBITION.getSlideTime()); // Wait for the slideTime
+                foreach (KeyValuePair<string, BitmapImage> image in this.TMP_EXHIBIT.getImages())
+                {
+                    this.contentLabel1 = this.TMP_EXHIBIT.getName();
+                    this.contentLabel2 = this.TMP_EXHIBIT.getDescription();
+                    this.contentImage2 = image.Value; // Load next image
+                    Thread.Sleep(this.IMI_EXHIBITION.getSlideTime()); // Wait for the slideTime
+                }
             }
-            Thread.Sleep(this.IMI_EXHIBITION.getEndWait()); // Wait a little more
+            else //(this.TMP_EXHIBIT.getImages().Count == 0) // Exhibits has no images
+            {
+                this.contentImage2 = null;
+            }
+            
+            Thread.Sleep(this.IMI_EXHIBITION.getEndWait()); // Wait for the end of presentation
 
             // Reset current and temporary target to "invalid target"
             this.IMI_TARGET = 99;
@@ -651,7 +683,7 @@ namespace IMI_Presentation
             this.canvas1.Visibility = Visibility.Visible;
 
             // Images
-            this.Background = Brushes.BlanchedAlmond;
+            this.Background = Brushes.SandyBrown;
             this.image2.Visibility = Visibility.Hidden;
 
             // Labels
@@ -659,7 +691,7 @@ namespace IMI_Presentation
             this.label2.Visibility = Visibility.Hidden;
 
             // Button
-            this.button1.Content = "Ausstelleung laden"; // "Load exhibition"
+            this.button1.Content = "Ausstellung laden"; // "Load exhibition"
             this.button1.Visibility = Visibility.Visible;
         }
 
@@ -683,11 +715,12 @@ namespace IMI_Presentation
         private void showNavigation()
         {
             // Canvas
+            this.loadCanvas1Background(this.IMI_EXHIBITION.getOverview().Value);
             this.canvas1.Height = this.sessionHandler.getCanvasSize().Y;
             this.canvas1.Visibility = Visibility.Visible;
 
             // Images
-            loadBackground(this.IMI_EXHIBITION.getOverview().Value);
+            this.Background = Brushes.BlanchedAlmond;
             this.image2.Visibility = Visibility.Hidden;
 
             // Labels
@@ -705,7 +738,7 @@ namespace IMI_Presentation
             this.canvas1.Visibility = Visibility.Hidden;
 
             // Images
-            this.Background = Brushes.BlanchedAlmond;
+            this.Background = Brushes.SandyBrown;
             this.image2.Source = this.contentImage2;
             this.image2.Visibility = Visibility.Visible;
 
@@ -717,6 +750,11 @@ namespace IMI_Presentation
 
             // Button
             this.button1.Visibility = Visibility.Hidden;        
+        }
+
+        private void loadCanvas1Background(BitmapImage image)
+        {
+            this.canvas1.Background = new ImageBrush(image);
         }
 
         private void loadBackground(BitmapImage image)
@@ -750,7 +788,8 @@ namespace IMI_Presentation
                             this.fileHandler.writeTxt(this.IMI_EXHIBITION_PATH, this.TMP_PATH);
                             this.TMP_PATH = null;
                             this.sessionHandler = new SessionHandler(99, this.IMI_EXHIBITION.getUserPosition(), 250.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
-                
+                            initFeedbackPositions();
+
                             this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
                             this.mode = Mode.Standby;
                             updateLayout();
