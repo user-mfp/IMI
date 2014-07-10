@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="IMI Präsentationssoftware" 
         WindowState="Maximized" WindowStyle="None" Width="1920" Height="1080" 
-        Background="BlanchedAlmond"
+        Background="NavajoWhite"
         KeyUp="Window_KeyUp"
         Cursor="None">
     <Grid Width="Auto" Height="Auto">
@@ -20,10 +20,10 @@
         
         <!-- Labels -->
         <Label Name="label1" Height="Auto" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
-            <TextBlock Text="" TextWrapping="Wrap" Name="textBlock1" FontFamily="TheSans B6" FontSize="72" Padding="10" Foreground="Black" Background="BlanchedAlmond"/>
+            <TextBlock Text="" TextWrapping="Wrap" Name="textBlock1" FontFamily="TheSans B6" FontSize="72" Padding="10" Foreground="Black" Background="NavajoWhite"/>
         </Label>
         <Label Name="label2" Height="Auto" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Grid.Column="0" Grid.Row="1">
-            <TextBlock Text="" TextWrapping="Wrap" Name="textBlock2" FontSize="72" FontFamily="TheSans B4 SemiLight" Padding="10" Foreground="Black" Background="BlanchedAlmond"/>
+            <TextBlock Text="" TextWrapping="Wrap" Name="textBlock2" FontSize="72" FontFamily="TheSans B4 SemiLight" Padding="10" Foreground="Black" Background="NavajoWhite"/>
         </Label>
         <!-- Buttons -->
         <Button Content="..." Name="button1" FontWeight="Normal" FontStyle="Normal" FontFamily="TheSans B4 SemiLight"  FontSize="72" Height="Auto" Width="Auto" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click" Margin="10" Grid.Column="0" Grid.Row="0"/>

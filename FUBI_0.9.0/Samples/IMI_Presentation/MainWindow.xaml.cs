@@ -31,7 +31,7 @@ namespace IMI_Presentation
         };
         // Internal path to exhibition
         private string IMI_EXHIBITION_PATH = @"..\Samples\IMI_Presentation\Daten\IMI_ExhibitionPath.txt";
-        private string IMI_INTRO_PATH = @"..\Samples\IMI_Presentation\Daten\Idiogram.png";
+        private string IMI_INTRO_PATH = @"C:\IMI-DATA\Bilder\Idiogram.png"; //"..\Samples\IMI_Presentation\Daten\Idiogram.png";
         #endregion
 
         #region DECLARATIONS
@@ -205,7 +205,7 @@ namespace IMI_Presentation
             else // There is an exhibition
             {
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
-                this.IMI_INTRO = new BitmapImage(new Uri(this.IMI_INTRO_PATH, UriKind.Relative));
+                this.IMI_INTRO = new BitmapImage(new Uri(this.IMI_INTRO_PATH));
 
                 this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
@@ -683,7 +683,7 @@ namespace IMI_Presentation
             this.canvas1.Visibility = Visibility.Visible;
 
             // Images
-            this.Background = Brushes.SandyBrown;
+            this.Background = Brushes.NavajoWhite;
             this.image2.Visibility = Visibility.Hidden;
 
             // Labels
@@ -720,7 +720,7 @@ namespace IMI_Presentation
             this.canvas1.Visibility = Visibility.Visible;
 
             // Images
-            this.Background = Brushes.BlanchedAlmond;
+            this.Background = Brushes.NavajoWhite;
             this.image2.Visibility = Visibility.Hidden;
 
             // Labels
@@ -738,7 +738,7 @@ namespace IMI_Presentation
             this.canvas1.Visibility = Visibility.Hidden;
 
             // Images
-            this.Background = Brushes.SandyBrown;
+            this.Background = Brushes.NavajoWhite;
             this.image2.Source = this.contentImage2;
             this.image2.Visibility = Visibility.Visible;
 

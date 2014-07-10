@@ -126,7 +126,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Daten\Idiogram.png" />
+    <Resource Include="Daten\Idiogram.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Fubi_CS_Wrapper\Fubi_CS_Wrapper.csproj">
@@ -161,7 +163,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Daten\IMI_ExhibitionPath.txt" />
+    <Resource Include="Daten\IMI_ExhibitionPath.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Daten\black.jpg" />
