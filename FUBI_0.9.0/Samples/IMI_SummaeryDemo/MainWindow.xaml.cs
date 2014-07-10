@@ -20,6 +20,8 @@ namespace IMI_SummaeryDemo
         #region DECLARATIONS
         // Layout
         private int centerJoint;
+        private int relation;
+        private int shapeSize = 20;
         // Threading
         private delegate void NoArgDelegate();
         private List<Point3D> jointsToTrack;
@@ -94,8 +96,8 @@ namespace IMI_SummaeryDemo
             foreach (Point3D point in this.jointsToTrack)
             {
                 Ellipse feedbackEllipse  = new Ellipse();
-                feedbackEllipse.Width = 50;
-                feedbackEllipse.Height = 50;
+                feedbackEllipse.Width = this.shapeSize;
+                feedbackEllipse.Height = this.shapeSize;
                 feedbackEllipse.Fill = System.Windows.Media.Brushes.Ivory;
 
                 Canvas.SetLeft(feedbackEllipse, (this.canvas1.Width / 2)); // Center of the canvas
@@ -303,10 +305,25 @@ namespace IMI_SummaeryDemo
             int count = 0;
             foreach (Shape feedbackEllipse in this.jointsToShow)
             {
-                Point3D canvasPosition = canvasPositionInRelationToCenterJoint(this.jointsToTrack[count]);
+                Point3D canvasPosition = new Point3D();
 
-                Canvas.SetLeft(feedbackEllipse, canvasPosition.X); // Center of the canvas
-                Canvas.SetTop(feedbackEllipse, canvasPosition.Y); // Center of the canvas
+                switch (this.relation)
+                { 
+                    default: // 0
+                        canvasPosition = canvasPositionInRelationToZero(this.jointsToTrack[count]);
+                        break;
+                    case 1:
+                        canvasPosition = canvasPositionInRelationToCenterJoint(this.jointsToTrack[count]);
+                        break;
+
+                }
+
+                double feedbackEllipseSize = canvasSizeInRelationToCenterJoint(this.jointsToTrack[count]);
+                feedbackEllipse.Width = feedbackEllipseSize;
+                feedbackEllipse.Height = feedbackEllipseSize;
+
+                Canvas.SetLeft(feedbackEllipse, canvasPosition.X - (feedbackEllipseSize / 2));
+                Canvas.SetTop(feedbackEllipse, canvasPosition.Y - (feedbackEllipseSize / 2));
 
                 ++count;
             }
@@ -319,6 +336,19 @@ namespace IMI_SummaeryDemo
         #endregion
 
         #region LAYOUT
+        private void toggleRelation()
+        {
+            switch (this.relation)
+            { 
+                default:
+                    ++this.relation;
+                    break;
+                case 1:
+                    this.relation = 0;
+                    break;
+            }
+        }
+
         private Point3D canvasPositionInRelationToCenterJoint(Point3D jointPosition)
         {
             Point3D centerJoint = this.jointsToTrack[this.centerJoint];
@@ -345,11 +375,64 @@ namespace IMI_SummaeryDemo
             return canvasPosition;
         }
 
+        private Point3D canvasPositionInRelationToZero(Point3D jointPosition)
+        {
+            Point3D centerJoint = this.jointsToTrack[this.centerJoint];
+            Point3D canvasPosition = new Point3D((this.canvas1.Width / 2), (this.canvas1.Height / 2), 0);
+
+            if (jointPosition.X < 0) // To the left
+            {
+                canvasPosition.X -= absoluteDifference(jointPosition.X, 0);
+            }
+            else //(jointPosition.X > 0 || jointPosition.X == 0) // To the right
+            {
+                canvasPosition.X += absoluteDifference(jointPosition.X, 0);
+            }
+
+            if (jointPosition.Y < 0) // Below
+            {
+                canvasPosition.Y += absoluteDifference(jointPosition.Y, 0);
+            }
+            else //(jointPosition.Y > 0 || jointPosition.Y == 0) // Above
+            {
+                canvasPosition.Y -= absoluteDifference(jointPosition.Y, 0);
+            }
+
+            return canvasPosition;
+        }
+
+        private double canvasSizeInRelationToCenterJoint(Point3D jointPosition)
+        {
+            double centerDistance = this.jointsToTrack[this.centerJoint].Z;
+            double canvasSize = this.shapeSize;
+
+            if (jointPosition.Z != 0)
+            {
+                if (jointPosition.Z < centerDistance) // Closer
+                {
+                    canvasSize *= relationFactor(jointPosition.Z, centerDistance);
+                }
+                else //(jointPosition.X > centerDistance || jointPosition.X == centerDistance) // Further
+                {
+                    canvasSize *= relationFactor(jointPosition.Z, centerDistance);
+                }
+            }
+
+            return canvasSize;
+        }
+
         private double absoluteDifference(double lhs, double rhs)
         {
             double absDiff = Math.Abs(Math.Abs(lhs) - Math.Abs(rhs)) / 2.5;
 
             return absDiff;
+        }
+
+        private double relationFactor(double lhs, double rhs)
+        {
+            double relDiff = rhs / lhs;
+
+            return relDiff;
         }
         #endregion
 
@@ -363,6 +446,9 @@ namespace IMI_SummaeryDemo
                     break;
                 case Key.Space:
                     toggleTracking();
+                    break;
+                case Key.R:
+                    toggleRelation();
                     break;
                 default:
                     break;
