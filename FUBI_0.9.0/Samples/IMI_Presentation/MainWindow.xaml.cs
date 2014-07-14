@@ -62,6 +62,7 @@ namespace IMI_Presentation
         private double timestamp; // DO NOT USE ! ! !
         private float confidence; // DO NOT USE ! ! !
         private List<uint> ids;
+        private TimeSpan upFubi;
         private Dictionary<uint, Point3D> users = new Dictionary<uint,Point3D>(); 
         private uint IMI_ID = 99;
         private int TMP_TARGET = 99;
@@ -240,7 +241,7 @@ namespace IMI_Presentation
                 Fubi.updateSensor();
 
                 currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(updateFubi), null);
-                //Thread.Sleep(29); // Time it should at least take to get new data
+                Thread.Sleep(29); // Time it should at least take to get new data (DAUFAULT := 29
                 while (currentOP.Status != DispatcherOperationStatus.Completed && currentOP.Status != DispatcherOperationStatus.Aborted)
                 {
                     Thread.Sleep(2); // If the update unexpectedly takes longer
@@ -278,6 +279,7 @@ namespace IMI_Presentation
 
         private void updateFubi()
         {
+            DateTime start = DateTime.Now;
             this.ids = trackableUserIds(); // Get all trackable users
 
             this.users.Clear(); // Remove all ids                
@@ -300,7 +302,7 @@ namespace IMI_Presentation
                         if (this.mode != Mode.Presentation)
                         {
                             this.contentLabel1 = "Die " + this.IMI_EXHIBITION.getName() + "-Ausstellung";
-                            this.contentLabel2 = "Herzlich Willkomen!" + '\n' + "Bitte stellen Sie sich auf die Fußspuren und zeigen Sie auf die Exponate, um zusätzliche Informationen zu erhalten.";
+                            this.contentLabel2 = "Herzlich Willkommen!" + '\n' + "Bitte stellen Sie sich auf die Fußspuren und zeigen Sie auf die Exponate, um zusätzliche Informationen zu erhalten.";
                             this.loadImage2(this.IMI_INTRO);
                             this.mode = Mode.Presentation;
                         }
@@ -334,6 +336,8 @@ namespace IMI_Presentation
                 }
             }
             updateLayout();
+
+            this.upFubi = DateTime.Now - start;
         }
 
         private void updateSession()
@@ -615,8 +619,10 @@ namespace IMI_Presentation
                 stopPresentation(); // Abort running presentation
             }
 
-            this.TMP_EXHIBIT = this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET); // Set current exhibit
-
+            if (IMI_TARGET != 99) // Only for valid targets
+            {
+                this.TMP_EXHIBIT = this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET); // Set current exhibit
+            }
             this.contentLabel1 = this.TMP_EXHIBIT.getName(); // Set the current exhibit's name as headline
             this.contentLabel2 = this.TMP_EXHIBIT.getDescription(); // Set the current exhibit's description
             this.mode = Mode.Presentation; // Go to presentation mode
@@ -645,7 +651,7 @@ namespace IMI_Presentation
                 this.contentImage2 = null;
             }
             
-            Thread.Sleep(this.IMI_EXHIBITION.getEndWait()); // Wait for the end of presentation
+            //Thread.Sleep(this.IMI_EXHIBITION.getEndWait()); // Wait for the end of presentation -> Takes much too long
 
             // Reset current and temporary target to "invalid target"
             this.IMI_TARGET = 99;
@@ -743,7 +749,7 @@ namespace IMI_Presentation
             this.image2.Visibility = Visibility.Visible;
 
             // Labels
-            this.textBlock1.Text = this.contentLabel1;
+            this.textBlock1.Text = "IDS: " + this.ids.Count + '\t' + "Fubi[ms]: " + this.upFubi.Milliseconds;//this.contentLabel1; 
             this.label1.Visibility = Visibility.Visible;
             this.textBlock2.Text = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;

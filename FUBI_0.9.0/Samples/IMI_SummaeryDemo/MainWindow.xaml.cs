@@ -18,10 +18,14 @@ namespace IMI_SummaeryDemo
     public partial class MainWindow : Window
     {
         #region DECLARATIONS
+        // Multi-user
+        private List<uint> users;
+        private List<List<Point3D>> usersJointsToTrack;
+        private List<List<Ellipse>> userJointsToShow;
         // Layout
         private int centerJoint;
         private int relation;
-        private int shapeSize = 20;
+        private int shapeSize = 25;
         // Threading
         private delegate void NoArgDelegate();
         private List<Point3D> jointsToTrack;
@@ -423,7 +427,7 @@ namespace IMI_SummaeryDemo
 
         private double absoluteDifference(double lhs, double rhs)
         {
-            double absDiff = Math.Abs(Math.Abs(lhs) - Math.Abs(rhs)) / 2.5;
+            double absDiff = Math.Abs(Math.Abs(lhs) - Math.Abs(rhs)) / 2.7;
 
             return absDiff;
         }

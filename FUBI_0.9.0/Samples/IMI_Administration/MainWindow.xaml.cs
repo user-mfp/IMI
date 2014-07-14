@@ -209,7 +209,7 @@ namespace IMI_Administration
                 Fubi.updateSensor();
 
                 currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(updateFubi), null);
-                //Thread.Sleep(29); // Time it should at least take to get new data
+                Thread.Sleep(29); // Time it should at least take to get new data
                 while (currentOP.Status != DispatcherOperationStatus.Completed && currentOP.Status != DispatcherOperationStatus.Aborted)
                 {
                     Thread.Sleep(2); // If the update unexpectedly takes longer

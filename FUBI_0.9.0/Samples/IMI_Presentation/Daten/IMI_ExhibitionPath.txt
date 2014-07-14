@@ -1,1 +1,1 @@
-﻿C:\IMI-DATA\Testausstellung\Testausstellung.xml
+﻿C:\IMI-DATA\Testausstellung\Test.xml

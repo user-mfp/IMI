@@ -4,6 +4,7 @@
         Title="IMI Präsentationssoftware" 
         WindowState="Maximized" WindowStyle="None" Width="1920" Height="1080" 
         Background="Black"
+        Cursor="None"
         KeyUp="Window_KeyUp">
     <Grid>
         <Canvas Name="canvas1" /> 
