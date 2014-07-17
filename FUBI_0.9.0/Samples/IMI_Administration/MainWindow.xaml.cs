@@ -2003,7 +2003,14 @@ namespace IMI_Administration
                 case Headline.NewExhibit: //"hidden"
                     break;
                 case Headline.EditExhibit: //"update itself"
-                    this.contentTextBox1 = this.textBox1.Text;
+                    if (this.textBox1.Text.Length > 310) // Descriptionn above maximum amount of characters
+                    {
+                        MessageBox.Show("Der eingegebene Text überschreitet die Maximallänge von 310 Zeichen.");
+                    }
+                    else //(this.textBox.Text.Length <= 310) // Descriptionn below or equal to maximum amount of characters
+                    {
+                        this.contentTextBox1 = this.textBox1.Text;
+                    }
                     break;
                 case Headline.ExhibitionPlane: //"hidden"
                     break;

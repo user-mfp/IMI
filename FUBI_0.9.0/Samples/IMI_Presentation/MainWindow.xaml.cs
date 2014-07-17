@@ -749,7 +749,7 @@ namespace IMI_Presentation
             this.image2.Visibility = Visibility.Visible;
 
             // Labels
-            this.textBlock1.Text = "IDS: " + this.ids.Count + '\t' + "Fubi[ms]: " + this.upFubi.Milliseconds;//this.contentLabel1; 
+            this.textBlock1.Text = "Vable: " + Fubi.getNumUsers() + '\t' + "Table: " + this.ids.Count + '\t' + "Fubi[ms]: " + this.upFubi.Milliseconds;//this.contentLabel1; 
             this.label1.Visibility = Visibility.Visible;
             this.textBlock2.Text = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;
