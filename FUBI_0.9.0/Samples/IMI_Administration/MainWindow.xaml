@@ -24,7 +24,7 @@
         <ComboBox Name="comboBox1" FontSize="70" Height="Auto" MinWidth="400" Width="Auto" Margin="10,134,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox1_SelectionChanged" FontFamily="TheSans B4 SemiLight" />
         <ComboBox Name="comboBox2" FontSize="70" Height="Auto" MinWidth="400" Width="Auto" Margin="10,261,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="comboBox2_SelectionChanged" FontFamily="TheSans B4 SemiLight" />
 
-        <TextBox Text="" Name="textBox1" FontSize="70" FontFamily="Wasco Sans" TextWrapping="Wrap" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox1_TextChanged" Background="White" />
+        <TextBox Text="" Name="textBox1" FontSize="70" FontFamily="Wasco Sans" TextWrapping="Wrap" Height="389" Width="1200" Margin="10,515,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox1_TextChanged" Background="White" AcceptsReturn="True"/>
         <TextBox Text="" Name="textBox2" FontSize="70" FontFamily="Wasco Sans" Height="116" Width="1200" Margin="10,262,0,0" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" TextChanged="textBox2_TextChanged" Background="White" />
         
         <Image Name="image1" Height="642" Width="666" Margin="1220,262,0,0"  Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" StretchDirection="Both" />
