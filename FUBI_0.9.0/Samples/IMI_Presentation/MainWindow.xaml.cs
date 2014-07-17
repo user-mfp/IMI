@@ -241,7 +241,7 @@ namespace IMI_Presentation
                 Fubi.updateSensor();
 
                 currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(updateFubi), null);
-                Thread.Sleep(29); // Time it should at least take to get new data (DAUFAULT := 29
+                //Thread.Sleep(29); // Time it should at least take to get new data (DEFAULT := 29)
                 while (currentOP.Status != DispatcherOperationStatus.Completed && currentOP.Status != DispatcherOperationStatus.Aborted)
                 {
                     Thread.Sleep(2); // If the update unexpectedly takes longer
@@ -252,7 +252,7 @@ namespace IMI_Presentation
             currentOP = this.Dispatcher.BeginInvoke(new NoArgDelegate(releaseFubi), null);
             while (currentOP.Status != DispatcherOperationStatus.Completed && currentOP.Status != DispatcherOperationStatus.Aborted)
             {
-                Thread.Sleep(100); // Wait for release to finish
+                Thread.Sleep(100); // Wait for release to finish (DEFAULT := 100)
             }
         }
 
@@ -357,7 +357,7 @@ namespace IMI_Presentation
                         //this.contentLabel2 = "Mode." + this.mode.ToString() + ": No updateTarget()." + '\n' + "IMI_ID: " + this.IMI_ID; //"Mode.Navigation: No updateTarget()"
                     }
                 }
-                else // (this.paused) // Session paused
+                else // (this.paused) // Session paused := System does not react
                 {
                     if (this.IMI_ID != 99) // User in interaction zone
                     {
