@@ -53,7 +53,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>62E072BED39A9568B946266DF9A8C4734553C79B</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>43AB914346F03644F6893DA75074B595F12B380C</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>IMI_Presentation_TemporaryKey.pfx</ManifestKeyFile>
