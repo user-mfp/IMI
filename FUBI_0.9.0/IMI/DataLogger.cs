@@ -87,7 +87,21 @@ namespace IMI
                 + '\t' + ""; // No "Visitors", yet
             addLineToParagraph(0, line);
         }
+
         public void addEventToSession(string sessionEvent, int exhibit, int visitors, int user)
+        {
+            if (this.paragraphs.Count != 0) // Something to write
+            {
+                string line = DateTime.Now.ToString("HH.mm.ss.fffffff")
+                    + '\t' + sessionEvent
+                    + '\t' + exhibit
+                    + '\t' + user
+                    + '\t' + visitors;
+                addLineToParagraph(0, line);
+            }
+        }
+
+        public void addEventToSession(string sessionEvent, string exhibit, int visitors, int user)
         {
             if (this.paragraphs.Count != 0) // Something to write
             {

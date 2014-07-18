@@ -426,7 +426,6 @@ namespace IMI_Presentation
             if (this.IMI_TARGET != this.TMP_TARGET) // New target
             {
                 this.IMI_TARGET = this.TMP_TARGET; // Assign new target
-                this.dataLogger.addEventToSession("New Target", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
 
                 if (this.selecting) // Timer already running for valid target(exhibit) := deselect
                 {
@@ -435,6 +434,7 @@ namespace IMI_Presentation
                 if (this.IMI_TARGET != 99) // Start timer for valid target (exhibit) := select
                 {
                     startSelectionTimer();
+                    this.dataLogger.addEventToSession("New Target", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
                 }
             }
         }
@@ -632,7 +632,7 @@ namespace IMI_Presentation
             this.contentLabel2 = this.TMP_EXHIBIT.getDescription(); // Set the current exhibit's description
             this.mode = Mode.Presentation; // Go to presentation mode
 
-            this.dataLogger.addEventToSession("Select Target", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
+            this.dataLogger.addEventToSession("Select Target", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
 
             startPresentation();
             pauseSession(this.IMI_EXHIBITION.getLockTime());
