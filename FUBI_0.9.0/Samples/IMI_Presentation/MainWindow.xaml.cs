@@ -321,6 +321,10 @@ namespace IMI_Presentation
                         {
                             stopSession(); // Stop the session
                         }
+                        else //(this.presenting) // Presentation in progress
+                        { 
+                        
+                        }
                     }
                 }
             }
@@ -328,11 +332,12 @@ namespace IMI_Presentation
             {
                 if (!this.presenting) // No presentation in progress
                 {
+                    this.dataLogger.endSession();
                     this.mode = Mode.Standby; // Stand by
                 }
                 else //(this.presenting) // Presentation in progress
                 {
-                    this.dataLogger.endSession();
+                    
                 }
             }
             updateLayout();
@@ -538,7 +543,7 @@ namespace IMI_Presentation
 
         private void stopSession()
         {
-            this.dataLogger.endSession();
+            //this.dataLogger.endSession();
 
             this.sessioning = false;
             this.sessionThread.Abort();
@@ -793,7 +798,7 @@ namespace IMI_Presentation
                             this.IMI_EXHIBITION = this.fileHandler.loadExhibition(this.TMP_PATH);
                             this.fileHandler.writeTxt(this.IMI_EXHIBITION_PATH, this.TMP_PATH);
                             this.TMP_PATH = null;
-                            this.sessionHandler = new SessionHandler(99, this.IMI_EXHIBITION.getUserPosition(), 250.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
+                            this.sessionHandler = new SessionHandler(99, this.IMI_EXHIBITION.getUserPosition(), 300.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
                             initFeedbackPositions();
 
                             this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
