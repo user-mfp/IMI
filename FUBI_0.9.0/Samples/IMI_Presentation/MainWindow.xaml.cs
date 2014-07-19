@@ -62,7 +62,6 @@ namespace IMI_Presentation
         private double timestamp; // DO NOT USE ! ! !
         private float confidence; // DO NOT USE ! ! !
         private List<uint> ids;
-        private TimeSpan upFubi;
         private Dictionary<uint, Point3D> users = new Dictionary<uint,Point3D>(); 
         private uint IMI_ID = 99;
         private int TMP_TARGET = 99;
@@ -279,7 +278,6 @@ namespace IMI_Presentation
 
         private void updateFubi()
         {
-            DateTime start = DateTime.Now;
             this.ids = trackableUserIds(); // Get all trackable users
 
             this.users.Clear(); // Remove all ids                
@@ -341,8 +339,6 @@ namespace IMI_Presentation
                 }
             }
             updateLayout();
-
-            this.upFubi = DateTime.Now - start;
         }
 
         private void updateSession()
@@ -754,7 +750,7 @@ namespace IMI_Presentation
             this.image2.Visibility = Visibility.Visible;
 
             // Labels
-            this.textBlock1.Text = "Vable: " + Fubi.getNumUsers() + '\t' + "Table: " + this.ids.Count + '\t' + "Fubi[ms]: " + this.upFubi.Milliseconds;//this.contentLabel1; 
+            this.textBlock1.Text = this.contentLabel1; 
             this.label1.Visibility = Visibility.Visible;
             this.textBlock2.Text = this.contentLabel2;
             this.label2.Visibility = Visibility.Visible;

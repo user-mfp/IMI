@@ -1605,7 +1605,7 @@ namespace IMI_Administration
                 case Headline.EditExhibit: //"load text from txt-file"
                     if (this.loadTextDialog.ShowDialog() == true)
                     {
-                        StreamReader streamReader = new StreamReader(this.loadTextDialog.FileName);
+                        StreamReader streamReader = new StreamReader(this.loadTextDialog.FileName, System.Text.Encoding.Default);
                         this.contentTextBox1 = (streamReader.ReadToEnd());
                     }
                     updateLayout();
