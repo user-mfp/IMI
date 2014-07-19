@@ -335,7 +335,7 @@ namespace IMI_Presentation
                 }
                 else //(this.presenting) // Presentation in progress
                 {
-                    
+
                 }
             }
             updateLayout();

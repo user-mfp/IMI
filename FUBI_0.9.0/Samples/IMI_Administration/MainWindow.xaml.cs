@@ -1307,6 +1307,7 @@ namespace IMI_Administration
                     {
                         case 0: //Position
                             this.contentButton2 = "ändern";
+                            this.comboBox2.Visibility = Visibility.Hidden;
                             this.button2.Visibility = Visibility.Visible;
                             this.button3.Visibility = Visibility.Hidden;
                             this.setting = Setting.Position;

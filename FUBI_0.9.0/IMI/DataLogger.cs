@@ -64,6 +64,25 @@ namespace IMI
             }
             this.paragraphs.Clear(); // Empty all lines
         }
+
+        private void writeFile(string extension, int paragraph)
+        {
+            // Build full path and filename
+            string fullPath = this.path + extension;
+            // Start writing the file
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fullPath))
+            {
+                this.paragraphs[paragraph].Add(""); // new line at the end
+
+                foreach (string line in this.paragraphs[paragraph])
+                {
+                    file.WriteLine(line);
+                }
+
+                file.Close();
+            }
+            this.paragraphs.Clear(); // Empty all lines
+        }
         #endregion
 
         #region SESSION
@@ -97,7 +116,7 @@ namespace IMI
                     + '\t' + exhibit
                     + '\t' + user
                     + '\t' + visitors;
-                addLineToParagraph(0, line);
+                addLineToParagraph((this.paragraphs.Count - 1), line);
             }
         }
 
@@ -142,7 +161,7 @@ namespace IMI
         {
             string extension = "Session(" + DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss") + ").txt";
 
-            writeFile(extension);
+            writeFile(extension, 0);
         }
         #endregion
     }
