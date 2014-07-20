@@ -125,8 +125,8 @@ namespace IMI_Presentation
             {
                 Ellipse position = new Ellipse();
                     
-                position.Width = exhibit.getKernelSize() * planeCanvasRatio;
-                position.Height = exhibit.getKernelSize() * planeCanvasRatio;                
+                position.Width = (2 * exhibit.getKernelSize()) / planeCanvasRatio;
+                position.Height = (2* exhibit.getKernelSize()) / planeCanvasRatio;                
                 position.Fill = Brushes.CornflowerBlue;
                 position.Opacity = 0.25;
 
