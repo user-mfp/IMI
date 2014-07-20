@@ -128,7 +128,7 @@ namespace IMI_Presentation
                 position.Width = exhibit.getKernelSize() * planeCanvasRatio;
                 position.Height = exhibit.getKernelSize() * planeCanvasRatio;                
                 position.Fill = Brushes.CornflowerBlue;
-                position.Opacity = 0.5;
+                position.Opacity = 0.25;
 
                 this.canvas1.Children.Add(position);                
                 this.exhibitFeedbackPositions.Add(position);
@@ -294,7 +294,7 @@ namespace IMI_Presentation
                     if (this.IMI_ID != 99) // There is a user in the interaction zone
                     {
                         startSession(); // Start session
-                    }
+                    }                    
                     else // (this.IMI_ID == 99) // There is no user in the interaction zone
                     {
                         if (this.mode != Mode.Presentation)

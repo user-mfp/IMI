@@ -254,15 +254,15 @@ namespace IMI
 
             if (planeDirMax == planeDir1L) // Depth the plane is longest dimension
             {
-                this.canvasSize.Y = this.screenSize.Y;
-                this.planeCanvasRatio = canvasSize.Y / planeDir1L;
-                this.canvasSize.X = this.screenSize.X * this.planeCanvasRatio;
+                this.canvasSize.X = this.screenSize.X;
+                this.planeCanvasRatio = canvasSize.X / planeDir1L;
+                this.canvasSize.Y = this.screenSize.Y * this.planeCanvasRatio;
             }
             else if (planeDirMax == planeDir2L) // Width of plane is longest dimension
             {
-                this.canvasSize.X = this.screenSize.X;
-                this.planeCanvasRatio = canvasSize.X / planeDir2L;
-                this.canvasSize.Y = this.screenSize.Y * this.planeCanvasRatio;
+                this.canvasSize.Y = this.screenSize.Y;
+                this.planeCanvasRatio = canvasSize.Y / planeDir2L;
+                this.canvasSize.X = this.screenSize.X * this.planeCanvasRatio;
             }
             else // Neither is longest dimension of the two
             {
