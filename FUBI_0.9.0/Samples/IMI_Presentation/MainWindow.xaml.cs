@@ -566,12 +566,12 @@ namespace IMI_Presentation
         {
             if (!this.paused)
             {
-                this.dataLogger.addEventToSession("Session paused", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
+                this.dataLogger.addEventToSession("Session paused", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
                 this.paused = true;
             }
             else
             {
-                this.dataLogger.addEventToSession("Session resumed", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
+                this.dataLogger.addEventToSession("Session resumed", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
                 this.paused = false;
             }
         }
@@ -580,15 +580,15 @@ namespace IMI_Presentation
         {
             if (!this.paused) // Session in progress
             {
-                this.dataLogger.addEventToSession("Session paused", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
+                this.dataLogger.addEventToSession("Session paused", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
                 this.paused = true;
                 Thread.Sleep(ms);
-                this.dataLogger.addEventToSession("Session resumed", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
+                this.dataLogger.addEventToSession("Session resumed", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
                 this.paused = false;
             }
             else
             {
-                this.dataLogger.addEventToSession("Session resumed", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
+                this.dataLogger.addEventToSession("Session resumed", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
                 this.paused = false;
             }
         }
