@@ -10,6 +10,7 @@ using Microsoft.SPOT.Touch;
 using Gadgeteer.Networking;
 using GT = Gadgeteer;
 using GTM = Gadgeteer.Modules;
+using Gadgeteer.Modules.GHIElectronics;
 
 namespace IMI_BTRemote
 {
@@ -34,6 +35,36 @@ namespace IMI_BTRemote
 
             // Use Debug.Print to show messages in Visual Studio's "Output" window during debugging.
             Debug.Print("Program Started");
+
+            bluetooth.SetDeviceName("Gadgeteer");
+
+            bluetooth.BluetoothStateChanged += new Bluetooth.BluetoothStateChangedHandler(bluetooth_BluetoothStateChanged);
+            bluetooth.DataReceived += new Bluetooth.DataReceivedHandler(bluetooth_DataReceived);
+
+            //The timer gives the device enough time to initialize.
+            Gadgeteer.Timer timer = new Gadgeteer.Timer(1000, Gadgeteer.Timer.BehaviorType.RunOnce);
+            timer.Tick += new Gadgeteer.Timer.TickEventHandler(timer_Tick);
+            timer.Start();
+
+        }
+
+        void timer_Tick(Gadgeteer.Timer timer)
+        {
+            //You only need to enter pairing mode once with a device. After you pair for the first time, it will
+            //automatically connect in the future.
+            if (!bluetooth.IsConnected)
+                bluetooth.ClientMode.EnterPairingMode();
+        }
+
+        void bluetooth_BluetoothStateChanged(Bluetooth sender, Bluetooth.BluetoothState btState)
+        {
+            Debug.Print(btState.ToString());
+        }
+
+        void bluetooth_DataReceived(Bluetooth sender, string data)
+        {
+            Debug.Print(data);
+            sender.ClientMode.SendLine(data); //echoes the data back to the device.
         }
     }
 }
