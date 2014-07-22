@@ -301,7 +301,7 @@ namespace IMI_Presentation
                     {
                         if (this.mode != Mode.Presentation)
                         {
-                            this.contentLabel1 = "Die " + this.IMI_EXHIBITION.getName() + "-Ausstellung";
+                            this.contentLabel1 = this.IMI_EXHIBITION.getName();
                             this.contentLabel2 = "Herzlich Willkommen!" + '\n' + "Bitte stellen Sie sich auf die Fußspuren und zeigen Sie auf die Exponate, um zusätzliche Informationen zu erhalten.";
                             this.loadImage2(this.IMI_INTRO);
                             this.mode = Mode.Presentation;
