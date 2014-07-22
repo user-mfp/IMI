@@ -30,7 +30,7 @@ namespace IMI_Presentation
             Presentation
         };
         // Internal path to exhibition
-        private string IMI_EXHIBITION_PATH = @"..\Samples\IMI_Presentation\Daten\IMI_ExhibitionPath.txt";
+        private string IMI_EXHIBITION_PATH = @"C:\IMI-DATA\Daten\IMI_ExhibitionPath.txt";
         private string IMI_INTRO_PATH = @"C:\IMI-DATA\Bilder\Idiogram.png"; //"..\Samples\IMI_Presentation\Daten\Idiogram.png";
         #endregion
 
@@ -796,14 +796,8 @@ namespace IMI_Presentation
                             this.IMI_EXHIBITION = this.fileHandler.loadExhibition(this.TMP_PATH);
                             this.fileHandler.writeTxt(this.IMI_EXHIBITION_PATH, this.TMP_PATH);
                             this.TMP_PATH = null;
-                            this.sessionHandler = new SessionHandler(99, this.IMI_EXHIBITION.getUserPosition(), 300.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
-                            initFeedbackPositions();
 
-                            this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
-                            this.mode = Mode.Standby;
-                            updateLayout();
-
-                            startTracking();
+                            initExhibition();
                         }
                     }
                     break;
