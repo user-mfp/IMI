@@ -204,18 +204,20 @@ namespace IMI_Presentation
             }
             else // There is an exhibition
             {
+                // Initialize exhibition
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
                 this.IMI_INTRO = new BitmapImage(new Uri(this.IMI_INTRO_PATH));
-
+                // Initialize session handling
                 this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
                 initFeedbackPositions();
-
+                // Initialize data logging
                 int x = exhibitionPath.LastIndexOf('\\');
                 this.dataLogger = new DataLogger(exhibitionPath.Remove(x));
-
+                // Initialize Layout
                 loadBackground(this.IMI_EXHIBITION.getBackgroundImage().Value);
                 this.contentLabel1 = "Standby - " + this.IMI_EXHIBITION.getName();
+                this.image2.MaxHeight = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height - (this.textBlock1.FontSize * 1.2) - 60; // 1.2 <- 120DPI-factor, 60 =: (4 * 10(px for Margins)) + (2 * 10(px Padding))
                 this.mode = Mode.Standby;
                 updateLayout();
 

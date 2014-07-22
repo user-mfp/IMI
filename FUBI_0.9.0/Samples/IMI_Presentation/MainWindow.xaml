@@ -26,9 +26,9 @@
             <TextBlock Text="" TextWrapping="Wrap" Name="textBlock2" FontSize="72" FontFamily="TheSans B4 SemiLight" Padding="10" Foreground="Black" Background="NavajoWhite"/>
         </Label>
         <!-- Buttons -->
-        <Button Content="..." Name="button1" FontWeight="Normal" FontStyle="Normal" FontFamily="TheSans B4 SemiLight"  FontSize="72" Height="Auto" Width="Auto" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click" Margin="10" Grid.Column="0" Grid.Row="0"/>
+        <Button Content="..." Name="button1" FontWeight="Normal" FontStyle="Normal" FontFamily="TheSans B4 SemiLight" FontSize="72" Height="Auto" Width="Auto" Padding="10" HorizontalAlignment="Left" VerticalAlignment="Top" Click="button1_Click" Margin="10" Grid.Column="0" Grid.Row="0"/>
         
         <!-- Images -->
-        <Image Name="image2" Height="Auto" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Grid.Column="1" Grid.Row="1"/>
+        <Image Name="image2" MaxHeight="900" Height="Auto" Width="Auto" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Grid.Column="1" Grid.Row="1"/>
     </Grid>
 </Window>

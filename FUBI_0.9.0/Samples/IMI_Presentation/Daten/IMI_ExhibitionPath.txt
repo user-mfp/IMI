@@ -1,1 +1,1 @@
-﻿C:\IMI-DATA\Testausstellung\Test.xml
+﻿C:\IMI-DATA\Daten\Haßleben.xml
