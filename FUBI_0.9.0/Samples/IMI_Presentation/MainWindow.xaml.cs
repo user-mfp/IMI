@@ -208,7 +208,7 @@ namespace IMI_Presentation
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
                 this.IMI_INTRO = new BitmapImage(new Uri(this.IMI_INTRO_PATH));
                 // Initialize session handling
-                this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 250.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
+                this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 300.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
                 initFeedbackPositions();
                 // Initialize data logging
@@ -647,6 +647,11 @@ namespace IMI_Presentation
                     this.contentLabel2 = this.TMP_EXHIBIT.getDescription();
                     this.contentImage2 = image.Value; // Load next image
                     Thread.Sleep(this.IMI_EXHIBITION.getSlideTime()); // Wait for the slideTime
+                }
+
+                if (this.TMP_EXHIBIT.getImages().Count == 1) // Exhibit has exactly one image
+                {
+                    Thread.Sleep(this.IMI_EXHIBITION.getSlideTime()); // Wait a little longer
                 }
             }
             else //(this.TMP_EXHIBIT.getImages().Count == 0) // Exhibits has no images

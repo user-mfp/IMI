@@ -354,11 +354,10 @@ namespace IMI
         
         public double furthestDistance(Point3D target, Point3D point)
         {
-            double x = absDistance(target.X, point.X);
-            double y = absDistance(target.Y, point.Y);
-            double z = absDistance(target.Z, point.Z);
+            XNA.Vector3 vector = makeVector3(point, target);
+            double dist = vector.Length();
 
-            return Math.Max(Math.Max(x, y), z);
+            return dist;
         }
         #endregion
 

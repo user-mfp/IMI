@@ -83,9 +83,6 @@ namespace IMI
                                     case "SlideTime":
                                         this.TMP_EXHIBITION.setSlideTime(int.Parse(exhibitionReader.Value));
                                         break;
-                                    case "EndWait":
-                                        this.TMP_EXHIBITION.setEndWait(int.Parse(exhibitionReader.Value));
-                                        break;
                                     default:
                                         break;
                                 }
@@ -252,7 +249,6 @@ namespace IMI
             exhibitionWriter.WriteAttributeString("SelectionTime", exhibition.getSelectionTime().ToString());
             exhibitionWriter.WriteAttributeString("LockTime", exhibition.getLockTime().ToString());
             exhibitionWriter.WriteAttributeString("SlideTime", exhibition.getSlideTime().ToString());
-            exhibitionWriter.WriteAttributeString("EndWait", exhibition.getEndWait().ToString());
 
             saveExhibitionPlane(exhibition.getExhibitionPlane());
 

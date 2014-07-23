@@ -537,7 +537,6 @@ namespace IMI_Administration
             this.comboBox1.Items.Add("Auswahlzeit"); // SelectionTime
             this.comboBox1.Items.Add("Sperrdauer"); // LockTime
             this.comboBox1.Items.Add("Dauer pro Bild"); // SlideTime
-            this.comboBox1.Items.Add("Abklingzeit"); // EndWait
             this.comboBox1.Visibility = Visibility.Visible;
 
             this.comboBox2.Visibility = Visibility.Hidden;
@@ -1149,9 +1148,6 @@ namespace IMI_Administration
                     break;
                 case Setting.SlideTime:
                     this.comboBox2.SelectedIndex = detLessIsLess(DEFAULT_EXHIBITION.getSlideTime(), this.exhibition.getSlideTime());
-                    break;
-                case Setting.EndWait:
-                    this.comboBox2.SelectedIndex = detLessIsLess(DEFAULT_EXHIBITION.getEndWait(), this.exhibition.getEndWait());
                     break;
                 case Setting.KernelSize:
                     this.comboBox2.SelectedIndex = detLessIsLess(DEFAULT_EXHIBIT.getKernelSize(), this.TMP_EXHIBIT.getKernelSize());
@@ -2203,12 +2199,6 @@ namespace IMI_Administration
                         this.exhibition.setSlideTime((int)(DEFAULT_EXHIBITION.getSlideTime() * factor));
                     else
                         this.exhibition.setSlideTime(DEFAULT_EXHIBITION.getSlideTime());
-                    break;
-                case Setting.EndWait:
-                    if (factor != 1.0)
-                        this.exhibition.setEndWait((int)(DEFAULT_EXHIBITION.getEndWait() * factor));
-                    else
-                        this.exhibition.setEndWait(DEFAULT_EXHIBITION.getEndWait());
                     break;
                 case Setting.KernelSize:
                     if (factor != 1.0)

@@ -17,10 +17,9 @@ namespace IMI
         private KeyValuePair<string, BitmapImage> overview;
         private Point3D userPosition; // User's head position
         private double threshold = 100.0; // Default radius := 100mm (only for exhibit-definition. Not for exhibition plane-definition)
-        private int selectionTime = 1500; // Default dwelltime for selection := 1s
+        private int selectionTime = 1250; // Default dwelltime for selection := 1.25s
         private int lockTime = 3000; // Default time for locking an exhibit := 3s
         private int slideTime = 5000; // Default time a slide is shown := 5s
-        private int endWait = 10000; // Default waiting before back to main view := 10s
         #endregion
 
         #region CONSTRUCTORS
@@ -141,11 +140,6 @@ namespace IMI
             return this.slideTime;
         }
 
-        public int getEndWait()
-        {
-            return this.endWait;
-        }
-
         public void setName(string name)
         {
             this.name = name;
@@ -189,11 +183,6 @@ namespace IMI
         public void setSlideTime(int slideTime)
         {
             this.slideTime = slideTime;
-        }
-
-        public void setEndWait(int endWait)
-        {
-            this.endWait = endWait;
         }
         #endregion
 

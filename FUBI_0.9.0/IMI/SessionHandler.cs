@@ -60,7 +60,7 @@ namespace IMI
             foreach (KeyValuePair<uint, Point3D> user in users)
             {
                 tmpDist = this.geometryHandler.furthestDistance(this.userPosition, user.Value);
-                
+
                 if (tmpDist < minDist)
                 {
                     minDist = tmpDist;
