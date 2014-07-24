@@ -560,6 +560,7 @@ namespace IMI_Presentation
             this.contentLabel2 = "";
             this.mode = Mode.Navigation;
 
+            this.paused = false;
             this.presenting = false;
             this.presentationThread.Abort();
         }
@@ -568,12 +569,12 @@ namespace IMI_Presentation
         {
             if (!this.paused)
             {
-                this.dataLogger.addEventToSession("Session paused", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
+                this.dataLogger.addEventToSession("Session paused", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
                 this.paused = true;
             }
             else
             {
-                this.dataLogger.addEventToSession("Session resumed", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
+                this.dataLogger.addEventToSession("Session resumed", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
                 this.paused = false;
             }
         }
@@ -582,15 +583,15 @@ namespace IMI_Presentation
         {
             if (!this.paused) // Session in progress
             {
-                this.dataLogger.addEventToSession("Session paused", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
+                this.dataLogger.addEventToSession("Session paused", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
                 this.paused = true;
                 Thread.Sleep(ms);
-                this.dataLogger.addEventToSession("Session resumed", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
+                this.dataLogger.addEventToSession("Session resumed", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
                 this.paused = false;
             }
             else
             {
-                this.dataLogger.addEventToSession("Session resumed", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
+                this.dataLogger.addEventToSession("Session resumed", this.IMI_TARGET, this.users.Count, (int)this.IMI_ID);
                 this.paused = false;
             }
         }
@@ -625,12 +626,12 @@ namespace IMI_Presentation
             if (IMI_TARGET != 99) // Only for valid targets
             {
                 this.TMP_EXHIBIT = this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET); // Set current exhibit
+                this.dataLogger.addEventToSession("Select Target", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
             }
             this.contentLabel1 = this.TMP_EXHIBIT.getName(); // Set the current exhibit's name as headline
             this.contentLabel2 = this.TMP_EXHIBIT.getDescription(); // Set the current exhibit's description
             this.mode = Mode.Presentation; // Go to presentation mode
 
-            this.dataLogger.addEventToSession("Select Target", this.IMI_EXHIBITION.getExhibit(this.IMI_TARGET).getName(), this.users.Count, (int)this.IMI_ID);
 
             startPresentation();
             pauseSession(this.IMI_EXHIBITION.getLockTime());
