@@ -596,6 +596,28 @@ namespace IMI_Presentation
             }
         }
 
+        private void toggleTracking()
+        {
+            if (this.tracking)
+            {
+                if (this.presenting) // Presentation in progress
+                {
+                    stopPresentation();                
+                }
+                if (this.sessioning) // Sesseion in progress
+                {
+                    stopSession();
+                }
+                stopTracking();
+                this.mode = Mode.Standby;
+            }
+            else //(!this.tracking)
+            {
+                startTracking();
+            }
+            updateLayout();
+        }
+
         private void closeAllThreads()
         {
             if (this.tracking)
@@ -821,6 +843,9 @@ namespace IMI_Presentation
                     break;
                 case Key.Space:
                     pauseSession();
+                    break;
+                case Key.Return:
+                    toggleTracking();
                     break;
                 default:
                     break;
