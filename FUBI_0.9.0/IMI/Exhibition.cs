@@ -17,7 +17,7 @@ namespace IMI
         private KeyValuePair<string, BitmapImage> overview;
         private Point3D userPosition; // User's head position
         private double threshold = 100.0; // Default radius := 100mm (only for exhibit-definition. Not for exhibition plane-definition)
-        private int selectionTime = 1250; // Default dwelltime for selection := 1.25s
+        private int selectionTime = 1000; // Default dwelltime for selection := 1s
         private int lockTime = 3000; // Default time for locking an exhibit := 3s
         private int slideTime = 5000; // Default time a slide is shown := 5s
         #endregion

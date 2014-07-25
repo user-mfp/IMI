@@ -14,7 +14,11 @@ namespace IMI
         private Point3D userPosition;
         private double radius;
         private Dictionary<Point3D, int> lookup;
-                
+        
+        // Buffering
+        private Queue<Point3D> feedbackPositionBuffer;
+        private int feedbackPositionBufferSize;
+
         // Plane
         private XNA.Plane plane;
         private XNA.Vector3 planeNormal;
@@ -33,12 +37,14 @@ namespace IMI
         #endregion
 
         #region CONSTRUCTOR
-        public SessionHandler(uint id, Point3D userPosition, double radius, GeometryHandler.Plane plane, Point3D screenSize)
+        public SessionHandler(uint id, Point3D userPosition, double radius, GeometryHandler.Plane plane, Point3D screenSize, int bufferSize)
         {
             this.id = id;
             this.userPosition = userPosition;
             this.radius = radius;
             this.screenSize = screenSize;
+            this.feedbackPositionBufferSize = bufferSize;
+            this.feedbackPositionBuffer = new Queue<Point3D>(this.feedbackPositionBufferSize);
 
             initPlane(plane);
             initScreen();
@@ -126,6 +132,19 @@ namespace IMI
             Point3D intersection = vector.Start + (s * vector.Direction);
 
             return intersection;
+        }
+
+        public Point3D getBufferedPosition(GeometryHandler.Vector vector)
+        {
+            XNA.Vector3 vS = this.geometryHandler.makeVector3(vector.Start);
+            XNA.Vector3 vD = this.geometryHandler.makeVector3(vector.Direction);
+
+            double s = (double)XNA.Vector3.Dot(this.plane.Normal, (planeStart - vS)) / XNA.Vector3.Dot(this.plane.Normal, vD);
+
+            Point3D intersection = vector.Start + (s * vector.Direction);
+            this.feedbackPositionBuffer.Enqueue(intersection);
+
+            return this.geometryHandler.getCenter(this.feedbackPositionBuffer);
         }
 
         public void makeLookupTable(List<Exhibit> exhibits, GeometryHandler.Plane exhibitionPlane)

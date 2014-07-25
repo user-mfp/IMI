@@ -7,6 +7,27 @@ namespace IMI
     public partial class StatisticsHandler
     {
         #region ROUTINES
+        public Point3D getAvg(Queue<Point3D> points)
+        {
+            Point3D center = new Point3D();
+            List<double> x_values = new List<double>();
+            List<double> y_values = new List<double>();
+            List<double> z_values = new List<double>();
+
+            foreach (Point3D point in points)
+            {
+                x_values.Add(point.X);
+                y_values.Add(point.Y);
+                z_values.Add(point.Z);
+            }
+
+            center.X = getAvg(x_values);
+            center.Y = getAvg(y_values);
+            center.Z = getAvg(z_values);
+
+            return center;
+        }
+
         public Point3D getAvg(List<Point3D> points)
         {
             Point3D center = new Point3D();

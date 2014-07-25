@@ -208,7 +208,7 @@ namespace IMI_Presentation
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
                 this.IMI_INTRO = new BitmapImage(new Uri(this.IMI_INTRO_PATH));
                 // Initialize session handling
-                this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 300.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0));
+                this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 300.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0), 20);
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
                 initFeedbackPositions();
                 // Initialize data logging

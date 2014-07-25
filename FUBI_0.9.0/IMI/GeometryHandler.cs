@@ -246,21 +246,15 @@ namespace IMI
             return centers;
         }
 
+        // Returns the "center" from a queue of points
+        public Point3D getCenter(Queue<Point3D> points)
+        {
+            return statisticsHandler.getAvg(points);
+        }
+
         // Returns the "center" from a list of points
         public Point3D getCenter(List<Point3D> points)
         {
-            double check = 0;
-            int i = 0;
-            foreach (Point3D point in points)
-            {
-                if (i == 0 || i % 3 == 0)
-                {
-                    check += point.X;
-                }
-                ++i;
-            }
-            check /= (points.Count / 3);
-
             return statisticsHandler.getAvg(points);
         }
 
