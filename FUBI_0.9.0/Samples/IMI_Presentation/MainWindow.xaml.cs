@@ -152,8 +152,8 @@ namespace IMI_Presentation
 
             // Define feedback shape
             this.feedbackEllipse = new Ellipse();
-            this.feedbackEllipse.Width = 25;
-            this.feedbackEllipse.Height = 25;
+            this.feedbackEllipse.Width = 50;
+            this.feedbackEllipse.Height = 50;
             this.feedbackEllipse.Fill = Brushes.Coral;
             // Define feedback position
             this.feedbackPosition = new Point3D();
@@ -208,7 +208,7 @@ namespace IMI_Presentation
                 this.IMI_EXHIBITION = this.fileHandler.loadExhibition(exhibitionPath);
                 this.IMI_INTRO = new BitmapImage(new Uri(this.IMI_INTRO_PATH));
                 // Initialize session handling
-                this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 300.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0), 20);
+                this.sessionHandler = new SessionHandler(Fubi.getClosestUserID(), this.IMI_EXHIBITION.getUserPosition(), 300.0, this.IMI_EXHIBITION.getExhibitionPlane(), new Point3D(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, 0), 5);
                 this.sessionHandler.makeLookupTable(this.IMI_EXHIBITION.getExhibits(), this.IMI_EXHIBITION.getExhibitionPlane());
                 initFeedbackPositions();
                 // Initialize data logging
@@ -351,8 +351,9 @@ namespace IMI_Presentation
                 {
                     if (this.IMI_ID != 99) // User in interaction zone
                     {
-                        this.feedbackPosition = this.sessionHandler.getPosition(takeAimingSample());
-                        this.TMP_TARGET = this.sessionHandler.getTarget(takeAimingSample());
+                        GeometryHandler.Vector aim = takeAimingSample();
+                        this.feedbackPosition = this.sessionHandler.getBufferedPosition(aim);
+                        this.TMP_TARGET = this.sessionHandler.getTarget(aim);
                         updateTarget();
                     }
                     else // (this.IMI_ID == 99) // No user in interaction zone 

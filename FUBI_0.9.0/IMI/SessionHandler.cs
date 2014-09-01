@@ -136,6 +136,7 @@ namespace IMI
 
         public Point3D getBufferedPosition(GeometryHandler.Vector vector)
         {
+            DateTime start = DateTime.Now;
             XNA.Vector3 vS = this.geometryHandler.makeVector3(vector.Start);
             XNA.Vector3 vD = this.geometryHandler.makeVector3(vector.Direction);
 
@@ -144,7 +145,12 @@ namespace IMI
             Point3D intersection = vector.Start + (s * vector.Direction);
             this.feedbackPositionBuffer.Enqueue(intersection);
 
-            return this.geometryHandler.getCenter(this.feedbackPositionBuffer);
+            if (this.feedbackPositionBuffer.Count == this.feedbackPositionBufferSize) // Buffer not at predefined size
+            {
+                this.feedbackPositionBuffer.Dequeue(); // Remove first Point from queue
+            }
+            
+            return this.geometryHandler.getCenter(this.feedbackPositionBuffer);                    
         }
 
         public void makeLookupTable(List<Exhibit> exhibits, GeometryHandler.Plane exhibitionPlane)
