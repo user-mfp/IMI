@@ -5,7 +5,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="10"/>
@@ -16,8 +16,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1" Height="Auto">
-            <Button Name="button1" Content="Button1" Margin="5" Width="Auto" Height="Auto" FontSize="20"/>
-            <Button Name="button2" Content="Button2" Margin="5" Width="Auto" Height="Auto" FontSize="20"/>
+            <Button Name="button1" Content="Laden" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button1_Click"/>
+            <Button Name="button2" Content="Analyse" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button2_Click"/>
         </StackPanel>
     </Grid>
 </Window>
