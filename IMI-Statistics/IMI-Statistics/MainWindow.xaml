@@ -18,6 +18,8 @@
         <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1" Height="Auto">
             <Button Name="button1" Content="Laden" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button1_Click"/>
             <Button Name="button2" Content="Analyse" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button2_Click"/>
+            <Button Name="button3" Content="Debug" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button3_Click"/>
         </StackPanel>
+        <Label Content="" Grid.Row="3" Width="Auto" Height="Auto" HorizontalAlignment="Left" Margin="5" Name="label1" VerticalAlignment="Bottom"  />
     </Grid>
 </Window>
