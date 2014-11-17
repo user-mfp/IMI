@@ -30,24 +30,29 @@ namespace IMI_Statistics
         List<string> filePaths;
         List<string> TMP_FILE;
 
-        // Explicit data
-        List<string> newTarget; // Count per session
-        List<string> selectedTarget; // Count per Session
-        List<int> id; // Active users per session
-        List<int> visitor; // All visitors per session
-        float firstBlood; // Time from start of the session to first event
-        
+        // Raw data
+        List<List<DateTime>> timestamps = new List<List<DateTime>>();
+        List<List<string>> events = new List<List<string>>();
+        List<List<string>> targets = new List<List<string>>();
+        List<List<int>> userID = new List<List<int>>();
+        List<List<int>> visitors = new List<List<int>>();
+                
         // Implicit data
-        List<int> ids; // IDs over sessions -> max., min., avg.
-        List<int> visitors; // Visitors over sessions -> max., min., avg.
-        float activeQuota; // Over sessions: active users / present visitors
-        List<float> firstBloods; // Over sessions -> max., min., avg.
-        List<string> durations; // Over sessions -> max., min., avg.
-        Dictionary<string, string> transitions; // Bidirectional: <newT1, newT2> and <newT2, newT1> will be combined in the end 
-        // Tricky: Dictionary<string, float> selectionTimes; // Over sessions -> max., min., avg.
-        Dictionary<string, int> newTargets; // Count over sessions
+        int emptySessions;
+        List<TimeSpan> firstBloods = new List<TimeSpan>(); // Over sessions -> max., min., avg.
+        List<TimeSpan> durations = new List<TimeSpan>(); // Over sessions -> max., min., avg.
+
+        Dictionary<string, int> newTargets = new Dictionary<string,int>(); // Count over sessions
+        Dictionary<KeyValuePair<string, string>, int> transitions = new Dictionary<KeyValuePair<string, string>, int>(); // Bidirectional: <newT1, newT2> and <newT2, newT1> will be combined in the end 
+
         Dictionary<string, int> selectedTargets; // Count over sessions
         Dictionary<string, float> targetQuotas; // Over sessions: <Target, (newT / selectedT)>
+
+
+        List<int> userIDsOA; // IDs over sessions -> max., min., avg.
+        List<int> visitorsOA; // Visitors over sessions -> max., min., avg.
+        float activeQuota; // Over sessions: active users / present visitors
+        // Tricky: Dictionary<string, float> selectionTimes; // Over sessions -> max., min., avg.
         #endregion
 
         #region READ FILES
@@ -73,13 +78,168 @@ namespace IMI_Statistics
 
         public void loadTxtToTmpFile(string filePath)
         {
-            if (this.TMP_FILE == null)
-                this.TMP_FILE = new List<string>();
+            this.TMP_FILE = new List<string>();
 
             foreach (string line in System.IO.File.ReadAllLines(filePath, System.Text.Encoding.UTF8))
             { 
                 this.TMP_FILE.Add(line);
             }
+        }
+
+        private void loadAndParseFiles()
+        {
+            foreach (string filePath in this.filePaths)
+            {
+                loadTxtToTmpFile(filePath);
+                parseTmpFile();
+            }
+        }
+
+        private void parseTmpFile()
+        {
+            // Analysis
+            List<DateTime> timestamps = new List<DateTime>();
+            List<string> events = new List<string>();
+            List<string> targets = new List<string>();
+            List<int> userID = new List<int>();
+            List<int> visitors = new List<int>();
+
+            foreach (string line in this.TMP_FILE)
+            {
+                string tmp_line = line + '\t';
+                string tmp_element = "";
+                int tabs = 0;
+
+                foreach (char c in tmp_line)
+                {
+                    if (c != '\t')
+                        tmp_element += c;
+                    else
+                    {
+                        switch (tabs)
+                        {
+                            case 0:
+                                timestamps.Add(parseTmpElementForDateTime(tmp_element));
+                                break;
+                            case 1:
+                                events.Add(parseTmpElementForEvent(tmp_element));
+                                break;
+                            case 2:
+                                targets.Add(parseTmpElementForTarget(tmp_element));
+                                break;
+                            case 3:
+                                userID.Add(parseTmpElementForUserID(tmp_element));
+                                break;
+                            case 4:
+                                visitors.Add(parseTmpElementForUsers(tmp_element));
+                                break;
+                            default:
+                                break;
+                        }
+                        ++tabs;
+                        tmp_element = "";
+                    }
+                }
+            }
+            timestamps.RemoveRange(0, 2);
+            timestamps.RemoveRange((timestamps.Count - 1), 1);
+            events.RemoveRange(0, 1);
+            targets.RemoveRange(0, 1);
+            userID.RemoveRange(0, 1);
+            visitors.RemoveRange(0, 1);
+
+            this.timestamps.Add(timestamps);
+            this.events.Add(events);
+            this.targets.Add(targets);
+            this.userID.Add(userID);
+            this.visitors.Add(visitors);
+        }
+
+        private DateTime parseTmpElementForDateTime(string tmp_element)
+        {
+            string hhmmss = "";
+            string ms = "";
+            string time = "";
+
+            if (tmp_element.Length > 8)
+            {
+                hhmmss = tmp_element.Remove(8).Replace('.', ':');
+                ms = tmp_element.Remove(0, 8);
+                time = hhmmss + ms;
+            }
+
+            DateTime timestamp;
+
+            try
+            {
+                timestamp = DateTime.Parse(time);
+            }
+            catch
+            {
+                timestamp = new DateTime();
+            }
+
+            return timestamp;
+        }
+
+        private string parseTmpElementForEvent(string tmp_element)
+        {
+            switch (tmp_element)
+            {
+                case "New Target":
+                    return "New Target";
+                case "Select Target":
+                    return "Select Target";
+                case "Start Session":
+                    return "Start Session";
+                case "Session paused":
+                    return "Session Paused";
+                case "Session resumed":
+                    return "Session Resumed";
+                case "End Session":
+                    return "End Session";
+                case "Duration":
+                    return "Duration";
+                default:
+                    return null;
+            }
+        }
+
+        private string parseTmpElementForTarget(string tmp_element)
+        {
+            return tmp_element;
+        }
+
+        private int parseTmpElementForUserID(string tmp_element)
+        {
+            int id;
+
+            try
+            {
+                id = int.Parse(tmp_element);
+            }
+            catch
+            {
+                id = -1;
+            }
+
+            return id;
+        }
+
+        private int parseTmpElementForUsers(string tmp_element)
+        {
+            int users;
+
+            try
+            {
+                users = int.Parse(tmp_element);
+            }
+            catch
+            {
+                users = -1;
+            }
+
+            return users;
         }
         #endregion
 
@@ -94,113 +254,103 @@ namespace IMI_Statistics
 
         private void analyzeFiles()
         {
+            DateTime start = DateTime.Now;
+
             if (filesLoaded())
             {
-                loadTxtToTmpFile(this.filePaths[0]);
-                parseTmpFile();
+                loadAndParseFiles();
+                deleteEmptySessions();
+
+                //TODO
+                // 
+                // - new Targets := Foreach targetName<-selectedTargetEvent() => Dictionary ++value
+                // - selected Targets := Foreach targetName<-selectedTargetEvent() => Dictionary ++value
             }
             else
                 MessageBox.Show("Keine Dateien ausgewählt. Bitte laden sie Dateien.");
+
+            detFistBloods();
+            detDurations();
+            detNewTargets();
+
+            this.label1.Content = this.filePaths.Count + " Files in " + (DateTime.Now - start).TotalSeconds.ToString() + "sec";
         }
 
-        private void parseTmpFile()
+        private void deleteEmptySessions()
         {
-            // Parsing
-            string line = this.TMP_FILE[2];
-            string tmp_element = "";
-            int tabs = 0;
+            int empty = 0;
+            List<int> indexes = new List<int>();
+            int deleted = 0;
 
-            // Analysis
-            List<DateTime> timestamps = new List<DateTime>();
-            List<string> events = new List<string>();
-            List<string> targets = new List<string>();
-            List<int> userID = new List<int>();
-            List<int> visitors = new List<int>();
-
-            foreach (char i in line)
+            for (int file = 0; file != this.visitors.Count; ++file)
             {
-                if (i != '\t')
-                    tmp_element += i;
-                else
+                int check = -1;
+
+                foreach (int line in this.visitors[file])
                 {
-                    switch (tabs)
+                    if (line != -1)
                     {
-                        case 0:
-                            timestamps.Add(parseTmpElementForDateTime(tmp_element));
-                            break;
-                        case 1:
-                            events.Add(parseTmpElementForEvent(tmp_element));
-                            break;
-                        case 2:
-                            targets.Add(parseTmpElementForTarget(tmp_element));
-                            break;
-                        case 3:
-                            userID.Add(parseTmpElementForUserID(tmp_element));
-                            break;
-                        case 4:
-                            visitors.Add(parseTmpElementForUsers(tmp_element));
-                            break;
-                        default:
-                            break;                        
+                        check = line;   
                     }
-                    ++tabs;
                 }
 
+                if (check == -1)
+                {
+                    indexes.Add(file);
+                    ++empty;
+                }
             }
-        }
 
-        private DateTime parseTmpElementForDateTime(string tmp_element)
-        {
-            string hhmmss = tmp_element.Remove(8).Replace('.', ':');
-            string ms = tmp_element.Remove(0, 8);
-            string time = hhmmss + ms;
-
-            DateTime timestamp = new DateTime();
-
-            try
+            foreach (int index in indexes)
             {
-                timestamp = DateTime.Parse(time);
+                int delete = index - deleted;
+                this.timestamps.Remove(this.timestamps[delete]);
+                this.events.Remove(this.events[delete]);
+                this.targets.Remove(this.targets[delete]);
+                this.userID.Remove(this.userID[delete]);
+                this.visitors.Remove(this.visitors[delete]);
+                ++deleted;
             }
-            catch
+
+            this.emptySessions = empty;
+            this.label2.Content = empty + "/" + this.filePaths.Count + " Sessions leer"+ '\n';
+        }
+
+        private void detFistBloods()
+        {
+            foreach (List<DateTime> file in this.timestamps)
             {
-                timestamp = new DateTime(); 
+                this.firstBloods.Add(file[1] - file[0]);
             }
 
-            return timestamp;
+            this.label2.Content += this.firstBloods[0].ToString() + " until First Blood" + '\n';
         }
 
-        private void parseTmpElementForEvent(string tmp_element)
+        private void detDurations()
         {
-            if (tmp_element == "New Target")
-            { 
-            
+            foreach (List<DateTime> file in this.timestamps)
+            {
+                this.durations.Add(file[file.Count-2] - file[0]);
             }
-            else if (tmp_element == "Select Target")
-            { 
-            
+
+            this.label2.Content += this.durations[0].ToString() + " Duration" + '\n';
+        }
+
+        private void detNewTargets()
+        {
+            //Dictionary<string, int> newTargets
+            foreach (List<string> file in this.events)
+            {
+                for (int evnt = 0; evnt != file.Count; ++evnt)
+                {
+                    if (file[evnt] == "New Target")
+                    {
+
+                    }
+                }
             }
-            else if (tmp_element == "End Session")
-            { 
-            
-            }
-            else
-
         }
 
-        private void parseTmpElementForTarget(string tmp_element)
-        {
-
-        }
-
-        private void parseTmpElementForUserID(string tmp_element)
-        {
-
-        }
-
-        private void parseTmpElementForUsers(string tmp_element)
-        {
-
-        }
         #endregion
 
         #region WRITE FILES
@@ -218,7 +368,20 @@ namespace IMI_Statistics
             }
         }
 
-        public void writeTxt(string path, string data)
+        private void writeDebug(List<DateTime> timestamps, List<string> events, List<string> targets, List<int> userID, List<int> visitors)
+        {
+            string path = @"D:\MSC\StatDebug\" + DateTime.Now.ToString("HH.mm.ss") + "_fileCopy.txt";
+            string data = "";
+
+            for (int i = 0; i != timestamps.Count; ++i)
+            {
+                data += timestamps[i].ToString("HH.mm.ss.fffffff") + '\t' + events[i] + '\t' + targets[i] + '\t' + userID[i] + '\t' + visitors[i] + '\n';
+            }
+
+            writeTxt(path, data);
+        }
+
+        private void writeTxt(string path, string data)
         {
             System.IO.File.WriteAllText(path, data, System.Text.Encoding.UTF8);
         }
@@ -241,7 +404,7 @@ namespace IMI_Statistics
         // DEBUG-EVENT
         private void button3_Click(object sender, RoutedEventArgs e)
         {
-            writePaths();
+            writeDebug(this.timestamps[0], this.events[0], this.targets[0], this.userID[0], this.visitors[0]);
         }
         #endregion
     }
