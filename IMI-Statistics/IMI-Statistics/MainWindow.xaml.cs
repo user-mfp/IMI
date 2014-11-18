@@ -316,6 +316,14 @@ namespace IMI_Statistics
             this.label2.Content = empty + "/" + this.filePaths.Count + " Sessions leer"+ '\n';
         }
 
+        private bool allEmpty()
+        {
+            if (this.emptySessions == this.filePaths.Count)
+                return true;
+            else
+                return false;
+        }
+
         private void detFistBloods()
         {
             foreach (List<DateTime> file in this.timestamps)
@@ -323,7 +331,8 @@ namespace IMI_Statistics
                 this.firstBloods.Add(file[1] - file[0]);
             }
 
-            this.label2.Content += this.firstBloods[0].ToString() + " until First Blood" + '\n';
+            if (!allEmpty())
+                this.label2.Content += this.firstBloods[0].ToString() + " until First Blood" + '\n';
         }
 
         private void detDurations()
@@ -338,19 +347,85 @@ namespace IMI_Statistics
 
         private void detNewTargets()
         {
-            //Dictionary<string, int> newTargets
-            foreach (List<string> file in this.events)
-            {
-                for (int evnt = 0; evnt != file.Count; ++evnt)
-                {
-                    if (file[evnt] == "New Target")
-                    {
+            string tmp_target = "";
+            KeyValuePair<string, string> tmp_pair;
 
+            for (int file = 0; file != this.events.Count; ++file)//foreach (List<string> file in this.events)
+            {
+                for (int line = 0; line != this.events[file].Count; ++line)
+                {
+                    if (this.events[file][line] == "New Target")
+                    {
+                        // New Targets
+                        if (this.newTargets.ContainsKey(this.targets[file][line]))
+                            this.newTargets[this.targets[file][line]] += 1;
+                        else
+                            this.newTargets.Add(this.targets[file][line], 1);
+
+                        // Transitions
+                        if (tmp_target == "")
+                        {
+                            tmp_target = this.targets[file][line];
+                        }
+                        else
+                        { 
+                            tmp_pair = new KeyValuePair<string, string>(tmp_target, this.targets[file][line]);
+                            
+                            if (this.transitions.ContainsKey(tmp_pair))
+                                this.transitions[tmp_pair] += 1;
+                            else
+                                this.transitions.Add(tmp_pair, 1);
+
+                            tmp_target = this.targets[file][line];
+                        }
                     }
+                    else
+                        tmp_target = "";
+                }
+            }
+
+            if (!allEmpty())
+            {
+                this.label2.Content += "NEW TARGETS" + '\n';
+                foreach (KeyValuePair<string, int> target in this.newTargets)
+                {
+                    this.label2.Content += target.Key + ": " + target.Value + '\n';
+                }
+
+                sortTransitions();
+                this.label2.Content += "TRANSITIONS" + '\n';
+                foreach (KeyValuePair<KeyValuePair<string, string>, int> transition in this.transitions)
+                {
+                    this.label2.Content += transition.Key.Key + " ; " + transition.Key.Value + ": " + transition.Value + '\n';
                 }
             }
         }
 
+        private void sortTransitions()
+        {
+            Dictionary<KeyValuePair<string, string>, int> transitions = new Dictionary<KeyValuePair<string,string>,int>();
+            KeyValuePair<string, string> tmp_kvp;
+
+            foreach (KeyValuePair<KeyValuePair<string, string>, int> transition in this.transitions)
+            {
+                tmp_kvp = new KeyValuePair<string,string>(transition.Key.Value, transition.Key.Key);
+
+                if (transitions.ContainsKey(transition.Key))
+                {
+                    transitions[transition.Key] += transition.Value;
+                }
+                else if (transitions.ContainsKey(tmp_kvp))
+                {
+                    transitions[tmp_kvp] += transition.Value;
+                }
+                else
+                {
+                    transitions.Add(transition.Key, transition.Value);
+                }
+            }
+
+            this.transitions = transitions;
+        }
         #endregion
 
         #region WRITE FILES
