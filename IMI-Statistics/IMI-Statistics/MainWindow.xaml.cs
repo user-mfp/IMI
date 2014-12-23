@@ -42,10 +42,10 @@ namespace IMI_Statistics
         List<TimeSpan> firstBloods = new List<TimeSpan>(); // Over sessions -> max., min., avg.
         List<TimeSpan> durations = new List<TimeSpan>(); // Over sessions -> max., min., avg.
 
-        Dictionary<string, int> newTargets = new Dictionary<string,int>(); // Count over sessions
+        Dictionary<string, int> newTargets = new Dictionary<string, int>(); // Count over sessions  -> max., min., avg.
         Dictionary<KeyValuePair<string, string>, int> transitions = new Dictionary<KeyValuePair<string, string>, int>(); // Bidirectional: <newT1, newT2> and <newT2, newT1> will be combined in the end 
 
-        Dictionary<string, int> selectedTargets; // Count over sessions
+        Dictionary<string, int> selectedTargets = new Dictionary<string,int>(); // Count over sessions -> max., min., avg.
         Dictionary<string, float> targetQuotas; // Over sessions: <Target, (newT / selectedT)>
 
 
@@ -271,6 +271,7 @@ namespace IMI_Statistics
 
             detFistBloods();
             detDurations();
+            detSelectedTargets();
             detNewTargets();
 
             this.label1.Content = this.filePaths.Count + " Files in " + (DateTime.Now - start).TotalSeconds.ToString() + "sec";
@@ -386,11 +387,11 @@ namespace IMI_Statistics
 
             if (!allEmpty())
             {
-                this.label2.Content += "NEW TARGETS" + '\n';
-                foreach (KeyValuePair<string, int> target in this.newTargets)
-                {
-                    this.label2.Content += target.Key + ": " + target.Value + '\n';
-                }
+                //this.label2.Content += "NEW TARGETS" + '\n';
+                //foreach (KeyValuePair<string, int> target in this.newTargets)
+                //{
+                //    this.label2.Content += target.Key + ": " + target.Value + '\n';
+                //}
 
                 sortTransitions();
                 this.label2.Content += "TRANSITIONS" + '\n';
@@ -425,6 +426,33 @@ namespace IMI_Statistics
             }
 
             this.transitions = transitions;
+        }
+
+        private void detSelectedTargets()
+        {
+            for (int file = 0; file != this.events.Count; ++file)//foreach (List<string> file in this.events)
+            {
+                for (int line = 0; line != this.events[file].Count; ++line)
+                {
+                    if (this.events[file][line] == "Select Target")
+                    {
+                        // Target Selected
+                        if (this.selectedTargets.ContainsKey(this.targets[file][line]))
+                            this.selectedTargets[this.targets[file][line]] += 1;
+                        else
+                            this.selectedTargets.Add(this.targets[file][line], 1);
+                    }
+                }
+            }
+
+            if (!allEmpty())
+            {
+                this.label2.Content += "SELECTED TARGETS" + '\n';
+                foreach (KeyValuePair<string, int> target in this.selectedTargets)
+                {
+                    this.label2.Content += target.Key + ": " + target.Value + '\n';
+                }
+            }
         }
         #endregion
 

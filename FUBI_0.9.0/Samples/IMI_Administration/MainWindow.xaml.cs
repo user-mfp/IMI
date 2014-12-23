@@ -396,17 +396,6 @@ namespace IMI_Administration
             this.trackThread.Start();
         }
 
-        private void calibrationTest()
-        {
-            for (int i = 0; i != 10; ++i)
-            {
-                this.contentLabel2 = (10 - i).ToString();
-                Thread.Sleep(1000);
-            }
-
-            stopCalibration();
-        }
-
         private void startPlaneDefinition()
         {
             // Starting a calibration-thread porperly
