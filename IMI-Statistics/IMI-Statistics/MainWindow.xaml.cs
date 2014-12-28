@@ -141,6 +141,7 @@ namespace IMI_Statistics
                     }
                 }
             }
+            // Cut upper lines
             timestamps.RemoveRange(0, 2);
             timestamps.RemoveRange((timestamps.Count - 1), 1);
             events.RemoveRange(0, 1);
@@ -148,11 +149,43 @@ namespace IMI_Statistics
             userID.RemoveRange(0, 1);
             visitors.RemoveRange(0, 1);
 
+            // Cut to last active event
+            cutToLastActiveEvent(ref timestamps, ref events, ref targets, ref userID, ref visitors);
+
             this.timestamps.Add(timestamps);
             this.events.Add(events);
             this.targets.Add(targets);
             this.userID.Add(userID);
             this.visitors.Add(visitors);
+        }
+
+        private void cutToLastActiveEvent(ref List<DateTime> timestamps, ref List<string> events, ref List<string> targets, ref List<int> userID, ref List<int> visitors)
+        {
+            int cutIndex = getLastActiveEvent(events) + 1;
+            int cutRange = timestamps.Count - cutIndex;
+
+            // Cut to last active event
+            timestamps.RemoveRange(cutIndex, cutRange);
+            events.RemoveRange(cutIndex, cutRange);
+            targets.RemoveRange(cutIndex, cutRange);
+            userID.RemoveRange(cutIndex, cutRange);
+            visitors.RemoveRange(cutIndex, cutRange);
+        }
+
+        private int getLastActiveEvent(List<string> events)
+        {
+            int cutIndex = -1;
+
+            for (int i = events.Count - 1; i != -1; --i)
+            {
+                if (events[i] == "New Target" || events[i] == "Select Target")
+                {
+                    cutIndex = i;
+                    break;
+                }
+            }
+
+            return cutIndex;
         }
 
         private DateTime parseTmpElementForDateTime(string tmp_element)
@@ -333,7 +366,12 @@ namespace IMI_Statistics
             }
 
             if (!allEmpty())
-                this.label2.Content += this.firstBloods[0].ToString() + " until First Blood" + '\n';
+            {
+                this.label2.Content += '\n' + "FIRST BLOOD" + '\n';
+                this.label2.Content += "Longest time span until First Blood:" + '\t' + getMaxTimeSpan(this.firstBloods) + '\n';
+                this.label2.Content += "Shortest time span until First Blood:" + '\t' + getMinTimeSpan(this.firstBloods) + '\n';
+                this.label2.Content += "Average time span until First Blood:" + '\t' + getAvgTimeSpan(this.firstBloods) + '\n';
+            }
         }
 
         private void detDurations()
@@ -343,7 +381,59 @@ namespace IMI_Statistics
                 this.durations.Add(file[file.Count-2] - file[0]);
             }
 
-            this.label2.Content += this.durations[0].ToString() + " Duration" + '\n';
+            if (!allEmpty())
+            {
+                this.label2.Content += '\n' + "SESSION DURATION" + '\n';
+                this.label2.Content += "Longest duration of a session:" + '\t' + getMaxTimeSpan(this.durations) + '\n';
+                this.label2.Content += "Shortest duration of a session:" + '\t' + getMinTimeSpan(this.durations) + '\n';
+                this.label2.Content += "Average duration of a session:" + '\t' + getAvgTimeSpan(this.durations) + '\n';
+            }
+        }
+
+        private TimeSpan getMinTimeSpan(List<TimeSpan> timespans)
+        {
+            TimeSpan minTimeSpan = timespans[0];
+            TimeSpan tmpTimeSpan = timespans[0];
+
+            foreach(TimeSpan timespan in timespans)
+            {
+                if (timespan < minTimeSpan)
+                    minTimeSpan = timespan;
+
+                tmpTimeSpan = timespan;
+            }
+            
+            return minTimeSpan;
+        }
+
+        private TimeSpan getMaxTimeSpan(List<TimeSpan> timespans)
+        {
+            TimeSpan maxTimeSpan = timespans[0];
+            TimeSpan tmpTimeSpan = timespans[0];
+
+            foreach (TimeSpan timespan in timespans)
+            {
+                if (timespan > maxTimeSpan)
+                    maxTimeSpan = timespan;
+
+                tmpTimeSpan = timespan;
+            }
+
+            return maxTimeSpan;
+        }
+
+        private TimeSpan getAvgTimeSpan(List<TimeSpan> timespans)
+        {
+            TimeSpan tmpTimeSpan = new TimeSpan();
+
+            foreach (TimeSpan timespan in timespans)
+            { 
+                tmpTimeSpan += timespan;
+            }
+
+            tmpTimeSpan = TimeSpan.FromMilliseconds(tmpTimeSpan.TotalMilliseconds / timespans.Count);
+
+            return tmpTimeSpan;
         }
 
         private void detNewTargets()
@@ -394,7 +484,7 @@ namespace IMI_Statistics
                 //}
 
                 sortTransitions();
-                this.label2.Content += "TRANSITIONS" + '\n';
+                this.label2.Content += '\n' + "TRANSITIONS" + '\n';
                 foreach (KeyValuePair<KeyValuePair<string, string>, int> transition in this.transitions)
                 {
                     this.label2.Content += transition.Key.Key + " ; " + transition.Key.Value + ": " + transition.Value + '\n';
@@ -447,7 +537,7 @@ namespace IMI_Statistics
 
             if (!allEmpty())
             {
-                this.label2.Content += "SELECTED TARGETS" + '\n';
+                this.label2.Content += '\n' + "SELECTED TARGETS" + '\n';
                 foreach (KeyValuePair<string, int> target in this.selectedTargets)
                 {
                     this.label2.Content += target.Key + ": " + target.Value + '\n';
