@@ -18,6 +18,12 @@ namespace IMI_SummaeryDemo
     public partial class MainWindow : Window
     {
         #region DECLARATIONS
+        // JOINTS
+        private Dictionary<FubiUtils.SkeletonJoint, Point3D> TRACKED_JOINTS;
+        private FubiUtils.SkeletonJoint TRACKED_CENTER_JOINT;
+        private Dictionary<FubiUtils.SkeletonJoint, Ellipse> SHOWN_JOINTS_1;
+        private Dictionary<FubiUtils.SkeletonJoint, Ellipse> SHOWN_JOINTS_2;
+
         // Multi-user
         private List<uint> users;
         private List<List<Point3D>> usersJointsToTrack;
@@ -43,8 +49,10 @@ namespace IMI_SummaeryDemo
             InitializeComponent();
 
             initFubi();
-            initCanvas();
-            initJoints();
+            initWindow();
+            initJointsToTrack(FubiUtils.SkeletonJoint.WAIST);
+            initJointsToShowCanvas1();
+            initJointsToShowCanvas2();
 
             startTracking();
         }
@@ -66,57 +74,83 @@ namespace IMI_SummaeryDemo
             }
         }
 
-        private void initJoints()
+        private void initWindow()
         {
-            this.jointsToTrack = new List<Point3D>();
-            this.jointsToTrack.Add(new Point3D()); //  0 := HEAD
-			this.jointsToTrack.Add(new Point3D()); //  1 := NECK
-			this.jointsToTrack.Add(new Point3D()); //  2 := TORSO
-            this.centerJoint = 2; // := TORSO IS CENTER OF THE SCREEN
-			this.jointsToTrack.Add(new Point3D()); //  3 := WAIST
-			this.jointsToTrack.Add(new Point3D()); //  4 := LEFT_SHOULDER
-			this.jointsToTrack.Add(new Point3D()); //  5 := LEFT_ELBOW
-			this.jointsToTrack.Add(new Point3D()); //  6 := LEFT_WRIST
-			this.jointsToTrack.Add(new Point3D()); //  7 := LEFT_HAND
-			this.jointsToTrack.Add(new Point3D()); //  8 := RIGHT_SHOULDER
-			this.jointsToTrack.Add(new Point3D()); //  9 := RIGHT_ELBOW
-			this.jointsToTrack.Add(new Point3D()); // 10 := RIGHT_WRIST
-			this.jointsToTrack.Add(new Point3D()); // 11 := RIGHT_HAND
-			this.jointsToTrack.Add(new Point3D()); // 12 := LEFT_HIP
-			this.jointsToTrack.Add(new Point3D()); // 13 := LEFT_KNEE
-			this.jointsToTrack.Add(new Point3D()); // 14 := LEFT_ANKLE
-			this.jointsToTrack.Add(new Point3D()); // 15 := LEFT_FOOT
-			this.jointsToTrack.Add(new Point3D()); // 16 := RIGHT_HIP
-			this.jointsToTrack.Add(new Point3D()); // 17 := RIGHT_KNEE
-			this.jointsToTrack.Add(new Point3D()); // 18 := RIGHT_ANKLE
-			this.jointsToTrack.Add(new Point3D()); // 19 := RIGHT_FOOT
-            this.jointsToTrack.Add(new Point3D()); // 20 := FACE_NOSE
-            this.jointsToTrack.Add(new Point3D()); // 21 := FACE_LEFT_EAR
-            this.jointsToTrack.Add(new Point3D()); // 22 := FACE_RIGHT_EAR
-            this.jointsToTrack.Add(new Point3D()); // 23 := FACE_FOREHEAD
-            this.jointsToTrack.Add(new Point3D()); // 24 := FACE_CHIN
+            this.Width = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
+            this.Height = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+        }
 
-            this.jointsToShow = new List<Ellipse>();
-            foreach (Point3D point in this.jointsToTrack)
+        private void initJointsToTrack(FubiUtils.SkeletonJoint center_joint)
+        {
+            this.TRACKED_JOINTS = new Dictionary<FubiUtils.SkeletonJoint, Point3D>();
+
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.HEAD, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.NECK, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.TORSO, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.WAIST, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_SHOULDER, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_ELBOW, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_WRIST, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_HAND, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_SHOULDER, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_ELBOW, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_WRIST, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_HAND, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_HIP, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_KNEE, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_ANKLE, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_FOOT, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_HIP, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_KNEE, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_ANKLE, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_FOOT, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_NOSE, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_LEFT_EAR, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_RIGHT_EAR, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_FOREHEAD, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_CHIN, new Point3D());
+
+            this.TRACKED_CENTER_JOINT = center_joint;
+        }
+
+        private void initJointsToShowCanvas1()
+        {
+            this.SHOWN_JOINTS_1 = new Dictionary<FubiUtils.SkeletonJoint, Ellipse>();
+
+            foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
             {
                 Ellipse feedbackEllipse  = new Ellipse();
                 feedbackEllipse.Width = this.shapeSize;
                 feedbackEllipse.Height = this.shapeSize;
-                feedbackEllipse.Fill = System.Windows.Media.Brushes.Ivory;
+                feedbackEllipse.Fill = System.Windows.Media.Brushes.BurlyWood;
 
                 Canvas.SetLeft(feedbackEllipse, (this.canvas1.Width / 2)); // Center of the canvas
                 Canvas.SetTop(feedbackEllipse, (this.canvas1.Height / 2)); // Center of the canvas
                 
                 this.canvas1.Children.Add(feedbackEllipse);
 
-                this.jointsToShow.Add(feedbackEllipse);
+                this.SHOWN_JOINTS_1.Add(joint.Key, feedbackEllipse);
             }
         }
 
-        private void initCanvas()
+        private void initJointsToShowCanvas2()
         {
-            this.canvas1.Width = (double)System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
-            this.canvas1.Height = (double)System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+            this.SHOWN_JOINTS_2 = new Dictionary<FubiUtils.SkeletonJoint, Ellipse>();
+
+            foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
+            {
+                Ellipse feedbackEllipse = new Ellipse();
+                feedbackEllipse.Width = this.shapeSize;
+                feedbackEllipse.Height = this.shapeSize;
+                feedbackEllipse.Fill = System.Windows.Media.Brushes.CornflowerBlue;
+
+                Canvas.SetLeft(feedbackEllipse, (this.canvas2.Width / 2)); // Center of the canvas
+                Canvas.SetTop(feedbackEllipse, (this.canvas2.Height / 2)); // Center of the canvas
+
+                this.canvas2.Children.Add(feedbackEllipse);
+
+                this.SHOWN_JOINTS_2.Add(joint.Key, feedbackEllipse);
+            }
         }
         #endregion
 
