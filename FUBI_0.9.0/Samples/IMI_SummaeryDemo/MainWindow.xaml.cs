@@ -9,6 +9,7 @@ using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Drawing;
 using System;
+using IMI;
 
 namespace IMI_SummaeryDemo
 {
@@ -18,24 +19,28 @@ namespace IMI_SummaeryDemo
     public partial class MainWindow : Window
     {
         #region DECLARATIONS
+        // IMI-INSTANCES
+        private GeometryHandler GEOMETRY_HANDLER = new GeometryHandler();
+
         // JOINTS
         private Dictionary<FubiUtils.SkeletonJoint, Point3D> TRACKED_JOINTS;
-        private FubiUtils.SkeletonJoint TRACKED_CENTER_JOINT;
         private Dictionary<FubiUtils.SkeletonJoint, Ellipse> SHOWN_JOINTS_1;
         private Dictionary<FubiUtils.SkeletonJoint, Ellipse> SHOWN_JOINTS_2;
 
-        // Multi-user
-        private List<uint> users;
-        private List<List<Point3D>> usersJointsToTrack;
-        private List<List<Ellipse>> userJointsToShow;
+        // LAYOUT
+        private FubiUtils.SkeletonJoint TRACKED_CENTER_JOINT;
+        private Point3D ZERO_POINT = new Point3D();
+        private Ellipse ZERO_ELLIPSE;
+        private int ELLIPSE_SIZE = 25;
+        private double CANVAS_WIDTH;
+        private double CANVAS_HEIGHT;
+        private int CANVAS_VIEW_MODE_1; // default = 0; 0 := frontal, 2 := side, 3 := top  
+        private int CANVAS_VIEW_MODE_2; // default = 0; 0 := frontal, 2 := side, 3 := top
+
         // Layout
-        private int centerJoint;
         private int relation;
-        private int shapeSize = 25;
         // Threading
         private delegate void NoArgDelegate();
-        private List<Point3D> jointsToTrack;
-        private List<Ellipse> jointsToShow;
         private double timestamp; // DO NOT USE ! ! !
         private float confidence; // DO NOT USE ! ! !
         // Tracking-thread
@@ -78,6 +83,9 @@ namespace IMI_SummaeryDemo
         {
             this.Width = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
             this.Height = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+
+            this.CANVAS_WIDTH = (System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width - 30) / 2;
+            this.CANVAS_HEIGHT = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height - 20;
         }
 
         private void initJointsToTrack(FubiUtils.SkeletonJoint center_joint)
@@ -115,17 +123,19 @@ namespace IMI_SummaeryDemo
 
         private void initJointsToShowCanvas1()
         {
+            this.CANVAS_VIEW_MODE_1 = 1;
+
             this.SHOWN_JOINTS_1 = new Dictionary<FubiUtils.SkeletonJoint, Ellipse>();
 
             foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
             {
                 Ellipse feedbackEllipse  = new Ellipse();
-                feedbackEllipse.Width = this.shapeSize;
-                feedbackEllipse.Height = this.shapeSize;
-                feedbackEllipse.Fill = System.Windows.Media.Brushes.BurlyWood;
+                feedbackEllipse.Width = this.ELLIPSE_SIZE;
+                feedbackEllipse.Height = this.ELLIPSE_SIZE;
+                feedbackEllipse.Fill = System.Windows.Media.Brushes.IndianRed;
 
-                Canvas.SetLeft(feedbackEllipse, (this.canvas1.Width / 2)); // Center of the canvas
-                Canvas.SetTop(feedbackEllipse, (this.canvas1.Height / 2)); // Center of the canvas
+                Canvas.SetLeft(feedbackEllipse, (this.CANVAS_WIDTH / 2)); // Center of the canvas
+                Canvas.SetTop(feedbackEllipse, (this.CANVAS_HEIGHT / 2)); // Center of the canvas
                 
                 this.canvas1.Children.Add(feedbackEllipse);
 
@@ -135,17 +145,19 @@ namespace IMI_SummaeryDemo
 
         private void initJointsToShowCanvas2()
         {
+            this.CANVAS_VIEW_MODE_2 = 0;
+
             this.SHOWN_JOINTS_2 = new Dictionary<FubiUtils.SkeletonJoint, Ellipse>();
 
             foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
             {
                 Ellipse feedbackEllipse = new Ellipse();
-                feedbackEllipse.Width = this.shapeSize;
-                feedbackEllipse.Height = this.shapeSize;
+                feedbackEllipse.Width = this.ELLIPSE_SIZE;
+                feedbackEllipse.Height = this.ELLIPSE_SIZE;
                 feedbackEllipse.Fill = System.Windows.Media.Brushes.CornflowerBlue;
 
-                Canvas.SetLeft(feedbackEllipse, (this.canvas2.Width / 2)); // Center of the canvas
-                Canvas.SetTop(feedbackEllipse, (this.canvas2.Height / 2)); // Center of the canvas
+                Canvas.SetLeft(feedbackEllipse, (this.CANVAS_WIDTH / 2)); // Center of the canvas
+                Canvas.SetTop(feedbackEllipse, (this.CANVAS_HEIGHT / 2)); // Center of the canvas
 
                 this.canvas2.Children.Add(feedbackEllipse);
 
@@ -247,123 +259,181 @@ namespace IMI_SummaeryDemo
             if (Fubi.getNumUsers() != 0)
             {
                 updateJoints();
-                updateFeedback();
+                updateCanvas1();
+                updateCanvas2();
             }
         }
 
         private void updateJoints()
         {
             float x, y, z;
+
             // HEAD
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.HEAD, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.HEAD, x, y, z);
+            updateJoint(FubiUtils.SkeletonJoint.HEAD, x, y, z);
 			// NECK
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.NECK, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.NECK, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.NECK, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.NECK, x, y, z);
 			// TORSO
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.TORSO, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.TORSO, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.TORSO, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.TORSO, x, y, z);
 			// WAIST
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.WAIST, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.WAIST, x, y, z);
+            updateJoint(FubiUtils.SkeletonJoint.WAIST, x, y, z);
 			// LEFT_SHOULDER
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_SHOULDER, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.LEFT_SHOULDER, x, y, z);
+            updateJoint(FubiUtils.SkeletonJoint.LEFT_SHOULDER, x, y, z);
 			// LEFT_ELBOW
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_ELBOW, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.LEFT_ELBOW, x, y, z);
+            updateJoint(FubiUtils.SkeletonJoint.LEFT_ELBOW, x, y, z);
 			// LEFT_WRIST
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_WRIST, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.LEFT_WRIST, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_WRIST, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.LEFT_WRIST, x, y, z);
 			// LEFT_HAND
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_HAND, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.LEFT_HAND, x, y, z);
+            updateJoint(FubiUtils.SkeletonJoint.LEFT_HAND, x, y, z);
 			// RIGHT_SHOULDER
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_SHOULDER, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.RIGHT_SHOULDER, x, y, z);
+            updateJoint(FubiUtils.SkeletonJoint.RIGHT_SHOULDER, x, y, z);
 			// RIGHT_ELBOW
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_ELBOW, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.RIGHT_ELBOW, x, y, z);
+            updateJoint(FubiUtils.SkeletonJoint.RIGHT_ELBOW, x, y, z);
 			// RIGHT_WRIST
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_WRIST, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.RIGHT_WRIST, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_WRIST, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.RIGHT_WRIST, x, y, z);
 			// RIGHT_HAND
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_HAND, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.RIGHT_HAND, x, y, z);
+            updateJoint(FubiUtils.SkeletonJoint.RIGHT_HAND, x, y, z);
 			// LEFT_HIP
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_HIP, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.LEFT_HIP, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_HIP, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.LEFT_HIP, x, y, z);
 			// LEFT_KNEE
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_KNEE, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.LEFT_KNEE, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_KNEE, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.LEFT_KNEE, x, y, z);
 			// LEFT_ANKLE
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_ANKLE, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.LEFT_ANKLE, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_ANKLE, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.LEFT_ANKLE, x, y, z);
 			// LEFT_FOOT
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_FOOT, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.LEFT_FOOT, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_FOOT, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.LEFT_FOOT, x, y, z);
 			// RIGHT_HIP
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_HIP, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.RIGHT_HIP, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_HIP, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.RIGHT_HIP, x, y, z);
 			// RIGHT_KNEE
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_KNEE, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.RIGHT_KNEE, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_KNEE, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.RIGHT_KNEE, x, y, z);
 			// RIGHT_ANKLE
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_ANKLE, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.RIGHT_ANKLE, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_ANKLE, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.RIGHT_ANKLE, x, y, z);
 			// RIGHT_FOOT
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_FOOT, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.RIGHT_FOOT, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_FOOT, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.RIGHT_FOOT, x, y, z);
             // FACE_NOSE
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_NOSE, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.FACE_NOSE, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_NOSE, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.FACE_NOSE, x, y, z);
             // FACE_LEFT_EAR
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_LEFT_EAR, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.FACE_LEFT_EAR, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_LEFT_EAR, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.FACE_LEFT_EAR, x, y, z);
             // FACE_RIGHT_EAR
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_RIGHT_EAR, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.FACE_RIGHT_EAR, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_RIGHT_EAR, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.FACE_RIGHT_EAR, x, y, z);
             // FACE_FOREHEAD
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_FOREHEAD, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.FACE_FOREHEAD, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_FOREHEAD, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.FACE_FOREHEAD, x, y, z);
             // FACE_CHIN
-            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_CHIN, out x, out y, out z, out confidence, out timestamp);
-            updateJoint((int)FubiUtils.SkeletonJoint.FACE_CHIN, x, y, z);
+            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_CHIN, out x, out y, out z, out confidence, out timestamp);
+            //updateJoint(FubiUtils.SkeletonJoint.FACE_CHIN, x, y, z);
         }
 
-        private void updateJoint(int joint, float x, float y, float z)
+        private void updateJoint(FubiUtils.SkeletonJoint joint, float x, float y, float z)
         {
             Point3D point = new Point3D(x, y, z);
 
-            this.jointsToTrack[joint] = point;
+            this.TRACKED_JOINTS[joint] = point;
         }
 
-        private void updateFeedback()
+        private void updateCanvas1()
         {
-            int count = 0;
-            foreach (Shape feedbackEllipse in this.jointsToShow)
+            switch (this.CANVAS_VIEW_MODE_1)
             {
-                Point3D canvasPosition = new Point3D();
+                default: //0 := frontal
+                    foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
+                    {
+                        if (joint.Value != this.ZERO_POINT)
+                        {
+                            Point3D canvasPosition = canvasPositionInRelationToCenterJointFront(joint.Value);
+                            Ellipse canvasEllipse = this.SHOWN_JOINTS_1[joint.Key];
 
-                switch (this.relation)
-                { 
-                    default: // 0
-                        canvasPosition = canvasPositionInRelationToZero(this.jointsToTrack[count]);
-                        break;
-                    case 1:
-                        canvasPosition = canvasPositionInRelationToCenterJoint(this.jointsToTrack[count]);
-                        break;
+                            Canvas.SetLeft(canvasEllipse, canvasPosition.X - (canvasEllipse.Width / 2));
+                            Canvas.SetTop(canvasEllipse, canvasPosition.Y - (canvasEllipse.Height / 2));
 
+                            this.SHOWN_JOINTS_1[joint.Key].Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            this.SHOWN_JOINTS_1[joint.Key].Visibility = Visibility.Hidden;
+                        }
+                    }
+                    break;
+                case 1: //1 := side
+                    foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
+                    {
+                        if (joint.Value != this.ZERO_POINT)
+                        {
+                            Point3D canvasPosition = canvasPositionInRelationToCenterJointSide(joint.Value);
+                            Ellipse canvasEllipse = this.SHOWN_JOINTS_1[joint.Key];
+
+                            Canvas.SetLeft(canvasEllipse, canvasPosition.X - (canvasEllipse.Width / 2));
+                            Canvas.SetTop(canvasEllipse, canvasPosition.Y - (canvasEllipse.Height / 2));
+
+                            this.SHOWN_JOINTS_1[joint.Key].Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            this.SHOWN_JOINTS_1[joint.Key].Visibility = Visibility.Hidden;
+                        }
+                    }
+                    break;
+                case 2: //2 := top
+                    foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
+                    {
+                        if (joint.Value != this.ZERO_POINT)
+                        {
+                            Point3D canvasPosition = canvasPositionInRelationToCenterJointTop(joint.Value);
+                            Ellipse canvasEllipse = this.SHOWN_JOINTS_1[joint.Key];
+
+                            Canvas.SetLeft(canvasEllipse, canvasPosition.X - (canvasEllipse.Width / 2));
+                            Canvas.SetTop(canvasEllipse, canvasPosition.Y - (canvasEllipse.Height / 2));
+
+                            this.SHOWN_JOINTS_1[joint.Key].Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            this.SHOWN_JOINTS_1[joint.Key].Visibility = Visibility.Hidden;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        private void updateCanvas2()
+        {
+            foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
+            {
+                if (joint.Value != this.ZERO_POINT)
+                {
+                    Point3D canvasPosition = canvasPositionInRelationToCenterJointFront(joint.Value);
+                    Ellipse canvasEllipse = this.SHOWN_JOINTS_2[joint.Key];
+
+                    Canvas.SetLeft(canvasEllipse, canvasPosition.X - (canvasEllipse.Width / 2));
+                    Canvas.SetTop(canvasEllipse, canvasPosition.Y - (canvasEllipse.Height / 2));
+
+                    this.SHOWN_JOINTS_2[joint.Key].Visibility = Visibility.Visible;
                 }
-
-                double feedbackEllipseSize = canvasSizeInRelationToCenterJoint(this.jointsToTrack[count]);
-                feedbackEllipse.Width = feedbackEllipseSize;
-                feedbackEllipse.Height = feedbackEllipseSize;
-
-                Canvas.SetLeft(feedbackEllipse, canvasPosition.X - (feedbackEllipseSize / 2));
-                Canvas.SetTop(feedbackEllipse, canvasPosition.Y - (feedbackEllipseSize / 2));
-
-                ++count;
+                else
+                {
+                    this.SHOWN_JOINTS_2[joint.Key].Visibility = Visibility.Hidden;
+                }
             }
         }
 
@@ -387,32 +457,59 @@ namespace IMI_SummaeryDemo
             }
         }
 
-        private Point3D canvasPositionInRelationToCenterJoint(Point3D jointPosition)
+        private Point3D canvasPositionInRelationToCenterJointFront(Point3D jointPosition)
         {
-            Point3D centerJoint = this.jointsToTrack[this.centerJoint];
-            Point3D canvasPosition = new Point3D((this.canvas1.Width / 2), (this.canvas1.Height / 2), 0);
+            Point3D centerJoint = this.TRACKED_JOINTS[this.TRACKED_CENTER_JOINT];
+            Point3D canvasPosition = new Point3D((this.CANVAS_WIDTH / 2), (this.CANVAS_HEIGHT / 2), 0);
+            Vector3D jointVector= (jointPosition - centerJoint) / 3;
 
-            if (jointPosition.X < centerJoint.X) // To the left
-            {
-                canvasPosition.X -= absoluteDifference(jointPosition.X, centerJoint.X);
-            }
-            else //(jointPosition.X > centerJoint.X || jointPosition.X == centerJoint.X) // To the right
-            {
-                canvasPosition.X += absoluteDifference(jointPosition.X, centerJoint.X);
-            }
-
-            if (jointPosition.Y < centerJoint.Y) // Below
-            {
-                canvasPosition.Y += absoluteDifference(jointPosition.Y, centerJoint.Y);
-            }
-            else //(jointPosition.Y > centerJoint.Y || jointPosition.Y == centerJoint.Y) // Above
-            {
-                canvasPosition.Y -= absoluteDifference(jointPosition.Y, centerJoint.Y);
-            }
+            canvasPosition.X += jointVector.X;
+            canvasPosition.Y -= jointVector.Y;
 
             return canvasPosition;
         }
 
+        private Point3D canvasPositionInRelationToCenterJointSide(Point3D jointPosition)
+        {
+            Point3D centerJoint = this.TRACKED_JOINTS[this.TRACKED_CENTER_JOINT];
+            Point3D canvasPosition = new Point3D((this.CANVAS_WIDTH / 2), (this.CANVAS_HEIGHT / 2), 0);
+            Vector3D jointVector = (jointPosition - centerJoint) / 3;
+
+            canvasPosition.X += jointVector.Z;
+            canvasPosition.Y -= jointVector.Y;
+
+            //canvasPosition.X = canvasPosition.Z;
+
+            return canvasPosition;
+        }
+
+        private Point3D canvasPositionInRelationToCenterJointTop(Point3D jointPosition)
+        {
+            Point3D centerJoint = this.TRACKED_JOINTS[this.TRACKED_CENTER_JOINT];
+            Point3D canvasPosition = new Point3D((this.CANVAS_WIDTH / 2), (this.CANVAS_HEIGHT / 2), 0);
+            Vector3D jointVector = (jointPosition - centerJoint) / 3;
+
+            canvasPosition.X += jointVector.X;
+            canvasPosition.Y -= jointVector.Z;
+
+            return canvasPosition;
+        }
+
+        private Point3D canvasPositionTop(Point3D jointPosition)
+        {
+            Point3D canvasPosition = new Point3D();
+
+            return canvasPosition;
+        }
+
+        private Point3D canvasPositionFront(Point3D jointPosition)
+        {
+            Point3D canvasPosition = new Point3D();
+
+            return canvasPosition;
+        }
+
+        /*#region OLD STUFF
         private Point3D canvasPositionInRelationToZero(Point3D jointPosition)
         {
             Point3D centerJoint = this.jointsToTrack[this.centerJoint];
@@ -442,7 +539,7 @@ namespace IMI_SummaeryDemo
         private double canvasSizeInRelationToCenterJoint(Point3D jointPosition)
         {
             double centerDistance = this.jointsToTrack[this.centerJoint].Z;
-            double canvasSize = this.shapeSize;
+            double canvasSize = this.ELLIPSE_SIZE;
 
             if (jointPosition.Z != 0)
             {
@@ -458,6 +555,7 @@ namespace IMI_SummaeryDemo
 
             return canvasSize;
         }
+        #endregion*/
 
         private double absoluteDifference(double lhs, double rhs)
         {

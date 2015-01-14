@@ -24,7 +24,7 @@
         </Grid.RowDefinitions>
             
         <!-- Canvas -->
-        <Canvas Name="canvas1" Background="Black" Width="Auto" Height="Auto" Grid.Column="1" Grid.Row="1"/>
-        <Canvas Name="canvas2" Background="Black" Width="Auto" Height="Auto" Grid.Column="3" Grid.Row="1"/>
+        <Canvas Name="canvas1" Background="Black" Grid.Column="1" Grid.Row="1"/>
+        <Canvas Name="canvas2" Background="Black" Grid.Column="3" Grid.Row="1"/>
     </Grid>
 </Window>
