@@ -4,11 +4,13 @@
         Title="IMI Präsentationssoftware" 
         WindowState="Maximized"
         WindowStyle="None" 
-        Background="Gainsboro"
+        Background="Black"
         Cursor="None"
         Width="1920"
         Height="1080"
-        KeyUp="Window_KeyUp">
+        KeyUp="Window_KeyUp"
+        MouseLeftButtonUp="Window_MouseLeftButtonUp"
+        MouseRightButtonUp="Window_MouseRightButtonUp">
     <Grid Width="Auto" Height="Auto">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"/>
@@ -24,7 +26,9 @@
         </Grid.RowDefinitions>
             
         <!-- Canvas -->
-        <Canvas Name="canvas1" Background="Black" Grid.Column="1" Grid.Row="1"/>
-        <Canvas Name="canvas2" Background="Black" Grid.Column="3" Grid.Row="1"/>
+        <Canvas Name="canvas1" Background="DarkGray" Grid.Column="1" Grid.Row="1"/>
+        <Canvas Name="canvas2" Background="DarkGray" Grid.Column="3" Grid.Row="1"/>
+        <!-- Images -->
+        <Image Name="image1" Height="Auto" Width="Auto" Stretch="Uniform" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="5" Grid.RowSpan="3"/>
     </Grid>
 </Window>

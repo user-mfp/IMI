@@ -2270,7 +2270,7 @@ namespace IMI_Administration
 
             switch (this.setting)
             { 
-                case Setting.None: // Defining of validating exhibit's position
+                case Setting.None: // Defining or validating exhibit's position
                     if (this.headline == Headline.ExhibitDef)
                     { 
                         this.TMP_POSITION = position;

@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Drawing;
 using System;
 using IMI;
+using System.Windows.Media.Imaging;
 
 namespace IMI_SummaeryDemo
 {
@@ -26,34 +27,43 @@ namespace IMI_SummaeryDemo
         private Dictionary<FubiUtils.SkeletonJoint, Point3D> TRACKED_JOINTS;
         private Dictionary<FubiUtils.SkeletonJoint, Ellipse> SHOWN_JOINTS_1;
         private Dictionary<FubiUtils.SkeletonJoint, Ellipse> SHOWN_JOINTS_2;
+        private FubiUtils.SkeletonJoint TRACKED_CENTER_JOINT;
 
         // LAYOUT
-        private FubiUtils.SkeletonJoint TRACKED_CENTER_JOINT;
         private Point3D ZERO_POINT = new Point3D();
-        private Ellipse ZERO_ELLIPSE;
         private int ELLIPSE_SIZE = 25;
         private double CANVAS_WIDTH;
         private double CANVAS_HEIGHT;
-        private int CANVAS_VIEW_MODE_1; // default = 0; 0 := frontal, 2 := side, 3 := top  
-        private int CANVAS_VIEW_MODE_2; // default = 0; 0 := frontal, 2 := side, 3 := top
+        private int CANVAS_VIEW_MODE_1; // default = 0; 0 := frontal, 1 := side, 2 := top  
+        private int CANVAS_VIEW_MODE_2; // default = 0; 0 := frontal, 1 := side, 2 := top
+        private bool VIEW;
 
-        // Layout
-        private int relation;
-        // Threading
+        // PRESENTATION
+        private string IMAGE_PATH;
+        private int CURRENT_IMAGE;
+        private List<System.Windows.Media.Imaging.BitmapImage> IMAGES;
+        private List<string> NOTES;
+
+        // THREADING
         private delegate void NoArgDelegate();
         private double timestamp; // DO NOT USE ! ! !
         private float confidence; // DO NOT USE ! ! !
         // Tracking-thread
         private bool tracking;
         private Thread trackThread;
+        // Gesture-thread
+        private bool gesturing;
+        private Thread gestureThread;
+        private double THRESHOLD = 100.0;
         #endregion
 
         #region INITIALIZATION
         public MainWindow()
         {
             InitializeComponent();
-
+            
             initFubi();
+            initImages();
             initWindow();
             initJointsToTrack(FubiUtils.SkeletonJoint.WAIST);
             initJointsToShowCanvas1();
@@ -79,6 +89,34 @@ namespace IMI_SummaeryDemo
             }
         }
 
+        private void initImages()
+        {
+            System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+            folderDialog.ShowDialog();
+            this.IMAGE_PATH = folderDialog.SelectedPath;
+
+            this.IMAGES = new List<BitmapImage>();
+
+            int tmp_image_counter = 0;
+            string tmp_path = this.IMAGE_PATH;
+            bool slides = true; // THERE ARE STILL SLIDES IN THIS PATH
+
+            while (slides)
+            {
+                try
+                {
+                    tmp_path = this.IMAGE_PATH + '\\' + "Slide" + tmp_image_counter.ToString() + ".jpg";
+                    this.IMAGES.Add(new BitmapImage(new Uri(tmp_path)));
+                    // INCLUDE LOADING OF NOTES HERE
+                    ++tmp_image_counter;
+                }
+                catch
+                {
+                    slides = false;
+                }
+            }
+        }
+
         private void initWindow()
         {
             this.Width = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
@@ -86,6 +124,14 @@ namespace IMI_SummaeryDemo
 
             this.CANVAS_WIDTH = (System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width - 30) / 2;
             this.CANVAS_HEIGHT = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height - 20;
+                        
+            this.VIEW = true; // PRESENTATION
+            this.canvas1.Visibility = Visibility.Hidden;
+            this.canvas2.Visibility = Visibility.Hidden;
+
+            this.CURRENT_IMAGE = 0;
+            this.image1.Source = this.IMAGES[this.CURRENT_IMAGE];
+            this.image1.Visibility = Visibility.Visible;
         }
 
         private void initJointsToTrack(FubiUtils.SkeletonJoint center_joint)
@@ -123,7 +169,7 @@ namespace IMI_SummaeryDemo
 
         private void initJointsToShowCanvas1()
         {
-            this.CANVAS_VIEW_MODE_1 = 1;
+            this.CANVAS_VIEW_MODE_1 = 0;
 
             this.SHOWN_JOINTS_1 = new Dictionary<FubiUtils.SkeletonJoint, Ellipse>();
 
@@ -132,7 +178,7 @@ namespace IMI_SummaeryDemo
                 Ellipse feedbackEllipse  = new Ellipse();
                 feedbackEllipse.Width = this.ELLIPSE_SIZE;
                 feedbackEllipse.Height = this.ELLIPSE_SIZE;
-                feedbackEllipse.Fill = System.Windows.Media.Brushes.IndianRed;
+                feedbackEllipse.Fill = System.Windows.Media.Brushes.White;
 
                 Canvas.SetLeft(feedbackEllipse, (this.CANVAS_WIDTH / 2)); // Center of the canvas
                 Canvas.SetTop(feedbackEllipse, (this.CANVAS_HEIGHT / 2)); // Center of the canvas
@@ -141,6 +187,10 @@ namespace IMI_SummaeryDemo
 
                 this.SHOWN_JOINTS_1.Add(joint.Key, feedbackEllipse);
             }
+
+            this.SHOWN_JOINTS_1[FubiUtils.SkeletonJoint.HEAD].Fill = System.Windows.Media.Brushes.Red;
+            this.SHOWN_JOINTS_1[FubiUtils.SkeletonJoint.RIGHT_ELBOW].Fill = System.Windows.Media.Brushes.Green;
+            this.SHOWN_JOINTS_1[FubiUtils.SkeletonJoint.RIGHT_HAND].Fill = System.Windows.Media.Brushes.Blue;
         }
 
         private void initJointsToShowCanvas2()
@@ -154,7 +204,7 @@ namespace IMI_SummaeryDemo
                 Ellipse feedbackEllipse = new Ellipse();
                 feedbackEllipse.Width = this.ELLIPSE_SIZE;
                 feedbackEllipse.Height = this.ELLIPSE_SIZE;
-                feedbackEllipse.Fill = System.Windows.Media.Brushes.CornflowerBlue;
+                feedbackEllipse.Fill = System.Windows.Media.Brushes.White;
 
                 Canvas.SetLeft(feedbackEllipse, (this.CANVAS_WIDTH / 2)); // Center of the canvas
                 Canvas.SetTop(feedbackEllipse, (this.CANVAS_HEIGHT / 2)); // Center of the canvas
@@ -163,6 +213,10 @@ namespace IMI_SummaeryDemo
 
                 this.SHOWN_JOINTS_2.Add(joint.Key, feedbackEllipse);
             }
+
+            this.SHOWN_JOINTS_2[FubiUtils.SkeletonJoint.HEAD].Fill = System.Windows.Media.Brushes.Red;
+            this.SHOWN_JOINTS_2[FubiUtils.SkeletonJoint.RIGHT_ELBOW].Fill = System.Windows.Media.Brushes.Green;
+            this.SHOWN_JOINTS_2[FubiUtils.SkeletonJoint.RIGHT_HAND].Fill = System.Windows.Media.Brushes.Blue;
         }
         #endregion
 
@@ -221,6 +275,74 @@ namespace IMI_SummaeryDemo
             this.tracking = false;
             this.trackThread.Abort();
         }
+        #endregion
+
+        #region GESTURING
+        private void startGesturing()
+        {
+            this.gestureThread = new Thread(gesture);
+            this.gesturing = true;
+            this.gestureThread.Start();
+        }
+
+        private void gesture()
+        {
+            while (this.gesturing)
+            {
+                if (this.VIEW) // PRESENTATION ACTIVE
+                {
+                    if (detectHandToShoulderRight())
+                    {
+                        nextImage();
+                        Thread.Sleep(500);
+                    }
+                    if (detectHandToShoulderLeft())
+                    {
+                        prevImage();
+                        Thread.Sleep(500);
+                    }
+                }
+            }
+        }
+
+        private bool detectHandToShoulderRight()
+        {
+            double distance = this.GEOMETRY_HANDLER.getDistance(this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.RIGHT_HAND], this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.RIGHT_SHOULDER]);
+
+            if (distance < this.THRESHOLD)
+                return true;
+            else
+                return false;
+        }
+
+        private bool detectHandToShoulderLeft()
+        {
+            double distance = this.GEOMETRY_HANDLER.getDistance(this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.LEFT_HAND], this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.LEFT_SHOULDER]);
+
+            if (distance < this.THRESHOLD)
+                return true; 
+            else
+                return false;
+        }
+
+        private void toggleGesturing()
+        {
+            if (this.gesturing)
+            {
+                stopGesturing();
+            }
+            else
+            {
+                startGesturing();
+            }
+        }
+
+        private void stopGesturing()
+        {
+            this.gesturing = false;
+            this.gestureThread.Abort();
+        }
+        #endregion
 
         private void closeAllThreads()
         {
@@ -228,9 +350,12 @@ namespace IMI_SummaeryDemo
             {
                 stopTracking();
             }
+            if (this.gesturing)
+            {
+                stopGesturing();
+            }
             this.Close();
         }
-        #endregion
 
         #region RUNTIME
         private List<uint> trackableUserIds()
@@ -259,8 +384,11 @@ namespace IMI_SummaeryDemo
             if (Fubi.getNumUsers() != 0)
             {
                 updateJoints();
-                updateCanvas1();
-                updateCanvas2();
+                if (!this.VIEW) // JOINTS
+                {
+                    updateCanvas1();
+                    updateCanvas2();
+                }
             }
         }
 
@@ -352,6 +480,69 @@ namespace IMI_SummaeryDemo
             this.TRACKED_JOINTS[joint] = point;
         }
 
+        private void releaseFubi()
+        {
+            Fubi.release();
+        }
+        #endregion
+
+        #region LAYOUT
+        private void toggleView()
+        {
+            if (!this.VIEW)
+            {
+                this.VIEW = true; // PRESENTATION
+                this.canvas1.Visibility = Visibility.Hidden;
+                this.canvas2.Visibility = Visibility.Hidden;
+                this.image1.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                this.VIEW = false; // JOINTS
+                this.canvas1.Visibility = Visibility.Visible;
+                this.canvas2.Visibility = Visibility.Visible;
+                this.image1.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void toggleCanavasMode1()
+        {
+            switch (this.CANVAS_VIEW_MODE_1)
+            { 
+                default:
+                    this.CANVAS_VIEW_MODE_1 = 0;
+                    break;
+                case 0:
+                    this.CANVAS_VIEW_MODE_1 = 1;
+                    break;
+                case 1:
+                    this.CANVAS_VIEW_MODE_1 = 2;
+                    break;
+                case 2:
+                    this.CANVAS_VIEW_MODE_1 = 0;
+                    break;
+            }
+        }
+
+        private void toggleCanavasMode2()
+        {
+            switch (this.CANVAS_VIEW_MODE_2)
+            {
+                default:
+                    this.CANVAS_VIEW_MODE_2 = 0;
+                    break;
+                case 0:
+                    this.CANVAS_VIEW_MODE_2 = 1;
+                    break;
+                case 1:
+                    this.CANVAS_VIEW_MODE_2 = 2;
+                    break;
+                case 2:
+                    this.CANVAS_VIEW_MODE_2 = 0;
+                    break;
+            }
+        }
+
         private void updateCanvas1()
         {
             switch (this.CANVAS_VIEW_MODE_1)
@@ -418,41 +609,64 @@ namespace IMI_SummaeryDemo
 
         private void updateCanvas2()
         {
-            foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
+            switch (this.CANVAS_VIEW_MODE_2)
             {
-                if (joint.Value != this.ZERO_POINT)
-                {
-                    Point3D canvasPosition = canvasPositionInRelationToCenterJointFront(joint.Value);
-                    Ellipse canvasEllipse = this.SHOWN_JOINTS_2[joint.Key];
+                default: //0 := frontal
+                    foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
+                    {
+                        if (joint.Value != this.ZERO_POINT)
+                        {
+                            Point3D canvasPosition = canvasPositionInRelationToCenterJointFront(joint.Value);
+                            Ellipse canvasEllipse = this.SHOWN_JOINTS_2[joint.Key];
 
-                    Canvas.SetLeft(canvasEllipse, canvasPosition.X - (canvasEllipse.Width / 2));
-                    Canvas.SetTop(canvasEllipse, canvasPosition.Y - (canvasEllipse.Height / 2));
+                            Canvas.SetLeft(canvasEllipse, canvasPosition.X - (canvasEllipse.Width / 2));
+                            Canvas.SetTop(canvasEllipse, canvasPosition.Y - (canvasEllipse.Height / 2));
 
-                    this.SHOWN_JOINTS_2[joint.Key].Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    this.SHOWN_JOINTS_2[joint.Key].Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
-        private void releaseFubi()
-        {
-            Fubi.release();
-        }
-        #endregion
-
-        #region LAYOUT
-        private void toggleRelation()
-        {
-            switch (this.relation)
-            { 
-                default:
-                    ++this.relation;
+                            this.SHOWN_JOINTS_2[joint.Key].Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            this.SHOWN_JOINTS_2[joint.Key].Visibility = Visibility.Hidden;
+                        }
+                    }
                     break;
-                case 1:
-                    this.relation = 0;
+                case 1: //1 := side
+                    foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
+                    {
+                        if (joint.Value != this.ZERO_POINT)
+                        {
+                            Point3D canvasPosition = canvasPositionInRelationToCenterJointSide(joint.Value);
+                            Ellipse canvasEllipse = this.SHOWN_JOINTS_2[joint.Key];
+
+                            Canvas.SetLeft(canvasEllipse, canvasPosition.X - (canvasEllipse.Width / 2));
+                            Canvas.SetTop(canvasEllipse, canvasPosition.Y - (canvasEllipse.Height / 2));
+
+                            this.SHOWN_JOINTS_2[joint.Key].Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            this.SHOWN_JOINTS_2[joint.Key].Visibility = Visibility.Hidden;
+                        }
+                    }
+                    break;
+                case 2: //2 := top
+                    foreach (KeyValuePair<FubiUtils.SkeletonJoint, Point3D> joint in this.TRACKED_JOINTS)
+                    {
+                        if (joint.Value != this.ZERO_POINT)
+                        {
+                            Point3D canvasPosition = canvasPositionInRelationToCenterJointTop(joint.Value);
+                            Ellipse canvasEllipse = this.SHOWN_JOINTS_2[joint.Key];
+
+                            Canvas.SetLeft(canvasEllipse, canvasPosition.X - (canvasEllipse.Width / 2));
+                            Canvas.SetTop(canvasEllipse, canvasPosition.Y - (canvasEllipse.Height / 2));
+
+                            this.SHOWN_JOINTS_2[joint.Key].Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            this.SHOWN_JOINTS_2[joint.Key].Visibility = Visibility.Hidden;
+                        }
+                    }
                     break;
             }
         }
@@ -494,82 +708,44 @@ namespace IMI_SummaeryDemo
 
             return canvasPosition;
         }
+        #endregion
 
-        private Point3D canvasPositionTop(Point3D jointPosition)
+        #region INPUTS
+        private void nextImage()
         {
-            Point3D canvasPosition = new Point3D();
-
-            return canvasPosition;
-        }
-
-        private Point3D canvasPositionFront(Point3D jointPosition)
-        {
-            Point3D canvasPosition = new Point3D();
-
-            return canvasPosition;
-        }
-
-        /*#region OLD STUFF
-        private Point3D canvasPositionInRelationToZero(Point3D jointPosition)
-        {
-            Point3D centerJoint = this.jointsToTrack[this.centerJoint];
-            Point3D canvasPosition = new Point3D((this.canvas1.Width / 2), (this.canvas1.Height / 2), 0);
-
-            if (jointPosition.X < 0) // To the left
+            if (this.VIEW) // PRESENTATION ACTIVE
             {
-                canvasPosition.X -= absoluteDifference(jointPosition.X, 0);
-            }
-            else //(jointPosition.X > 0 || jointPosition.X == 0) // To the right
-            {
-                canvasPosition.X += absoluteDifference(jointPosition.X, 0);
-            }
-
-            if (jointPosition.Y < 0) // Below
-            {
-                canvasPosition.Y += absoluteDifference(jointPosition.Y, 0);
-            }
-            else //(jointPosition.Y > 0 || jointPosition.Y == 0) // Above
-            {
-                canvasPosition.Y -= absoluteDifference(jointPosition.Y, 0);
-            }
-
-            return canvasPosition;
-        }
-
-        private double canvasSizeInRelationToCenterJoint(Point3D jointPosition)
-        {
-            double centerDistance = this.jointsToTrack[this.centerJoint].Z;
-            double canvasSize = this.ELLIPSE_SIZE;
-
-            if (jointPosition.Z != 0)
-            {
-                if (jointPosition.Z < centerDistance) // Closer
+                if (this.CURRENT_IMAGE != (this.IMAGES.Count - 1)) // FINAL IMAGE NOT REACHED, YET
                 {
-                    canvasSize *= relationFactor(jointPosition.Z, centerDistance);
+                    ++this.CURRENT_IMAGE;
                 }
-                else //(jointPosition.X > centerDistance || jointPosition.X == centerDistance) // Further
-                {
-                    canvasSize *= relationFactor(jointPosition.Z, centerDistance);
-                }
+
+                this.image1.Source = this.IMAGES[this.CURRENT_IMAGE];
             }
-
-            return canvasSize;
         }
-        #endregion*/
 
-        private double absoluteDifference(double lhs, double rhs)
+        private void prevImage()
         {
-            double absDiff = Math.Abs(Math.Abs(lhs) - Math.Abs(rhs)) / 2.7;
+            if (this.VIEW) // PRESENTATION ACTIVE
+            {
+                if (this.CURRENT_IMAGE != 0) // FINAL IMAGE NOT REACHED, YET
+                {
+                    --this.CURRENT_IMAGE;
+                }
 
-            return absDiff;
+                this.image1.Source = this.IMAGES[this.CURRENT_IMAGE];
+            }
         }
 
-        private double relationFactor(double lhs, double rhs)
-        {
-            double relDiff = rhs / lhs;
-
-            return relDiff;
+        /*private void nextImage()
+        { 
+            
         }
+
+        private void prevImage()
+        { 
+            
+        }*/
         #endregion
 
         #region EVENTS
@@ -583,12 +759,34 @@ namespace IMI_SummaeryDemo
                 case Key.Space:
                     toggleTracking();
                     break;
-                case Key.R:
-                    toggleRelation();
+                case Key.V:
+                    toggleView();
+                    break;
+                case Key.NumPad1:
+                    toggleCanavasMode1();
+                    break;
+                case Key.NumPad2:
+                    toggleCanavasMode2();
+                    break;
+                case Key.Right:
+                    nextImage();
+                    break;
+                case Key.Left:
+                    prevImage();
                     break;
                 default:
                     break;
             }
+        }
+
+        private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            nextImage();
+        }
+
+        private void Window_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            prevImage();
         }
         #endregion
     }
