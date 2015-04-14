@@ -26,33 +26,56 @@ namespace IMI_Statistics
         }
 
         #region DECLARATIONS
-        // Files
+        // FILES
         List<string> filePaths;
         List<string> TMP_FILE;
 
-        // Raw data
-        List<List<DateTime>> timestamps = new List<List<DateTime>>();
-        List<List<string>> events = new List<List<string>>();
-        List<List<string>> targets = new List<List<string>>();
-        List<List<int>> userID = new List<List<int>>();
-        List<List<int>> visitors = new List<List<int>>();
+        // RAW DATA
+        List<List<DateTime>> timestamps;
+        List<List<string>> events;
+        List<List<string>> targets;
+        List<List<int>> userID;
+        List<List<int>> visitors;
                 
-        // Implicit data
+        // IMPLICIT DATA
         int emptySessions;
-        List<TimeSpan> firstBloods = new List<TimeSpan>(); // Over sessions -> max., min., avg.
-        List<TimeSpan> durations = new List<TimeSpan>(); // Over sessions -> max., min., avg.
+        List<int> emptyIndexes;
+        List<int> activeIndexes;
+        List<TimeSpan> emptyDurations;
+        List<TimeSpan> firstBloods; 
+        List<TimeSpan> durations; 
 
-        Dictionary<string, int> newTargets = new Dictionary<string, int>(); // Count over sessions  -> max., min., avg.
-        Dictionary<KeyValuePair<string, string>, int> transitions = new Dictionary<KeyValuePair<string, string>, int>(); // Bidirectional: <newT1, newT2> and <newT2, newT1> will be combined in the end 
+        Dictionary<string, int> newTargets;
+        List<string> newTargetsRaw;
+        Dictionary<KeyValuePair<string, string>, int> transitions; // Bidirectional: <newT1, newT2> and <newT2, newT1> will be combined in the end 
 
-        Dictionary<string, int> selectedTargets = new Dictionary<string,int>(); // Count over sessions -> max., min., avg.
-        Dictionary<string, float> targetQuotas; // Over sessions: <Target, (newT / selectedT)>
+        Dictionary<string, int> selectedTargets;
+        List<string> selectedTargetsRaw;
 
-
-        List<int> userIDsOA; // IDs over sessions -> max., min., avg.
-        List<int> visitorsOA; // Visitors over sessions -> max., min., avg.
-        float activeQuota; // Over sessions: active users / present visitors
+        //Dictionary<string, float> targetQuotas; // Over sessions: <Target, (newT / selectedT)>
+        //List<int> userIDsOA; // IDs over sessions -> max., min., avg.
+        //List<int> visitorsOA; // Visitors over sessions -> max., min., avg.
+        //float activeQuota; // Over sessions: active users / present visitors
         // Tricky: Dictionary<string, float> selectionTimes; // Over sessions -> max., min., avg.
+        #endregion
+
+        #region INITIALIZATION
+        private void InitContainers()
+        {
+            this.timestamps = new List<List<DateTime>>();
+            this.events = new List<List<string>>();
+            this.targets = new List<List<string>>();
+            this.userID = new List<List<int>>();
+            this.visitors = new List<List<int>>();
+            this.firstBloods = new List<TimeSpan>();
+            this.durations = new List<TimeSpan>();
+            this.emptyDurations = new List<TimeSpan>();
+            this.newTargets = new Dictionary<string, int>();
+            this.newTargetsRaw = new List<string>();
+            this.transitions = new Dictionary<KeyValuePair<string, string>, int>();
+            this.selectedTargets = new Dictionary<string, int>();
+            this.selectedTargetsRaw = new List<string>();
+        }
         #endregion
 
         #region READ FILES
@@ -150,7 +173,7 @@ namespace IMI_Statistics
             visitors.RemoveRange(0, 1);
 
             // Cut to last active event
-            cutToLastActiveEvent(ref timestamps, ref events, ref targets, ref userID, ref visitors);
+            cutToLastEvent(ref timestamps, ref events, ref targets, ref userID, ref visitors);
 
             this.timestamps.Add(timestamps);
             this.events.Add(events);
@@ -159,9 +182,9 @@ namespace IMI_Statistics
             this.visitors.Add(visitors);
         }
 
-        private void cutToLastActiveEvent(ref List<DateTime> timestamps, ref List<string> events, ref List<string> targets, ref List<int> userID, ref List<int> visitors)
+        private void cutToLastEvent(ref List<DateTime> timestamps, ref List<string> events, ref List<string> targets, ref List<int> userID, ref List<int> visitors)
         {
-            int cutIndex = getLastActiveEvent(events) + 1;
+            int cutIndex = getLastEvent(events) + 2;
             int cutRange = timestamps.Count - cutIndex;
 
             // Cut to last active event
@@ -172,13 +195,13 @@ namespace IMI_Statistics
             visitors.RemoveRange(cutIndex, cutRange);
         }
 
-        private int getLastActiveEvent(List<string> events)
+        private int getLastEvent(List<string> events)
         {
             int cutIndex = -1;
 
             for (int i = events.Count - 1; i != -1; --i)
             {
-                if (events[i] == "New Target" || events[i] == "Select Target")
+                if (events[i] == "New Target" || events[i] == "Select Target" || events[i] == "Start Session")
                 {
                     cutIndex = i;
                     break;
@@ -285,14 +308,15 @@ namespace IMI_Statistics
                 return false;
         }
 
-        private void analyzeFiles()
+        /*private void analyzeFiles()
         {
             DateTime start = DateTime.Now;
 
             if (filesLoaded())
             {
+                InitContainers();
                 loadAndParseFiles();
-                deleteEmptySessions();
+                classifySessions();
 
                 //TODO
                 // 
@@ -302,19 +326,55 @@ namespace IMI_Statistics
             else
                 MessageBox.Show("Keine Dateien ausgewählt. Bitte laden sie Dateien.");
 
-            detFistBloods();
-            detDurations();
-            detSelectedTargets();
-            detNewTargets();
+            //detFistBloods();
+            //detDurations();
+            //detEmptyDurations();
+            //detSelectedTargets();
+            //detNewTargets();
+
+            this.label1.Content = this.filePaths.Count + " Files in " + (DateTime.Now - start).TotalSeconds.ToString() + "sec";
+        }*/
+
+        private void makeAnalysis()
+        {
+            DateTime start = DateTime.Now;
+
+            InitContainers();
+            loadAndParseFiles();
+            classifySessions();
+
+            if (this.checkFirstBlood.IsChecked == true)
+                detFistBloods();
+
+            if (this.checkActiveDurations.IsChecked == true)
+                detDurations();
+
+            if (this.checkEmptyDurations.IsChecked == true)
+                detEmptyDurations();
+
+            if (this.checkMarkedTargets.IsChecked == true)
+                detNewTargets();
+
+            if (this.checkSelectedTargets.IsChecked == true)
+                detSelectedTargets();
 
             this.label1.Content = this.filePaths.Count + " Files in " + (DateTime.Now - start).TotalSeconds.ToString() + "sec";
         }
 
-        private void deleteEmptySessions()
+        private void classifySessions()
+        {
+            this.emptyIndexes = detEmptySessions();
+            this.activeIndexes = detActiveSessions();
+
+            this.label2.Content += '\n' + "SESSIONS" + '\n';
+            this.label2.Content += "- AKTIVE:" + '\t' + this.activeIndexes.Count.ToString() + '\n';
+            this.label2.Content += "- PASSIVE:" + '\t' + this.emptyIndexes.Count.ToString() + '\n';
+        }
+
+        private List<int> detEmptySessions()
         {
             int empty = 0;
             List<int> indexes = new List<int>();
-            int deleted = 0;
 
             for (int file = 0; file != this.visitors.Count; ++file)
             {
@@ -324,7 +384,8 @@ namespace IMI_Statistics
                 {
                     if (line != -1)
                     {
-                        check = line;   
+                        check = line;
+                        break;
                     }
                 }
 
@@ -334,6 +395,30 @@ namespace IMI_Statistics
                     ++empty;
                 }
             }
+
+            this.emptySessions = empty;
+
+            return indexes;
+        }
+
+        private List<int> detActiveSessions()
+        {
+            List<int> indexes = new List<int>();
+
+            for (int index = 0; index != this.timestamps.Count; ++index)
+            {
+                if (!this.emptyIndexes.Contains(index))
+                {
+                    indexes.Add(index);
+                }
+            }
+
+            return indexes;            
+        }
+
+        /*private void deleteEmptySessions(List<int> indexes)
+        {
+            int deleted = 0;
 
             foreach (int index in indexes)
             {
@@ -345,10 +430,8 @@ namespace IMI_Statistics
                 this.visitors.Remove(this.visitors[delete]);
                 ++deleted;
             }
-
-            this.emptySessions = empty;
-            this.label2.Content = empty + "/" + this.filePaths.Count + " Sessions leer"+ '\n';
         }
+        */
 
         private bool allEmpty()
         {
@@ -358,35 +441,91 @@ namespace IMI_Statistics
                 return false;
         }
 
-        private void detFistBloods()
+        private bool allActive()
+        {
+            if (this.emptySessions == 0)
+                return true;
+            else
+                return false;
+        }
+
+        private void detFistBloods() // TODO: First Blood nur für aktive Sessions!
         {
             foreach (List<DateTime> file in this.timestamps)
             {
                 this.firstBloods.Add(file[1] - file[0]);
             }
 
-            if (!allEmpty())
+            //OUTPUT ON GUI
+            this.label2.Content += '\n' + "VORBEREITUNGSDAUERN" + '\n';
+
+            if (allEmpty()) // ALL SESSIONS ARE PASSIVE
             {
-                this.label2.Content += '\n' + "FIRST BLOOD" + '\n';
-                this.label2.Content += "Longest time span until First Blood:" + '\t' + getMaxTimeSpan(this.firstBloods) + '\n';
-                this.label2.Content += "Shortest time span until First Blood:" + '\t' + getMinTimeSpan(this.firstBloods) + '\n';
-                this.label2.Content += "Average time span until First Blood:" + '\t' + getAvgTimeSpan(this.firstBloods) + '\n';
+                this.label2.Content += "- KEINE AKTIVEN SESSIONS" + '\n';
+            }
+            else // AT LEAST ONE ACTIVE SESSION
+            {
+                this.label2.Content += "- LÄNGSTE VORBEREITUNG:" + '\t' + getMaxTimeSpan(this.firstBloods) + '\n';
+                this.label2.Content += "- KÜRZESTE VORBEREITUNG:" + '\t' + getMinTimeSpan(this.firstBloods) + '\n';
+                this.label2.Content += "- MITTLERE VORBEREITUNG:" + '\t' + getAvgTimeSpan(this.firstBloods) + '\n';
             }
         }
 
         private void detDurations()
         {
-            foreach (List<DateTime> file in this.timestamps)
-            {
-                this.durations.Add(file[file.Count-2] - file[0]);
+            List<DateTime> file = new List<DateTime>();
+
+            foreach (int index in this.activeIndexes)
+            { 
+                file = this.timestamps[index];
+
+                if (file.Count != 2)
+                    this.durations.Add(file[file.Count - 2] - file[0]);
+                else
+                    this.durations.Add(file[file.Count - 1] - file[0]);                
             }
 
-            if (!allEmpty())
+            // OUTPUT ON GUI
+            this.label2.Content += '\n' + "DAUER AKTIVER SESSIONS" + '\n';
+
+            if (allEmpty()) // ALL SESSIONS ARE PASSIVE
             {
-                this.label2.Content += '\n' + "SESSION DURATION" + '\n';
-                this.label2.Content += "Longest duration of a session:" + '\t' + getMaxTimeSpan(this.durations) + '\n';
-                this.label2.Content += "Shortest duration of a session:" + '\t' + getMinTimeSpan(this.durations) + '\n';
-                this.label2.Content += "Average duration of a session:" + '\t' + getAvgTimeSpan(this.durations) + '\n';
+                this.label2.Content += "- KEINE AKTIVEN SESSIONS" + '\n';
+            }
+            else // AT LEAST ONE ACTIVE SESSION
+            {
+                this.label2.Content += "- LÄNGSTE AKTIVE SESSION:" + '\t' + getMaxTimeSpan(this.durations) + '\n';
+                this.label2.Content += "- KÜRZESTE AKTIVE SESSION:" + '\t' + getMinTimeSpan(this.durations) + '\n';
+                this.label2.Content += "- MITTLERE AKTIVE SESSION:" + '\t' + getAvgTimeSpan(this.durations) + '\n';
+            }
+        }
+
+        private void detEmptyDurations()
+        {
+            List<DateTime> file = new List<DateTime>();
+
+            foreach (int index in this.emptyIndexes)
+            {
+                file = this.timestamps[index];
+
+                if (file.Count != 2)
+                    this.emptyDurations.Add(file[file.Count - 2] - file[0]);
+                else
+                    this.emptyDurations.Add(file[file.Count - 1] - file[0]);
+            }
+
+            // OUTPUT ON GUI
+            this.label2.Content += '\n' + "DAUER PASSIVER SESSIONS" + '\n';
+
+            if (allActive()) // ALL SESSIONS ARE ACTIVE
+            {
+                this.label2.Content += "- KEINE PASSIVEN SESSIONS" + '\n';
+            }
+            else // AT LEAST ONE PASSIVE SESSION
+            {
+                this.label2.Content += "- LÄNGSTE PASSIVE SESSION:" + '\t' + getMaxTimeSpan(this.emptyDurations) + '\n';
+                this.label2.Content += "- KÜRZESTE PASSIVE SESSION:" + '\t' + getMinTimeSpan(this.emptyDurations) + '\n';
+                this.label2.Content += "- MITTLERE PASSIVE SESSION:" + '\t' + getAvgTimeSpan(this.emptyDurations) + '\n';
             }
         }
 
@@ -438,22 +577,24 @@ namespace IMI_Statistics
 
         private void detNewTargets()
         {
+            string tmp_file = "";
             string tmp_target = "";
             KeyValuePair<string, string> tmp_pair;
 
-            for (int file = 0; file != this.events.Count; ++file)//foreach (List<string> file in this.events)
+            for (int file = 0; file != this.events.Count; ++file)
             {
                 for (int line = 0; line != this.events[file].Count; ++line)
                 {
                     if (this.events[file][line] == "New Target")
                     {
-                        // New Targets
+                        tmp_file += this.targets[file][line] + '\t';
+
                         if (this.newTargets.ContainsKey(this.targets[file][line]))
                             this.newTargets[this.targets[file][line]] += 1;
                         else
                             this.newTargets.Add(this.targets[file][line], 1);
 
-                        // Transitions
+                        // TRANSITION
                         if (tmp_target == "")
                         {
                             tmp_target = this.targets[file][line];
@@ -472,23 +613,15 @@ namespace IMI_Statistics
                     }
                     else
                         tmp_target = "";
+
+                    this.newTargetsRaw.Add(tmp_file);
+                    tmp_file = "";
                 }
             }
 
             if (!allEmpty())
             {
-                //this.label2.Content += "NEW TARGETS" + '\n';
-                //foreach (KeyValuePair<string, int> target in this.newTargets)
-                //{
-                //    this.label2.Content += target.Key + ": " + target.Value + '\n';
-                //}
-
                 sortTransitions();
-                this.label2.Content += '\n' + "TRANSITIONS" + '\n';
-                foreach (KeyValuePair<KeyValuePair<string, string>, int> transition in this.transitions)
-                {
-                    this.label2.Content += transition.Key.Key + " ; " + transition.Key.Value + ": " + transition.Value + '\n';
-                }
             }
         }
 
@@ -518,65 +651,179 @@ namespace IMI_Statistics
             this.transitions = transitions;
         }
 
-        private void detSelectedTargets()
+        private void detSelectedTargets() // TODO: this.selectedTargetsRaw
         {
-            for (int file = 0; file != this.events.Count; ++file)//foreach (List<string> file in this.events)
+            List<string> selectedTargets = new List<string>();
+
+            for (int file = 0; file != this.events.Count; ++file)
             {
+                selectedTargets.Add("");
+
                 for (int line = 0; line != this.events[file].Count; ++line)
                 {
                     if (this.events[file][line] == "Select Target")
                     {
-                        // Target Selected
                         if (this.selectedTargets.ContainsKey(this.targets[file][line]))
                             this.selectedTargets[this.targets[file][line]] += 1;
                         else
                             this.selectedTargets.Add(this.targets[file][line], 1);
+
+                        selectedTargets[file] += this.targets[file][line] + '\t';
                     }
                 }
             }
 
-            if (!allEmpty())
+            // OUTPUT ON GUI
+            this.label2.Content += '\n' + "SELEKTIERTE EXPONATE" + '\n';
+
+            if (allEmpty()) // ALL SESSIONS ARE PASSIVE
             {
-                this.label2.Content += '\n' + "SELECTED TARGETS" + '\n';
+                this.label2.Content += "KEINE AKTIVEN SESSIONS" + '\n';
+            }
+            else // AT LEAST ONE ACTIVE SESSION
+            {
                 foreach (KeyValuePair<string, int> target in this.selectedTargets)
                 {
-                    this.label2.Content += target.Key + ": " + target.Value + '\n';
+                    this.label2.Content += "- " + target.Key + ": " + target.Value + '\n';
                 }
             }
         }
         #endregion
 
         #region WRITE FILES
-        private void writePaths()
+        private string getCurrentFolder()
         {
-            string output = @"D:\MSC\StatDebug\" + DateTime.Now.ToString("HH.mm.ss") + "_filePaths.txt";
+            return this.filePaths[0].Remove(this.filePaths[0].LastIndexOf('\\') + 1);
+        }
 
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(output))
+        private void writeActions()
+        {
+            if (this.checkFirstBlood.IsChecked == true && this.firstBloods != null)
+                writeFirstBloods();
+
+            if (this.checkActiveDurations.IsChecked == true && this.durations != null)
+                writeActiveDurations();
+
+            if (this.checkEmptyDurations.IsChecked == true && this.emptyDurations != null)
+                writeEmptyDurations();
+
+            if (this.checkMarkedTargets.IsChecked == true && this.newTargets != null)
+                writeMarkedTargets();
+
+            if (this.checkSelectedTargets.IsChecked == true && this.selectedTargets != null)
+                writeSelectedTargets();
+        }
+
+        private void writeFirstBloods()
+        {
+            List<string> tmp_lines = new List<string>();
+            string tmp_line = "";
+
+            // WRITE FIRST BLOODS
+            foreach (TimeSpan duration in this.firstBloods)
             {
-                foreach (string filePath in this.filePaths)
+                tmp_line = duration.ToString();
+                tmp_lines.Add(tmp_line);
+            }
+            writeTxt("VORBEREITUNG", tmp_lines);
+        }
+
+        private void writeActiveDurations()
+        {
+            List<string> tmp_lines = new List<string>();
+            string tmp_line = "";
+
+            // WRITE ACTIVE DURATIONS
+            foreach (TimeSpan duration in this.durations)
+            {
+                tmp_line = duration.ToString();
+                tmp_lines.Add(tmp_line);
+            }
+            writeTxt("DAUER_AKTIV", tmp_lines);
+        }
+
+        private void writeEmptyDurations()
+        {
+            List<string> tmp_lines = new List<string>();
+            string tmp_line = "";
+
+            // WRITE PASSIVE DURATIONS
+            foreach (TimeSpan duration in this.emptyDurations)
+            {
+                tmp_line = duration.ToString();
+                tmp_lines.Add(tmp_line);
+            }
+            writeTxt("DAUER_PASSIV", tmp_lines);
+        }
+
+        private void writeMarkedTargets()
+        {
+            List<string> tmp_lines = new List<string>();
+            string tmp_line = "";
+
+            // WRITE MARKED TARGETS-STATS
+            foreach (KeyValuePair<string, int> target in this.newTargets)
+            {
+                tmp_line = target.Key + '\t' + target.Value.ToString();
+                tmp_lines.Add(tmp_line);
+            }
+            writeTxt("EXP_MARKIERT", tmp_lines);
+            tmp_lines.Clear(); // Delete all lines after writing process
+
+            // WRITE MARKED TARGETS-RAW
+            foreach (string targets in this.newTargetsRaw)
+            {
+                tmp_lines.Add(targets);
+            }
+            writeTxt("EXP_MARK_ROH", tmp_lines);
+            tmp_lines.Clear(); // Delete all lines after writing process
+
+            // WRITE MARKED TARGETS-TRANSITIONS
+            foreach (KeyValuePair<KeyValuePair<string, string>, int> transition in this.transitions)
+            {
+                tmp_line = transition.Key.Key + '\t' + transition.Key.Value + '\t' + transition.Value;
+                tmp_lines.Add(tmp_line);
+            }
+            writeTxt("EXP_MARK_TRANS", tmp_lines);
+        }
+
+        private void writeSelectedTargets()
+        {
+            List<string> tmp_lines = new List<string>();
+            string tmp_line = "";
+
+            // WRITE SELECTED TARGETS-STATS
+            foreach (KeyValuePair<string, int> target in this.selectedTargets)
+            {
+                tmp_line = target.Key + '\t' + target.Value.ToString();
+                tmp_lines.Add(tmp_line);
+            }
+            writeTxt("EXP_SELEKTIERT", tmp_lines);
+            tmp_lines.Clear();
+
+            // WRITE SELECTED TARGETS-RAW
+            foreach (KeyValuePair<string, int> target in this.selectedTargets)
+            {
+                tmp_line = target.Key + '\t' + target.Value.ToString();
+                tmp_lines.Add(tmp_line);
+            }
+            writeTxt("EXP_SELEKT_ROH", tmp_lines);
+        }
+
+        private void writeTxt(string name, List<string> lines)
+        {
+            // CREATE FILEPATH
+            string path = getCurrentFolder();
+            string filePath = path + DateTime.Now.ToString().Replace(':', '.') + "_" + name + ".txt";
+
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(filePath))
+            {
+                foreach (string line in lines)
                 {
-                    file.WriteLine(filePath);
+                    file.WriteLine(line);
                 }
                 file.Close();
             }
-        }
-
-        private void writeDebug(List<DateTime> timestamps, List<string> events, List<string> targets, List<int> userID, List<int> visitors)
-        {
-            string path = @"D:\MSC\StatDebug\" + DateTime.Now.ToString("HH.mm.ss") + "_fileCopy.txt";
-            string data = "";
-
-            for (int i = 0; i != timestamps.Count; ++i)
-            {
-                data += timestamps[i].ToString("HH.mm.ss.fffffff") + '\t' + events[i] + '\t' + targets[i] + '\t' + userID[i] + '\t' + visitors[i] + '\n';
-            }
-
-            writeTxt(path, data);
-        }
-
-        private void writeTxt(string path, string data)
-        {
-            System.IO.File.WriteAllText(path, data, System.Text.Encoding.UTF8);
         }
         #endregion
 
@@ -585,19 +832,31 @@ namespace IMI_Statistics
         private void button1_Click(object sender, RoutedEventArgs e) 
         {
             loadFiles();
-            this.label1.Content = this.filePaths.Count.ToString() + " Files loaded.";
+            this.label1.Content = this.filePaths.Count.ToString() + " DATEIEN GELADEN.";
         }
 
         // ANALYZE LOGDATA-FILES
         private void button2_Click(object sender, RoutedEventArgs e)
         {
-            analyzeFiles();
+            if (filesLoaded()) // ONLY IF THERE ARE FILES TO ANALYZE
+            {
+                this.label1.Content = this.filePaths.Count.ToString() + " DATEIEN ANALYSIEREN...";
+                makeAnalysis();
+            }
+            else
+                MessageBox.Show("Keine Dateien ausgewählt. Bitte laden sie Dateien.");
         }
 
-        // DEBUG-EVENT
+        // WRITE ANALYZED FILE(S)
         private void button3_Click(object sender, RoutedEventArgs e)
         {
-            writeDebug(this.timestamps[0], this.events[0], this.targets[0], this.userID[0], this.visitors[0]);
+            if (filesLoaded())
+            {
+                this.label1.Content = this.filePaths.Count.ToString() + " DATEIEN SCHREIBEN...";
+                writeActions();
+            }
+            else
+                MessageBox.Show("Keine Analyse-Daten vorhanden. Bitte laden und/oder analysieren sie Dateien.");
         }
         #endregion
     }

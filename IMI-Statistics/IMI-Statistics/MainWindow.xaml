@@ -1,7 +1,9 @@
 ﻿<Window x:Class="IMI_Statistics.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="700" Width="525">
+        Title="IMI - BESUCHERSTATISTIKEN" 
+        MinHeight="450" Height="auto" 
+        MinWidth="600" Width="auto">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -15,13 +17,18 @@
             <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1" Height="Auto">
-            <Button Name="button1" Content="Laden" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button1_Click"/>
-            <Button Name="button2" Content="Analyse" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button2_Click"/>
-            <Button Name="button3" Content="Debug" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button3_Click"/>
+        <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1" Height="Auto" Background="LightGray">
+            <Button Name="button1" Content="LADEN" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button1_Click"/>
+            <CheckBox Name="checkFirstBlood" Content="VORBEREITUNGSDAUER" Margin="5" Width="Auto" Height="Auto" FontSize="20"/>
+            <CheckBox Name="checkActiveDurations" Content="DAUER, AKTIV" Margin="5" Width="Auto" Height="Auto" FontSize="20"/>
+            <CheckBox Name="checkEmptyDurations" Content="DAUER, PASSIV" Margin="5" Width="Auto" Height="Auto" FontSize="20"/>
+            <CheckBox Name="checkMarkedTargets" Content="EXPONATE MARKIERT" Margin="5" Width="Auto" Height="Auto" FontSize="20"/>
+            <CheckBox Name="checkSelectedTargets" Content="EXPONATE SELEKTIERT" Margin="5" Width="Auto" Height="Auto" FontSize="20"/>
+            <Button Name="button2" Content="ANALYSIEREN" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button2_Click"/>
+            <Button Name="button3" Content="SCHREIBEN" Margin="5" Width="Auto" Height="Auto" FontSize="20" Click="button3_Click"/>
         </StackPanel>
-        <Label Content="" Grid.Row="3" Width="Auto" Height="Auto" HorizontalAlignment="Left" Margin="5" Name="label1" VerticalAlignment="Bottom"  />
-        <ScrollViewer Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" Width="Auto" Height="Auto" Name="scrollView1">
+        <Label Content="STATUS" Grid.Row="3" Width="Auto" Height="Auto" HorizontalAlignment="Left" Margin="5" Name="label1" VerticalAlignment="Bottom" Background="LightBlue"/>
+        <ScrollViewer Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" Width="Auto" Height="Auto" Name="scrollView1" Background="LightGray">
             <Label Content="STATISTIKEN" Width="Auto" Height="Auto" HorizontalAlignment="Left" Margin="5" Name="label2" VerticalAlignment="Top"/>
         </ScrollViewer>
         

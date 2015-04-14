@@ -1,16 +1,17 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using System.Threading;
-using System.Windows.Media.Media3D;
-using System.Collections.Generic;
 using System.Windows.Threading;
-using FubiNET;
 using System.Windows.Shapes;
 using System.Windows.Controls;
+using System.Windows.Media.Media3D;
+using System.Windows.Media.Imaging;
+using System.Collections.Generic;
 using System.Drawing;
 using System;
+
+using FubiNET;
 using IMI;
-using System.Windows.Media.Imaging;
 
 namespace IMI_SummaeryDemo
 {
@@ -42,6 +43,7 @@ namespace IMI_SummaeryDemo
         private string IMAGE_PATH;
         private int CURRENT_IMAGE;
         private List<System.Windows.Media.Imaging.BitmapImage> IMAGES;
+        System.Windows.Media.Imaging.BitmapImage IMAGE;
         private List<string> NOTES;
 
         // THREADING
@@ -54,7 +56,7 @@ namespace IMI_SummaeryDemo
         // Gesture-thread
         private bool gesturing;
         private Thread gestureThread;
-        private double THRESHOLD = 100.0;
+        private double THRESHOLD = 222.0;
         #endregion
 
         #region INITIALIZATION
@@ -129,40 +131,40 @@ namespace IMI_SummaeryDemo
             this.canvas1.Visibility = Visibility.Hidden;
             this.canvas2.Visibility = Visibility.Hidden;
 
-            this.CURRENT_IMAGE = 0;
-            this.image1.Source = this.IMAGES[this.CURRENT_IMAGE];
+            this.CURRENT_IMAGE = -1;
+            this.image1.Source = new BitmapImage(new Uri(this.IMAGE_PATH + '\\' + "black.jpg")); //this.IMAGES[this.CURRENT_IMAGE];
             this.image1.Visibility = Visibility.Visible;
         }
 
         private void initJointsToTrack(FubiUtils.SkeletonJoint center_joint)
         {
             this.TRACKED_JOINTS = new Dictionary<FubiUtils.SkeletonJoint, Point3D>();
-
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.HEAD, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.NECK, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.TORSO, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.WAIST, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_SHOULDER, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_ELBOW, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_WRIST, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_HAND, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_SHOULDER, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_ELBOW, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_WRIST, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_HAND, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_HIP, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_KNEE, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_ANKLE, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_FOOT, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_HIP, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_KNEE, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_ANKLE, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_FOOT, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_NOSE, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_LEFT_EAR, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_RIGHT_EAR, new Point3D());
-            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_FOREHEAD, new Point3D());
+            
             this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_CHIN, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_FOREHEAD, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_RIGHT_EAR, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_LEFT_EAR, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.FACE_NOSE, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_FOOT, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_ANKLE, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_KNEE, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_HIP, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_FOOT, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_ANKLE, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_KNEE, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_HIP, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_HAND, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_WRIST, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_ELBOW, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.RIGHT_SHOULDER, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_HAND, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_WRIST, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_ELBOW, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.LEFT_SHOULDER, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.WAIST, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.TORSO, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.NECK, new Point3D());
+            this.TRACKED_JOINTS.Add(FubiUtils.SkeletonJoint.HEAD, new Point3D());
 
             this.TRACKED_CENTER_JOINT = center_joint;
         }
@@ -195,7 +197,7 @@ namespace IMI_SummaeryDemo
 
         private void initJointsToShowCanvas2()
         {
-            this.CANVAS_VIEW_MODE_2 = 0;
+            this.CANVAS_VIEW_MODE_2 = 2;
 
             this.SHOWN_JOINTS_2 = new Dictionary<FubiUtils.SkeletonJoint, Ellipse>();
 
@@ -262,6 +264,10 @@ namespace IMI_SummaeryDemo
         {
             if (this.tracking)
             {
+                if (this.gesturing)
+                {
+                    stopGesturing();
+                }
                 stopTracking();
             }
             else
@@ -280,9 +286,10 @@ namespace IMI_SummaeryDemo
         #region GESTURING
         private void startGesturing()
         {
+            System.Media.SystemSounds.Asterisk.Play();
             this.gestureThread = new Thread(gesture);
             this.gesturing = true;
-            this.gestureThread.Start();
+            //this.gestureThread.Start();
         }
 
         private void gesture()
@@ -294,12 +301,25 @@ namespace IMI_SummaeryDemo
                     if (detectHandToShoulderRight())
                     {
                         nextImage();
-                        Thread.Sleep(500);
+                        Thread.Sleep(1000);
                     }
                     if (detectHandToShoulderLeft())
                     {
                         prevImage();
-                        Thread.Sleep(500);
+                        Thread.Sleep(1000);
+                    }
+                }
+                else // JOINTS ACTIVE
+                {
+                    if (detectHandToShoulderRight())
+                    {
+                        toggleCanavasMode1();
+                        Thread.Sleep(1000);
+                    }
+                    if (detectHandToShoulderLeft())
+                    {
+                        toggleCanavasMode2();
+                        Thread.Sleep(1000);
                     }
                 }
             }
@@ -325,6 +345,66 @@ namespace IMI_SummaeryDemo
                 return false;
         }
 
+        private bool detectHandToNeckRight()
+        {
+            double distance = this.GEOMETRY_HANDLER.getDistance(this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.RIGHT_HAND], this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.NECK]);
+
+            if (distance < this.THRESHOLD)
+                return true;
+            else
+                return false;
+        }
+
+        private bool detectHandToNeckLeft()
+        {
+            double distance = this.GEOMETRY_HANDLER.getDistance(this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.LEFT_HAND], this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.NECK]);
+
+            if (distance < this.THRESHOLD)
+                return true;
+            else
+                return false;
+        }
+        
+        private bool detectHandToHeadRight()
+        {
+            double distance = this.GEOMETRY_HANDLER.getDistance(this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.RIGHT_HAND], this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.HEAD]);
+
+            if (distance < this.THRESHOLD)
+                return true;
+            else
+                return false;
+        }
+
+        private bool detectHandToHeadLeft()
+        {
+            double distance = this.GEOMETRY_HANDLER.getDistance(this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.LEFT_HAND], this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.HEAD]);
+
+            if (distance < this.THRESHOLD)
+                return true;
+            else
+                return false;
+        }
+        
+        private bool detectHandToEarRight()
+        {
+            double distance = this.GEOMETRY_HANDLER.getDistance(this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.RIGHT_HAND], this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.FACE_RIGHT_EAR]);
+
+            if (distance < this.THRESHOLD)
+                return true;
+            else
+                return false;
+        }
+
+        private bool detectHandToEarLeft()
+        {
+            double distance = this.GEOMETRY_HANDLER.getDistance(this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.LEFT_HAND], this.TRACKED_JOINTS[FubiUtils.SkeletonJoint.FACE_LEFT_EAR]);
+
+            if (distance < this.THRESHOLD)
+                return true;
+            else
+                return false;
+        }
+
         private void toggleGesturing()
         {
             if (this.gesturing)
@@ -339,6 +419,7 @@ namespace IMI_SummaeryDemo
 
         private void stopGesturing()
         {
+            System.Media.SystemSounds.Hand.Play();
             this.gesturing = false;
             this.gestureThread.Abort();
         }
@@ -346,13 +427,13 @@ namespace IMI_SummaeryDemo
 
         private void closeAllThreads()
         {
-            if (this.tracking)
-            {
-                stopTracking();
-            }
             if (this.gesturing)
             {
                 stopGesturing();
+            }
+            if (this.tracking)
+            {
+                stopTracking();
             }
             this.Close();
         }
@@ -384,10 +465,20 @@ namespace IMI_SummaeryDemo
             if (Fubi.getNumUsers() != 0)
             {
                 updateJoints();
+
                 if (!this.VIEW) // JOINTS
                 {
                     updateCanvas1();
                     updateCanvas2();
+                }
+                else // PRESENTATION
+                {
+                    updateImage();
+                }
+
+                if (!this.gesturing && trackableUser(Fubi.getUserID(Fubi.getClosestUserID())))
+                {
+                    startGesturing();
                 }
             }
         }
@@ -400,11 +491,11 @@ namespace IMI_SummaeryDemo
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.HEAD, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.HEAD, x, y, z);
 			// NECK
-            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.NECK, out x, out y, out z, out confidence, out timestamp);
-            //updateJoint(FubiUtils.SkeletonJoint.NECK, x, y, z);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.NECK, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.NECK, x, y, z);
 			// TORSO
-            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.TORSO, out x, out y, out z, out confidence, out timestamp);
-            //updateJoint(FubiUtils.SkeletonJoint.TORSO, x, y, z);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.TORSO, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.TORSO, x, y, z);
 			// WAIST
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.WAIST, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.WAIST, x, y, z);
@@ -433,8 +524,8 @@ namespace IMI_SummaeryDemo
             Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_HAND, out x, out y, out z, out confidence, out timestamp);
             updateJoint(FubiUtils.SkeletonJoint.RIGHT_HAND, x, y, z);
 			// LEFT_HIP
-            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_HIP, out x, out y, out z, out confidence, out timestamp);
-            //updateJoint(FubiUtils.SkeletonJoint.LEFT_HIP, x, y, z);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_HIP, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.LEFT_HIP, x, y, z);
 			// LEFT_KNEE
             //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_KNEE, out x, out y, out z, out confidence, out timestamp);
             //updateJoint(FubiUtils.SkeletonJoint.LEFT_KNEE, x, y, z);
@@ -445,8 +536,8 @@ namespace IMI_SummaeryDemo
             //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.LEFT_FOOT, out x, out y, out z, out confidence, out timestamp);
             //updateJoint(FubiUtils.SkeletonJoint.LEFT_FOOT, x, y, z);
 			// RIGHT_HIP
-            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_HIP, out x, out y, out z, out confidence, out timestamp);
-            //updateJoint(FubiUtils.SkeletonJoint.RIGHT_HIP, x, y, z);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_HIP, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.RIGHT_HIP, x, y, z);
 			// RIGHT_KNEE
             //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.RIGHT_KNEE, out x, out y, out z, out confidence, out timestamp);
             //updateJoint(FubiUtils.SkeletonJoint.RIGHT_KNEE, x, y, z);
@@ -469,8 +560,8 @@ namespace IMI_SummaeryDemo
             //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_FOREHEAD, out x, out y, out z, out confidence, out timestamp);
             //updateJoint(FubiUtils.SkeletonJoint.FACE_FOREHEAD, x, y, z);
             // FACE_CHIN
-            //Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_CHIN, out x, out y, out z, out confidence, out timestamp);
-            //updateJoint(FubiUtils.SkeletonJoint.FACE_CHIN, x, y, z);
+            Fubi.getCurrentSkeletonJointPosition(Fubi.getClosestUserID() , FubiUtils.SkeletonJoint.FACE_CHIN, out x, out y, out z, out confidence, out timestamp);
+            updateJoint(FubiUtils.SkeletonJoint.FACE_CHIN, x, y, z);
         }
 
         private void updateJoint(FubiUtils.SkeletonJoint joint, float x, float y, float z)
@@ -708,6 +799,11 @@ namespace IMI_SummaeryDemo
 
             return canvasPosition;
         }
+
+        private void updateImage()
+        {
+            this.image1.Source = this.IMAGE;
+        }
         #endregion
 
         #region INPUTS
@@ -720,7 +816,7 @@ namespace IMI_SummaeryDemo
                     ++this.CURRENT_IMAGE;
                 }
 
-                this.image1.Source = this.IMAGES[this.CURRENT_IMAGE];
+                this.IMAGE = this.IMAGES[this.CURRENT_IMAGE];
             }
         }
 
@@ -733,7 +829,7 @@ namespace IMI_SummaeryDemo
                     --this.CURRENT_IMAGE;
                 }
 
-                this.image1.Source = this.IMAGES[this.CURRENT_IMAGE];
+                this.IMAGE = this.IMAGES[this.CURRENT_IMAGE];
             }
         }
 
@@ -761,6 +857,9 @@ namespace IMI_SummaeryDemo
                     break;
                 case Key.V:
                     toggleView();
+                    break;
+                case Key.G:
+                    toggleGesturing();
                     break;
                 case Key.NumPad1:
                     toggleCanavasMode1();
