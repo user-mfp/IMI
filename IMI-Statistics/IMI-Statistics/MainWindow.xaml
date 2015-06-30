@@ -29,7 +29,7 @@
         </StackPanel>
         <Label Content="STATUS" Grid.Row="3" Width="Auto" Height="Auto" HorizontalAlignment="Left" Margin="5" Name="label1" VerticalAlignment="Bottom" Background="LightBlue"/>
         <ScrollViewer Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" Width="Auto" Height="Auto" Name="scrollView1" Background="LightGray">
-            <Label Content="STATISTIKEN" Width="Auto" Height="Auto" HorizontalAlignment="Left" Margin="5" Name="label2" VerticalAlignment="Top"/>
+            <Label Content="IHRE IMI-STATISTIKEN" Width="Auto" Height="Auto" HorizontalAlignment="Left" Margin="5" Name="label2" VerticalAlignment="Top"/>
         </ScrollViewer>
         
     </Grid>
