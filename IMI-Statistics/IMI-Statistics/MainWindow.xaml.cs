@@ -47,10 +47,11 @@ namespace IMI_Statistics
 
         Dictionary<string, int> newTargets;
         List<string> newTargetsRaw;
-        Dictionary<KeyValuePair<string, string>, int> transitions; // Bidirectional: <newT1, newT2> and <newT2, newT1> will be combined in the end 
-
+        Dictionary<KeyValuePair<string, string>, int> transitionsOfTargets; // Bidirectional: <newT1, newT2> and <newT2, newT1> will be combined in the end 
+        
         Dictionary<string, int> selectedTargets;
         List<string> selectedTargetsRaw;
+        Dictionary<KeyValuePair<string, string>, int> transitionsOfSelections; // Bidirectional: <newT1, newT2> and <newT2, newT1> will be combined in the end 
 
         //Dictionary<string, float> targetQuotas; // Over sessions: <Target, (newT / selectedT)>
         //List<int> userIDsOA; // IDs over sessions -> max., min., avg.
@@ -72,9 +73,10 @@ namespace IMI_Statistics
             this.emptyDurations = new List<TimeSpan>();
             this.newTargets = new Dictionary<string, int>();
             this.newTargetsRaw = new List<string>();
-            this.transitions = new Dictionary<KeyValuePair<string, string>, int>();
+            this.transitionsOfTargets = new Dictionary<KeyValuePair<string, string>, int>();
             this.selectedTargets = new Dictionary<string, int>();
             this.selectedTargetsRaw = new List<string>();
+            this.transitionsOfSelections = new Dictionary<KeyValuePair<string, string>, int>();
         }
         #endregion
 
@@ -603,10 +605,10 @@ namespace IMI_Statistics
                         { 
                             tmp_pair = new KeyValuePair<string, string>(tmp_target, this.targets[file][line]);
                             
-                            if (this.transitions.ContainsKey(tmp_pair))
-                                this.transitions[tmp_pair] += 1;
+                            if (this.transitionsOfTargets.ContainsKey(tmp_pair))
+                                this.transitionsOfTargets[tmp_pair] += 1;
                             else
-                                this.transitions.Add(tmp_pair, 1);
+                                this.transitionsOfTargets.Add(tmp_pair, 1);
 
                             tmp_target = this.targets[file][line];
                         }
@@ -621,58 +623,55 @@ namespace IMI_Statistics
 
             if (!allEmpty())
             {
-                sortTransitions();
+                sortTransitions(ref this.transitionsOfTargets);
             }
-        }
-
-        private void sortTransitions()
-        {
-            Dictionary<KeyValuePair<string, string>, int> transitions = new Dictionary<KeyValuePair<string,string>,int>();
-            KeyValuePair<string, string> tmp_kvp;
-
-            foreach (KeyValuePair<KeyValuePair<string, string>, int> transition in this.transitions)
-            {
-                tmp_kvp = new KeyValuePair<string,string>(transition.Key.Value, transition.Key.Key);
-
-                if (transitions.ContainsKey(transition.Key))
-                {
-                    transitions[transition.Key] += transition.Value;
-                }
-                else if (transitions.ContainsKey(tmp_kvp))
-                {
-                    transitions[tmp_kvp] += transition.Value;
-                }
-                else
-                {
-                    transitions.Add(transition.Key, transition.Value);
-                }
-            }
-
-            this.transitions = transitions;
         }
 
         private void detSelectedTargets() // TODO: this.selectedTargetsRaw
         {
             string tmp_file = "";
+            string tmp_target = "";
+            KeyValuePair<string, string> tmp_pair;
 
             for (int file = 0; file != this.events.Count; ++file)
             {
-                tmp_file = "";
-
                 for (int line = 0; line != this.events[file].Count; ++line)
                 {
                     if (this.events[file][line] == "Select Target")
                     {
+                        tmp_file += this.targets[file][line] + '\t';
+
                         if (this.selectedTargets.ContainsKey(this.targets[file][line]))
                             this.selectedTargets[this.targets[file][line]] += 1;
                         else
                             this.selectedTargets.Add(this.targets[file][line], 1);
 
-                        tmp_file += this.targets[file][line] + '\t';
+                        // TRANSITION
+                        if (tmp_target == "")
+                        {
+                            tmp_target = this.targets[file][line];
+                        }
+                        else
+                        {
+                            tmp_pair = new KeyValuePair<string, string>(tmp_target, this.targets[file][line]);
+
+                            if (this.transitionsOfSelections.ContainsKey(tmp_pair))
+                                this.transitionsOfSelections[tmp_pair] += 1;
+                            else
+                                this.transitionsOfSelections.Add(tmp_pair, 1);
+
+                            tmp_target = this.targets[file][line];
+                        }
                     }
                 }
 
                 this.selectedTargetsRaw.Add(tmp_file);
+                tmp_file = "";                
+            }
+
+            if (!allEmpty())
+            {
+                //sortTransitions(ref this.transitionsOfSelections);
             }
 
             // OUTPUT ON GUI
@@ -690,6 +689,34 @@ namespace IMI_Statistics
                 }
             }
         }
+
+
+        private void sortTransitions(ref Dictionary<KeyValuePair<string, string>, int> transitions)
+        {
+            Dictionary<KeyValuePair<string, string>, int> tmp_transitions = new Dictionary<KeyValuePair<string, string>, int>();
+            KeyValuePair<string, string> tmp_kvp;
+
+            foreach (KeyValuePair<KeyValuePair<string, string>, int> transition in transitions)
+            {
+                tmp_kvp = new KeyValuePair<string, string>(transition.Key.Value, transition.Key.Key);
+
+                if (tmp_transitions.ContainsKey(transition.Key))
+                {
+                    tmp_transitions[transition.Key] += transition.Value;
+                }
+                else if (tmp_transitions.ContainsKey(tmp_kvp))
+                {
+                    tmp_transitions[tmp_kvp] += transition.Value;
+                }
+                else
+                {
+                    tmp_transitions.Add(transition.Key, transition.Value);
+                }
+            }
+
+            transitions = tmp_transitions;
+        }
+
         #endregion
 
         #region WRITE FILES
@@ -781,7 +808,7 @@ namespace IMI_Statistics
             tmp_lines.Clear(); // Delete all lines after writing process
 
             // WRITE MARKED TARGETS-TRANSITIONS
-            foreach (KeyValuePair<KeyValuePair<string, string>, int> transition in this.transitions)
+            foreach (KeyValuePair<KeyValuePair<string, string>, int> transition in this.transitionsOfTargets)
             {
                 tmp_line = transition.Key.Key + '\t' + transition.Key.Value + '\t' + transition.Value;
                 tmp_lines.Add(tmp_line);
@@ -810,6 +837,15 @@ namespace IMI_Statistics
                 tmp_lines.Add(tmp_line);
             }
             writeTxt("EXP_SELEKT_ROH", tmp_lines);
+            tmp_lines.Clear();
+
+            // WRITE SELECTED TARGETS-TRANSITIONS
+            foreach (KeyValuePair<KeyValuePair<string, string>, int> transition in this.transitionsOfSelections)
+            {
+                tmp_line = transition.Key.Key + '\t' + transition.Key.Value + '\t' + transition.Value;
+                tmp_lines.Add(tmp_line);
+            }
+            writeTxt("EXP_SELEKT_TRANS", tmp_lines);
         }
 
         private void writeTxt(string name, List<string> lines)

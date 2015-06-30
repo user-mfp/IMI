@@ -52,7 +52,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>0E1097A45F93C04C4A6B36898BDEE41C3279D522</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>5CE7029D13FBE50B5AFF555518831138BAEC08D6</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>IMI-Statistics_TemporaryKey.pfx</ManifestKeyFile>
@@ -62,6 +62,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>true</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
