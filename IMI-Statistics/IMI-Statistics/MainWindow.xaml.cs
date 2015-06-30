@@ -613,10 +613,10 @@ namespace IMI_Statistics
                     }
                     else
                         tmp_target = "";
-
-                    this.newTargetsRaw.Add(tmp_file);
-                    tmp_file = "";
                 }
+
+                this.newTargetsRaw.Add(tmp_file);
+                tmp_file = "";
             }
 
             if (!allEmpty())
@@ -653,11 +653,11 @@ namespace IMI_Statistics
 
         private void detSelectedTargets() // TODO: this.selectedTargetsRaw
         {
-            List<string> selectedTargets = new List<string>();
+            string tmp_file = "";
 
             for (int file = 0; file != this.events.Count; ++file)
             {
-                selectedTargets.Add("");
+                tmp_file = "";
 
                 for (int line = 0; line != this.events[file].Count; ++line)
                 {
@@ -668,9 +668,11 @@ namespace IMI_Statistics
                         else
                             this.selectedTargets.Add(this.targets[file][line], 1);
 
-                        selectedTargets[file] += this.targets[file][line] + '\t';
+                        tmp_file += this.targets[file][line] + '\t';
                     }
                 }
+
+                this.selectedTargetsRaw.Add(tmp_file);
             }
 
             // OUTPUT ON GUI
@@ -802,9 +804,9 @@ namespace IMI_Statistics
             tmp_lines.Clear();
 
             // WRITE SELECTED TARGETS-RAW
-            foreach (KeyValuePair<string, int> target in this.selectedTargets)
+            foreach (string selections in this.selectedTargetsRaw)
             {
-                tmp_line = target.Key + '\t' + target.Value.ToString();
+                tmp_line = selections;
                 tmp_lines.Add(tmp_line);
             }
             writeTxt("EXP_SELEKT_ROH", tmp_lines);
